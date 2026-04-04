@@ -12,6 +12,8 @@
 - **Difficulty Grading**: Automatically evaluates trails as Beginner, Moderate, or Expert based on incline and length.
 - **Dynamic Routing**: Generates suggested loops (round trips) based on your starting coordinates.
 - **Smart Safety and Weather Forecast**: BikeScout doesn't just find trails; it cross-references location data with real-time weather forecasts to ensure you don't get caught in a storm.
+- **Surface Detection:** Identifies asphalt, gravel, grass, stones, and unpaved sections.
+- **Percentage Breakdown:** Calculates the exact percentage of each surface type relative to the total distance.
 
 ## Prerequisites
 
@@ -99,13 +101,14 @@ You can ask **BikeScout** questions in both English and Italian. It understands 
 * *"Are there any named trails near [Lat, Lon]? I need to know the surface type."*
 * *"Suggest a difficult MTB route with at least 600m of climbing."*
 * *"What is the terrain like for a 15km ride starting at these coordinates?"*
+* *"Find me a 20km loop that is at least 50% gravel, but only if the ground isn't wet (rain probability < 10%) near Rocca di Papa."*
 
 ### 🇮🇹 Italiano
 * *"BikeScout, trovami un giro in MTB di 20km vicino a Frascati e dimmi quanta salita c'è. Dammi la traccia GPX ed il link alla traccia e come sarà il tempo lungo il percorso."*
 * *"Ci sono sentieri con un nome ufficiale vicino a [Lat, Lon]? Dimmi che tipo di terreno troverò."*
 * *"Suggeriscimi un percorso MTB difficile con almeno 600m di dislivello."*
 * *"Com'è il terreno per un giro di 15km partendo da queste coordinate?"*
-
+* *"Trovami un giro da 20km che sia almeno al 50% su sterrato, ma solo se il terreno non è bagnato (pioggia < 10%) vicino Rocca di Papa."*
 ---
 
 ## Example Responses
@@ -132,6 +135,15 @@ I found an MTB loop near **Frascati**. Here are the details:
 
 > ✅ **Advice:** Perfect for riding! The route is challenging (856m of climbing over 11km) but offers great scenic views over the Colli Albani area.
 
+### 🚵‍♂️ BikeScout Terrain Analysis
+The route composition is as follows:
+
+* 🪨 **Gravel/Dirt:** 65% (Ideal for MTB or Gravel bikes)
+* 🛣️ **Asphalt:** 25% (Connecting sections)
+* 🌿 **Grass/Trail:** 10%
+
+> 💡 **Technical Advice:** Given the high percentage of gravel and loose stones, we recommend using tires with a minimum width of **40mm** and slightly lower tire pressure to improve grip and comfort.
+
 ### 🇮🇹 Italiano
 Ho trovato un giro in MTB vicino a **Frascati**. Ecco i dettagli:
 
@@ -151,6 +163,15 @@ Ho trovato un giro in MTB vicino a **Frascati**. Ecco i dettagli:
 | **13:00** | 17.6°C | 0% | 9.7 km/h |
 
 > ✅ **Consiglio:** Il tempo è perfetto per l'uscita! Il percorso è impegnativo (856m di dislivello in soli 11km) ma molto panoramico sui Colli Albani.
+
+### 🚵‍♂️ Analisi Terreno BikeScout
+Il percorso è così composto:
+
+* 🪨 **Gravel/Sterrato:** 65% (Ideale per MTB o Gravel)
+* 🛣️ **Asfalto:** 25% (Tratti di collegamento)
+* 🌿 **Erba/Sentiero:** 10%
+
+> 💡 **Consiglio Tecnico:** Visto l'alto contenuto di sterrato e sassi, si consiglia l'uso di pneumatici con larghezza minima di 40mm e una pressione leggermente più bassa per migliorare il grip.
 
 ## Tools Reference
 
@@ -214,6 +235,43 @@ A real-time safety tool designed specifically for outdoor activities. It provide
 }
 ```
 
+### 3. `analyze_route_surfaces`
+Analyzes the physical composition of the route to help users choose the appropriate bike (Road, Gravel, or MTB).
+
+#### **Functionality:**
+* **Surface Detection:** Identifies asphalt, gravel, grass, stones, and unpaved sections.
+* **Percentage Breakdown:** Calculates the exact percentage of each surface type relative to the total distance.
+* **Waytype Insights:** Distinguishes between cycleways, tracks, and footways.
+
+#### **Parameters:**
+| Parameter | Type | Default | Description |
+| :--- | :--- | :--- | :--- |
+| `lat` | `float` | Required | Latitude of the starting point. |
+| `lon` | `float` | Required | Longitude of the starting point. |
+| `radius_km` | `int` | `10` | The total length of the loop to analyze. |
+
+**Example Output (JSON):**
+```json
+{
+  "status": "Success",
+  "surface_breakdown": [
+    { "type": "Gravel", "percentage": "65.2%" },
+    { "type": "Asphalt", "percentage": "25.8%" },
+    { "type": "Grass", "percentage": "9.0%" }
+  ],
+  "total_distance_m": 12400
+}
+```
+
+## Advanced Query Example 
+
+**User:** *"Find me a 20km loop that is at least 50% gravel, but only if the ground isn't wet (rain probability < 10%)."*
+
+**AI Logic & Action:**
+1. **Weather Check:** The AI calls `check_trail_weather` to verify the precipitation probability for the next few hours.
+2. **Surface Analysis:** It calls `analyze_route_surfaces` with a `cycling-mountain` or `cycling-regular` profile.
+3. **Filtering:** If `rain_prob < 10` AND `Gravel + Dirt > 50%`, the AI calls `get_complete_trail_scout` to finalize the route and generate the **GPX file**.
+4. **Final Response:** > "I've found the perfect 21km loop for you! The rain probability is only 5%, and the route is **68% gravel**, perfectly matching your request. Here is your GPX file and the technical breakdown..."
 
 ---
 
