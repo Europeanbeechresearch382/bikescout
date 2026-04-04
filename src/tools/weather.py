@@ -1,12 +1,14 @@
 import requests
 from datetime import datetime
 
+OPEN_METEO_URL = 'https://api.open-meteo.com/v1/forecast'
+
 def get_weather_forecast(lat: float, lon: float):
     """
     Fetches a 24-hour weather forecast for the given coordinates.
     Uses Open-Meteo API (Free, no-key required).
     """
-    url = "https://api.open-meteo.com/v1/forecast"
+    url = OPEN_METEO_URL
     params = {
         "latitude": lat,
         "longitude": lon,
