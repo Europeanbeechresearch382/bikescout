@@ -1,7 +1,7 @@
 # BikeScout MCP Server
 
 [![License](https://img.shields.io/badge/License-Mixed-blue.svg)](LICENSE)
-[![Version](https://img.shields.io/badge/Version-0.4.0-green.svg)](https://github.com/hifly81/bikescout/releases)
+[![Version](https://img.shields.io/badge/Version-0.5.0-green.svg)](https://github.com/hifly81/bikescout/releases)
 ![Python](https://img.shields.io/badge/python-3.10-blue.svg)
 [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg?style=flat-square)](http://makeapullrequest.com)
 [![Downloads](https://pepy.tech/badge/global-chem)](https://pepy.tech/project/global-chem)
@@ -97,7 +97,7 @@ If your goal is to test the BikeScout server while you are coding, you don't act
 
 ## Example Queries
 
-You can ask **BikeScout** questions in both English and Italian. It understands complex requests regarding distance, elevation, and specific file types.
+You can ask **BikeScout** questions. It understands complex requests regarding distance, elevation, and specific file types.
 
 ### 🇬🇧 English
 * *"BikeScout, find me a 20km mountain bike loop near Frascati and tell me the total ascent and check if it's too windy for a mountain bike."*
@@ -118,7 +118,6 @@ You can ask **BikeScout** questions in both English and Italian. It understands 
 
 Below is an example of the detailed information **BikeScout** can provide:
 
-### 🇬🇧 English
 I found an MTB loop near **Frascati**. Here are the details:
 
 #### 📊 Route Details
@@ -126,7 +125,30 @@ I found an MTB loop near **Frascati**. Here are the details:
 * ⛰️ **Total Ascent:** 856 meters
 * 🏷️ **Difficulty:** Expert (Challenging distance or very steep climbs)
 * 🛤️ **Included Trails:** *Viale Moderno, Via dei Sepolcri*
-* 🔗 **Map:** [View on Google Maps](https://www.google.com/maps?q=41.8078,12.6808)
+* 🔗 **Map:** View on Google Maps
+* 🔗 **Route Map Image:** mtb_route_map.png
+
+#### Key Route Characteristics
+- **Technical Terrain**: Mountain bike trails with technical sections
+- **Elevation Profile**: Significant descent from Rocca di Papa (703m) to Albano Laziale (542m)
+- **Trail Surfaces**: Mix of gravel, dirt, and forest paths
+- **Scenery**: Beautiful views of the Alban Hills and Roman countryside
+
+#### Equipment Checklist
+- **Bike**: Full-suspension MTB recommended for technical terrain
+- **Helmet**: Mandatory safety equipment
+- **Hydration**: At least 2L of water
+- **Nutrition**: Energy bars/gels for the 15km distance
+- **Repair Kit**: Spare tube, pump, multi-tool
+- **Clothing**: Layered clothing for changing elevations
+- **Navigation**: GPS device or smartphone with the GPX file loaded
+
+#### Safety Notes
+- This is an expert-level route with technical sections
+- Significant elevation changes require good fitness level
+- Some sections may be steep and challenging
+- Ride within your skill limits
+- Let someone know your planned route and expected return time
 
 #### 🌤️ Weather Forecast (Next 4 hours)
 | Time | Temp | Rain | Wind |
@@ -147,40 +169,34 @@ The route composition is as follows:
 
 > 💡 **Technical Advice:** Given the high percentage of gravel and loose stones, we recommend using tires with a minimum width of **40mm** and slightly lower tire pressure to improve grip and comfort.
 
-### 🇮🇹 Italiano
-Ho trovato un giro in MTB vicino a **Frascati**. Ecco i dettagli:
-
-#### 📊 Dettagli del Percorso
-* 📍 **Distanza:** 11.26 km
-* ⛰️ **Dislivello:** 856 metri di salita
-* 🏷️ **Difficoltà:** Esperto (richiede buona forma fisica e resistenza)
-* 🛤️ **Sentieri inclusi:** *Viale Moderno, Via dei Sepolcri*
-* 🔗 **Mappa:** [Visualizza su Google Maps](https://www.google.com/maps?q=41.8078,12.6808)
-
-#### 🌤️ Meteo lungo il percorso (Prossime 4 ore)
-| Ora | Temp | Pioggia | Vento |
-| :--- | :--- | :--- | :--- |
-| **10:00** | 13.7°C | 0% | 6.4 km/h |
-| **11:00** | 15.2°C | 0% | 7.5 km/h |
-| **12:00** | 16.4°C | 0% | 8.7 km/h |
-| **13:00** | 17.6°C | 0% | 9.7 km/h |
-
-> ✅ **Consiglio:** Il tempo è perfetto per l'uscita! Il percorso è impegnativo (856m di dislivello in soli 11km) ma molto panoramico sui Colli Albani.
-
-### 🚵‍♂️ Analisi Terreno BikeScout
-Il percorso è così composto:
-
-* 🪨 **Gravel/Sterrato:** 65% (Ideale per MTB o Gravel)
-* 🛣️ **Asfalto:** 25% (Tratti di collegamento)
-* 🌿 **Erba/Sentiero:** 10%
-
-> 💡 **Consiglio Tecnico:** Visto l'alto contenuto di sterrato e sassi, si consiglia l'uso di pneumatici con larghezza minima di 40mm e una pressione leggermente più bassa per migliorare il grip.
-
 ## Tools Reference
 
 **BikeScout** exposes specialized tools to the MCP host. Currently, the server provides a comprehensive scouting tool, with more modules planned for future releases.
 
-### 1. `trail_scout`
+### 1. `geocode_location`
+This tool acts as the intelligent "entry point" for all natural language queries. It translates place names into geographical coordinates, enabling a seamless experience where users don't need to provide raw GPS data.
+
+#### **Functionality:**
+* **Forward Geocoding:** Converts city names, landmarks, or addresses (e.g., "Passo dello Stelvio") into lat and lon.
+* **Disambiguation:** Returns the full display name to confirm the AI has found the correct location.
+* **OSM Integration:** Uses the Nominatim API (OpenStreetMap) for reliable, open-source data.
+
+#### **Parameters:**
+| Parameter | Type     | Default | Description |
+| :--- |:---------| :--- | :--- |
+| `location_name` | `string` | Required | The name of the place to search for (e.g., "Frascati, Italy"). |
+
+#### **Tool Output Example (JSON):**
+```json
+{
+   "status": "Success",
+   "lat": 41.8034,
+   "lon": 12.6738,
+   "display_name": "Frascati, Roma, Lazio, 00044, Italia"
+}
+```
+
+### 2. `trail_scout`
 This is the core tool of the server. It performs a multi-step analysis to provide a ride-ready cycling route.
 
 #### **Functionality:**
@@ -188,6 +204,7 @@ This is the core tool of the server. It performs a multi-step analysis to provid
 * **Smart Routing:** Uses OpenRouteService to generate a **Round Trip** (loop) based on the user's preferred distance.
 * **Elevation Profiling:** Fetches SRTM elevation data to calculate total ascent and evaluate difficulty.
 * **File Generation:** Produces a valid **GPX XML** string for navigation.
+* **Static map image:** Construct the URL using a public OpenStreetMap static map service.
 
 #### **Parameters:**
 | Parameter | Type | Default | Description |
@@ -206,13 +223,14 @@ This is the core tool of the server. It performs a multi-step analysis to provid
     "distance_km": 12.4,
     "ascent_m": 450,
     "difficulty": "Intermediate"
-  },
+  }, 
+  "map_image_url": "https://static-maps.fly.dev/staticmap/...",
   "map_url": "http://googleusercontent.com/maps.google.com/...",
   "gpx_content": "<?xml version='1.0' encoding='UTF-8'?>..."
 }
 ```
 
-### 2. `check_trail_weather`
+### 3. `check_trail_weather`
 A real-time safety tool designed specifically for outdoor activities. It provides a localized 4-hour window forecast.
 
 #### **Functionality:**
@@ -238,7 +256,7 @@ A real-time safety tool designed specifically for outdoor activities. It provide
 }
 ```
 
-### 3. `analyze_route_surfaces`
+### 4. `analyze_route_surfaces`
 Analyzes the physical composition of the route to help users choose the appropriate bike (Road, Gravel, or MTB).
 
 #### **Functionality:**
@@ -287,6 +305,7 @@ This project is licensed under the **Apache-2.0 License** - see the [LICENSE](LI
 BikeScout aggregates data from several open providers. Users of this server must adhere to their respective terms:
 
 * **Routing & Map Data:** Provided by [OpenRouteService](https://openrouteservice.org/) by HeiGIT.
-* **Geospatial Data:** © [OpenStreetMap](https://www.openstreetmap.org/copyright) contributors. Data is available under the [Open Database License (ODbL)](https://opendatacommons.org/licenses/odbl/).
+* **Geospatial & Geocoding Data:** © [OpenStreetMap](https://www.openstreetmap.org/copyright) contributors. Data is available under the [Open Database License (ODbL)](https://opendatacommons.org/licenses/odbl/). Geocoding service powered by [Nominatim](https://nominatim.org/).
 * **Weather Forecasts:** Powered by [Open-Meteo](https://open-meteo.com/). Data is licensed under [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/).
 * **Elevation Data:** SRTM (NASA) processed via OpenRouteService.
+* **Static Maps:** Static map images generated via OpenStreetMap contributors and rendered through public static map instances.

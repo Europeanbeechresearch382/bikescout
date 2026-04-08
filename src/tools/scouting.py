@@ -1,4 +1,5 @@
 import requests
+from src.tools.maps import get_static_map_url
 
 OVERPASS_URL = "https://overpass-api.de/api/interpreter"
 ORS_BASE_URL = "https://api.openrouteservice.org/v2/directions"
@@ -101,6 +102,9 @@ def get_complete_trail_scout(api_key, lat: float, lon: float, radius_km: int = 1
         # Apply new difficulty logic
         difficulty_rating = calculate_detailed_difficulty(dist, ascent)
 
+        # Get Static map
+        static_map = get_static_map_url(data)
+
         return {
             "status": "Success",
             "info": {
@@ -109,6 +113,7 @@ def get_complete_trail_scout(api_key, lat: float, lon: float, radius_km: int = 1
                 "ascent_m": ascent,
                 "difficulty": difficulty_rating
             },
+            "map_image_url": static_map,
             "map_url": f"https://www.google.com/maps/dir/?api=1&destination={lat},{lon}",
             "gpx_content": generate_gpx(data)
         }
