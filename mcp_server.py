@@ -3,6 +3,7 @@ from mcp.server.fastmcp import FastMCP
 from src.tools.scouting import get_complete_trail_scout
 from src.tools.weather import get_weather_forecast
 from src.tools.surface import get_surface_analyzer
+from src.tools.geocoding import get_coordinates
 
 # Initialize the MCP Server
 mcp = FastMCP("BikeScout")
@@ -10,11 +11,20 @@ mcp = FastMCP("BikeScout")
 ORS_API_KEY = "YOUR_OPENROUTE_SERVICE_API_KEY"
 
 @mcp.tool()
+def geocode_location(location_name: str):
+    """
+    Finds latitude and longitude for any place name (city, mountain pass, address).
+    Use this BEFORE other tools if you only have a location name and not coordinates.
+    """
+    return get_coordinates(location_name)
+
+@mcp.tool()
 def trail_scout(lat: float, lon: float, radius_km: int = 10, profile: str = "cycling-mountain"):
     """
-    Finds real trail names from OpenStreetMap and calculates a full route with GPX.
+    Advanced trail discovery.
+    Returns route data, difficulty, a GPX file, and a STATIC MAP IMAGE
+    that can be displayed directly in the chat.
     """
-
     return get_complete_trail_scout(ORS_API_KEY, lat, lon, radius_km, profile)
 
 @mcp.tool()
