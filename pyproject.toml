@@ -4,13 +4,14 @@ build-backend = "hatchling.build"
 
 [project]
 name = "bikescout"
-version = "0.7.0"
+version = "0.7.1"
 authors = [
     { name="Bikescout", email="bikescout.mcp@gmail.com" },
 ]
 description = "Professional MCP server for AI-powered cycling and mountain bike route discovery, terrain analysis, and GPX generation."
 readme = "README.md"
 requires-python = ">=3.10"
+license = { text = "Apache-2.0" }
 
 keywords = [
     "mcp",
@@ -29,7 +30,7 @@ classifiers = [
     "Development Status :: 4 - Beta",
     "Intended Audience :: Developers",
     "Intended Audience :: End Users/Desktop",
-    "License :: OSI Approved :: MIT License",
+    "License :: OSI Approved :: Apache Software License",
     "Programming Language :: Python :: 3",
     "Topic :: Scientific/Engineering :: GIS",
     "Topic :: Communications :: Chat",
@@ -41,7 +42,7 @@ dependencies = [
 ]
 
 [project.urls]
-Homepage = "https://github.com/hifly81/bikescout"
+Homepage = "https://hifly81.github.io/bikescout"
 Documentation = "https://github.com/hifly81/bikescout#readme"
 Repository = "https://github.com/hifly81/bikescout.git"
 Issues = "https://github.com/hifly81/bikescout/issues"
