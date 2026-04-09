@@ -1,6 +1,0 @@
-startCommand:
-  command: bikescout
-  env:
-    ORS_API_KEY:
-      description: "Your OpenRouteService API Key (get one at openrouteservice.org)"
-      required: true
