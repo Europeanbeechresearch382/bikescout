@@ -4,18 +4,48 @@ build-backend = "hatchling.build"
 
 [project]
 name = "bikescout"
-version = "0.6.1"
+version = "0.6.2"
 authors = [
     { name="Bikescout", email="bikescout.mcp@gmail.com" },
 ]
-description = "An MCP server for smart cycling route discovery."
+description = "Professional MCP server for AI-powered cycling and mountain bike route discovery, terrain analysis, and GPX generation."
 readme = "README.md"
 requires-python = ">=3.10"
-dependencies = [
-    "mcp[cli]",
-    "requests",
-    "python-dotenv"
+
+keywords = [
+    "mcp",
+    "mcp-server",
+    "cycling",
+    "bicycle",
+    "mountain bike",
+    "strava-alternative",
+    "openstreetmap",
+    "route-planning",
+    "claude-ai",
+    "cline"
 ]
+
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Developers",
+    "Intended Audience :: End Users/Desktop",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3",
+    "Topic :: Scientific/Engineering :: GIS",
+    "Topic :: Communications :: Chat",
+]
+dependencies = [
+    "mcp[cli]>=1.0.0",
+    "requests>=2.31.0",
+    "python-dotenv>=1.0.0"
+]
+
+[project.urls]
+Homepage = "https://github.com/hifly81/bikescout"
+Documentation = "https://github.com/hifly81/bikescout#readme"
+Repository = "https://github.com/hifly81/bikescout.git"
+Issues = "https://github.com/hifly81/bikescout/issues"
+Changelog = "https://github.com/hifly81/bikescout/blob/main/CHANGELOG.md"
 
 [project.scripts]
 bikescout = "bikescout.mcp_server:main"

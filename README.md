@@ -1,7 +1,7 @@
 # BikeScout MCP Server
 
 [![License](https://img.shields.io/badge/License-Mixed-blue.svg)](LICENSE)
-[![Version](https://img.shields.io/badge/Version-0.6.1-green.svg)](https://github.com/hifly81/bikescout/releases)
+[![Version](https://img.shields.io/badge/Version-0.6.2-green.svg)](https://github.com/hifly81/bikescout/releases)
 ![Python](https://img.shields.io/badge/python-3.10-blue.svg)
 [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg?style=flat-square)](http://makeapullrequest.com)
 [![Downloads](https://pepy.tech/badge/global-chem)](https://pepy.tech/project/global-chem)
@@ -29,9 +29,8 @@
 
 ## Installation
 
-BikeScout is now available on **PyPI**. You can install it directly using `pip` or `uv`.
+BikeScout is available on [PyPI](https://pypi.org/project/bikescout/). You can install it directly using `pip` or `uv`.
 
-### Install via pip
 We recommend installing BikeScout in a virtual environment:
 
 ```bash
@@ -46,22 +45,19 @@ Configure your OpenRouteService API Key:
 export ORS_API_KEY=YOUR_OPENROUTE_SERVICE_API_KEY
 ```
 
-## Manual Installation
+## Configuration for Claude Desktop
 
-1. Clone the repo in a local folder:
+- Clone the repo in a local folder:
    ```bash
    git clone git@github.com:hifly81/bikescout.git <your_local_folder_path>
    ```
-2. Create a Python Virtual Env from the local folder:
+- Create a Python Virtual Env from the local folder:
    ```bash
    python3 -m venv venv
-   ```
-3. Use the provided requirements.txt to install all necessary libraries:
-   ```bash
-   ./venv/bin/pip install -r requirements.txt
+   source venv/bin/activate
+   pip install bikescout
    ```
 
-## Configuration for Claude Desktop
 Add the server to your `claude_desktop_config.json`:
 
 - Windows: `%APPDATA%\Claude\claude_desktop_config.json` 
@@ -94,17 +90,29 @@ Example:
 ```
 
 ## Using BikeScout with VS Code (Linux/Windows/macOS)
+
 If your goal is to test the BikeScout server while you are coding, you don't actually need the Claude Desktop app. You can use VS Code along with the Cline (formerly Claude Dev) or Continue extensions.
 
-1. Install the Extension:
+- Install the Extension:
 
    Go to the VS Code Marketplace and install the **Cline** extension (or Continue). These extensions act as a "bridge" between the AI and your local machine.
 
-2. Open MCP Settings:
+- Clone the repo in a local folder:
+```bash
+git clone git@github.com:hifly81/bikescout.git <your_local_folder_path>
+```
+
+- Create a Python Virtual Env from the local folder:
+   ```bash
+   python3 -m venv venv
+   source venv/bin/activate
+   pip install bikescout
+   ```
+- Open MCP Settings:
 
    In the extension settings (usually a gear icon or a specific "MCP" tab within the extension's side panel), look for the section titled "Configure MCP Servers".
 
-3. Add the JSON Configuration:
+- Add the JSON Configuration:
 
    Paste the following JSON configuration into the settings file (make sure to update the path to your actual directory):
 
@@ -126,7 +134,7 @@ If your goal is to test the BikeScout server while you are coding, you don't act
    }
 }
 ```
-4. Start Scouting
+- Start Scouting
    Once saved, you can chat with the AI directly within VS Code. It will automatically detect BikeScout as a "tool." You can then ask: _"Find me a scenic 30km MTB route starting from my current coordinates."_ The AI will execute the Python script, fetch the data from OpenStreetMap and OpenRouteService, and present the results right in your chat window.
 
 ## Debugging and Testing
