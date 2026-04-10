@@ -5,6 +5,8 @@ from bikescout.tools.scouting import get_complete_trail_scout
 from bikescout.tools.weather import get_weather_forecast
 from bikescout.tools.surface import get_surface_analyzer
 from bikescout.tools.geocoding import get_coordinates
+from bikescout.tools.poi import get_poi_scout
+from bikescout.tools.mud import get_mud_risk_analysis
 from bikescout.prompts import BikeScoutPrompts
 from bikescout.resources import BikeScoutResources
 
@@ -33,7 +35,7 @@ def geocode_location(location_name: str):
     return get_coordinates(location_name)
 
 @mcp.tool()
-def trail_scout(lat: float, lon: float, radius_km: int = 10, profile: str = "cycling-mountain"):
+def trail_scout(lat: float = 41.7615, lon: float = 12.7118, radius_km: int = 10, profile: str = "cycling-mountain"):
     """
     Advanced trail discovery.
     Returns route data, difficulty, a GPX file, and a STATIC MAP IMAGE
@@ -42,7 +44,7 @@ def trail_scout(lat: float, lon: float, radius_km: int = 10, profile: str = "cyc
     return get_complete_trail_scout(ORS_API_KEY, lat, lon, radius_km, profile)
 
 @mcp.tool()
-def check_trail_weather(lat: float, lon: float):
+def check_trail_weather(lat: float = 41.7615, lon: float = 12.7118):
     """
     Detailed cycling-specific weather assistant.
     Provides temperature, rain risk, and wind speed analysis for the next 4 hours,
@@ -59,10 +61,11 @@ def analyze_route_surfaces(
     bike_type: str = "MTB",
     tire_size_option: str = "29",
     points: int = 3,
-    seed: int = 42
+    seed: int = 42,
+    surface_preference: str = "neutral"
 ):
     """
-    Analyzes the route surface, technical difficulty, categorize climbs, and bike compatibility.
+    Analyzes the route surface, technical difficulty, categorize climbs, and bike compatibility with surface-aware preferences.
 
     Args:
         lat: Latitude of the starting point.
@@ -83,9 +86,29 @@ def analyze_route_surfaces(
         bike_type,
         tire_size_option,
         points,
-        seed
+        seed,
+        surface_preference
     )
 
+@mcp.tool()
+def poi_scout(lat: float = 41.7615, lon: float = 12.7118, radius_km: int = 5):
+    """
+    Identifies bike-specific points of interest (POIs) around a location.
+    Focuses on water fountains, bike shops, repair stations, and shelters.
+
+    Args:
+        lat: Latitude of the center point (usually start/end or a climb peak).
+        lon: Longitude of the center point.
+        radius_km: Search radius in kilometers (max 5km recommended for precision).
+    """
+    return get_poi_scout(ORS_API_KEY, lat, lon, radius_km)
+
+@mcp.tool()
+def check_trail_soil_condition(lat: float, lon: float, surface_type: str = "dirt"):
+    """
+    Analyzes rain history and soil type to predict mud levels.
+    """
+    return get_mud_risk_analysis(lat, lon, surface_type)
 
 # --- PROMPTS SECTION ---
 
