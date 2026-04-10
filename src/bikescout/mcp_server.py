@@ -51,12 +51,20 @@ def check_trail_weather(lat: float, lon: float):
     return get_weather_forecast(lat, lon)
 
 @mcp.tool()
-def analyze_route_surfaces(lat: float, lon: float, radius_km: int = 10, profile: str = "cycling-mountain"):
+def analyze_route_surfaces(
+    lat: float,
+    lon: float,
+    radius_km: int = 10,
+    profile: str = "cycling-mountain",
+    bike_type: str = "MTB",
+    tire_width_mm: int = 54
+):
     """
-    Provides a detailed breakdown of the terrain types (e.g., % of gravel, asphalt, dirt).
-    Useful for choosing the right bike for the route.
+    Analyzes the route surface and checks compatibility with the user's bike setup.
+    bike_type: 'Road', 'Gravel', 'MTB', 'E-MTB'
+    tire_width_mm: width of tires in mm (e.g., 28, 40, 54)
     """
-    return get_surface_analyzer(ORS_API_KEY, lat, lon, radius_km, profile)
+    return get_surface_analyzer(ORS_API_KEY, lat, lon, radius_km, profile, bike_type, tire_width_mm)
 
 
 # --- PROMPTS SECTION ---
