@@ -1,7 +1,7 @@
 # BikeScout MCP Server
 
 [![License](https://img.shields.io/badge/License-Mixed-blue.svg)](LICENSE)
-[![Version](https://img.shields.io/badge/Version-0.7.1-green.svg)](https://github.com/hifly81/bikescout/releases)
+[![Version](https://img.shields.io/badge/Version-0.7.2-green.svg)](https://github.com/hifly81/bikescout/releases)
 ![Python](https://img.shields.io/badge/python-3.10-blue.svg)
 [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg?style=flat-square)](http://makeapullrequest.com)
 [![Downloads](https://pepy.tech/badge/global-chem)](https://pepy.tech/project/global-chem)
@@ -159,7 +159,7 @@ What to check:
 
 You can ask **BikeScout** questions. It understands complex requests regarding distance, elevation, and specific file types.
 
-* *"BikeScout, find me a 20km mountain bike loop near Frascati, Italy and tell me the total ascent and check if it's too windy for a mountain bike."*
+* *"Bike scout, I'm a beginner mountain biker. I want to do a 30km ride near Lake Albano, Italy. Check the weather, recommend tire pressures, give me a safety checklist, and tell me where to eat. I also need a route map."*
 * *"Are there any named trails in the area of Taichung, China? I need to know the surface type."*
 * *"Suggest a difficult MTB route with at least 600m of climbing near Park City, Utah"*
 * *"What is the terrain like for a 15km ride starting at these coordinates [LAT,LON]?"*
@@ -211,6 +211,24 @@ I found an MTB loop near **Frascati, Italy**. Here are the details:
 | **12:00 PM** | 16.4°C | 0% | 8.7 km/h |
 | **01:00 PM** | 17.6°C | 0% | 9.7 km/h |
 
+#### Route Highlights
+
+- Starts and ends at Lake Albano
+- Mix of paved roads (50.8%) and gravel/unknown surfaces (49.2%)
+- Challenging climbs with rewarding views
+- Scenic loops around the volcanic lake
+
+#### 🍽️ Restaurant Recommendations
+
+After your ride, refuel at these highly-rated spots near Lake Albano:
+
+__Top Recommendations:__
+
+1. __Ristorante Bucci__ - Upscale dining with lake views
+2. __Al Porticciolo__ - Traditional Italian cuisine
+3. __Terraces overlooking Lake Castel Gandolfo__ - Scenic dining experience
+4. __Ricciotti Trattoria__ - Authentic Roman trattoria
+
 > ✅ **Advice:** Perfect for riding! The route is challenging (856m of climbing over 11km) but offers great scenic views over the Colli Albani area.
 
 #### 🚵‍♂️ BikeScout Terrain Analysis
@@ -228,10 +246,11 @@ The route composition is as follows:
 
 BikeScout includes pre-configured **AI Prompts**. These prompts provide local context, gear tips, and cultural insights.
 
-| Prompt Name                     | Destination | Specialization |
-|:--------------------------------| :--- | :--- |
-| `explore-moab-usa`              | 🏜️ Moab, Utah | Desert riding, technical sandstone, hydration & gear safety. |
-| `explore-castelli-romani-italy` | 🇮🇹 Castelli Romani | Volcanic terrain, steep climbs, Roman history, and local food stops. |
+| Prompt Name                     | Destination              | Specialization                                                               |
+|:--------------------------------|:-------------------------|:-----------------------------------------------------------------------------|
+| `explore-moab-usa`              | 🏜️ 🇺🇸 Moab, Utah      | Desert riding, technical sandstone, hydration & gear safety.                 |
+| `explore-castelli-romani-italy` | 🇮🇹 🏔️ Castelli Romani | Volcanic terrain, steep climbs, Roman history, and local food stops.         |
+| `explore-dolomiti-italy`        | 🇮🇹 🏛️ Dolomites       | Expert guide for cycling in the Dolomites (UNESCO Heritage), Northern Italy. |
 
 ### How to use them:
 
