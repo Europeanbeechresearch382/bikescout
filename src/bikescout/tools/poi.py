@@ -1,12 +1,14 @@
 import requests
 import json
 
+ORS_POIS_URL = "https://api.openrouteservice.org/pois"
+
 def get_poi_scout(api_key: str, lat: float, lon: float, radius_km: float):
     """
     Finds cycling POIs by category.
     If some categories are missing, it returns what's available.
     """
-    url = "https://api.openrouteservice.org/pois"
+    url = ORS_POIS_URL
     headers = {
         'Authorization': api_key,
         'Content-Type': 'application/json'

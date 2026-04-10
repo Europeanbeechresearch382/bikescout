@@ -1,5 +1,9 @@
 import requests
 from bikescout.tools.maps import get_static_map_url
+from bikescout.tools.weather import get_weather_forecast
+from bikescout.tools.surface import get_surface_analyzer
+from bikescout.tools.poi import get_poi_scout
+from bikescout.tools.mud import get_mud_risk_analysis
 
 OVERPASS_URL = "https://overpass-api.de/api/interpreter"
 ORS_BASE_URL = "https://api.openrouteservice.org/v2/directions"
@@ -47,78 +51,107 @@ def generate_gpx(geojson_data):
 
 def get_complete_trail_scout(api_key, lat: float, lon: float, radius_km: int = 10, profile: str = "cycling-mountain"):
     """
-    Finds trails using OSM and ORS. Returns technical data, map link, and GPX content.
+    The Master Orchestrator: Finds a specific trail and enriches it with
+    Surface Analysis, Weather, Cycling POIs, and Mud Risk.
     """
-    # 1. OSM NAMES (Overpass)
-    trail_names = []
-    try:
-        query = f'[out:json];way["highway"~"path|track"]["name"](around:2000,{lat},{lon});out tags;'
-        r_osm = requests.post(OVERPASS_URL, data={'data': query}, timeout=10)
-        if r_osm.status_code == 200:
-            trail_names = list(set([e['tags']['name'] for e in r_osm.json().get('elements', []) if 'name' in e['tags']]))
-    except:
-        pass
-
-    # 2. ROUTING (OpenRouteService)
+    # --- 1. CONFIGURATION & HEADERS ---
     headers = {
         'Accept': 'application/json, application/geo+json',
         'Authorization': api_key,
         'Content-Type': 'application/json'
     }
 
-    payload = {
+    # Payload for the primary route discovery (Round Trip)
+    routing_payload = {
         "coordinates": [[lon, lat]],
-        "options": {
-            "round_trip": {
-                "length": radius_km * 1000,
-                "seed": 42
-            }
-        },
+        "options": {"round_trip": {"length": radius_km * 1000, "seed": 42}},
         "elevation": "true",
-        "instructions": "false",
-        "units": "m"
+        "extra_info": ["surface", "steepness"]
     }
 
     try:
+        # --- 2. EXECUTE PRIMARY ROUTING ---
+        # We fetch the actual geometry and basic metrics first
         endpoint = f"{ORS_BASE_URL}/{profile}/geojson"
-        response = requests.post(endpoint, json=payload, headers=headers, timeout=15)
-
-        if response.status_code == 404:
-            endpoint = f"{ORS_BASE_URL}/{profile}"
-            response = requests.post(endpoint, json=payload, headers=headers, timeout=15)
-
+        response = requests.post(endpoint, json=routing_payload, headers=headers, timeout=15)
         response.raise_for_status()
         data = response.json()
 
-        if 'features' not in data:
-            return {"status": "Error", "message": "No route features found."}
-
-        props = data['features'][0]['properties']
+        feature = data['features'][0]
+        props = feature['properties']
         summary = props.get('summary', {})
 
-        dist = round(summary.get('distance', 0) / 1000, 2)
-        ascent = round(props.get('ascent', summary.get('ascent', 0)), 0)
+        # Core metrics
+        dist_km = round(summary.get('distance', 0) / 1000, 2)
+        ascent_m = round(props.get('ascent', 0), 0)
 
-        # Apply new difficulty logic
-        difficulty_rating = calculate_detailed_difficulty(dist, ascent)
+        # Extract dominant surface ID directly from primary route for accurate Mud Analysis
+        # This acts as a fallback if the specialized analyzer fails
+        raw_surface_extras = props.get('extras', {}).get('surface', {}).get('summary', [])
+        dominant_id = raw_surface_extras[0]['value'] if raw_surface_extras else 10 # Default to dirt
+        dominant_surface_name = _map_surface_id(dominant_id)
 
-        # Get Static map
-        static_map = get_static_map_url(data)
+        # --- 3. CALL: SURFACE ANALYZER (Advanced Setup Check) ---
+        # Note: We pass points=3 (integer) instead of a list of coordinates.
+        # This prevents the 'Parameter options has incorrect format' error in the ORS API.
+        try:
+            surface_report = get_surface_analyzer(
+                api_key=api_key,
+                lat=lat,
+                lon=lon,
+                radius_km=radius_km,
+                profile=profile,
+                bike_type="mountain" if "mountain" in profile else "gravel",
+                tire_size_option="wide",
+                points=3,                 # Integer representing the number of waypoints
+                seed=42,
+                surface_preference="neutral"
+            )
+        except Exception as e:
+            surface_report = {"status": "Error", "message": f"Surface Analysis skipped: {str(e)}"}
 
+        # --- 4. CALL: WEATHER FORECAST ---
+        # Retrieves real-time conditions for the starting coordinates
+        weather_report = get_weather_forecast(lat, lon)
+
+        # --- 5. CALL: POI SCOUT (Logistics) ---
+        # Finds water, repair stations, and shelters within 2km
+        try:
+            poi_res = get_poi_scout(api_key, lat, lon, radius_km=2.0)
+            amenities = poi_res.get('amenities', []) if poi_res.get('status') == "Success" else []
+        except:
+            amenities = []
+
+        # --- 6. CALL: MUD RISK ANALYSIS ---
+        # Uses 72h rain history + the dominant surface found in Step 2
+        mud_analysis = get_mud_risk_analysis(lat, lon, dominant_surface_name)
+
+        # --- 7. FINAL CONSOLIDATED RESPONSE ---
         return {
             "status": "Success",
             "info": {
-                "trails": trail_names[:5],
-                "distance_km": dist,
-                "ascent_m": ascent,
-                "difficulty": difficulty_rating
+                "distance_km": dist_km,
+                "ascent_m": ascent_m,
+                "difficulty": calculate_detailed_difficulty(dist_km, ascent_m),
+                "surface_analysis": surface_report
             },
-            "map_image_url": static_map,
-            "map_url": f"https://www.google.com/maps/dir/?api=1&destination={lat},{lon}",
-            "gpx_content": generate_gpx(data)
+            "conditions": {
+                "weather": weather_report.get('next_4_hours', []) if isinstance(weather_report, dict) else [],
+                "mud_risk": mud_analysis,
+                "safety_advice": weather_report.get('safety_advice', "") if isinstance(weather_report, dict) else ""
+            },
+            "logistics": {
+                "nearby_amenities": amenities[:5] # Return top 5 cycling POIs
+            },
+            "map_image_url": get_static_map_url(data), # Static preview map
+            "gpx_content": generate_gpx(data)           # Downloadable file for GPS devices
         }
 
-    except requests.exceptions.HTTPError as e:
-        return {"status": "Error", "code": e.response.status_code, "message": e.response.text}
     except Exception as e:
-        return {"status": "Error", "message": str(e)}
+        # Catch-all for routing failures or API timeouts
+        return {"status": "Error", "message": f"Master Orchestrator failed: {str(e)}"}
+
+def _map_surface_id(s_id):
+    """Internal helper to convert ORS surface IDs to strings for Mud Analysis."""
+    mapping = {1: "asphalt", 2: "unpaved", 5: "gravel", 10: "dirt", 11: "grass", 12: "compact"}
+    return mapping.get(s_id, "dirt")
