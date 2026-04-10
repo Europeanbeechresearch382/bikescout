@@ -20,6 +20,7 @@
 * **Seamless Location Search**: No GPS coordinates required. Use natural language (e.g., *"Find a ride in Albano Laziale"*) via integrated Nominatim Geocoding.
 * **Instant Map Previews**: Automatically generates a **Static Map (.png)** of the route to visualize the trail directly within the chat interface.
 * **Local Expert Knowledge**: Specialized regional prompts for world-class destinations like the **Dolomites (UNESCO)**, **Moab (USA)**, and **Castelli Romani**.
+* **Pro Climb Categorization**: Automatically identifies and names specific climbs (from **Category 4** to **Hors Catégorie**) using professional cycling standards based on length and average gradient.
 
 ## Prerequisites
 
@@ -435,46 +436,53 @@ This tool goes beyond simple mapping by analyzing the physical composition of th
 {
   "status": "Success",
   "profile_used": "cycling-mountain",
-  "metadata_retrieved": [
-    "surface",
-    "waytype"
-  ],
+  "technical_summary": {
+    "distance_km": 54.83,
+    "elevation_gain_m": 3751,
+    "climb_category": "Hors Catégorie (HC) - Legend Climb",
+    "est_avg_climb_gradient": "13.7%"
+  },
   "bike_setup_check": {
-    "compatible": false,
-    "bike_used": "Road",
-    "tire_width": "54mm"
+    "compatible": true,
+    "bike_used": "MTB",
+    "tire_width": "29mm"
   },
   "surface_breakdown": [
     {
       "type": "Unknown",
-      "percentage": "53.6%"
+      "percentage": "49.4%"
     },
     {
       "type": "Paved",
-      "percentage": "39.9%"
+      "percentage": "43.4%"
     },
     {
       "type": "Compact",
-      "percentage": "5.1%"
-    },
-    {
-      "type": "Concrete",
-      "percentage": "0.6%"
+      "percentage": "5.2%"
     },
     {
       "type": "Unpaved",
-      "percentage": "0.5%"
+      "percentage": "0.8%"
+    },
+    {
+      "type": "Concrete",
+      "percentage": "0.7%"
     },
     {
       "type": "Asphalt",
       "percentage": "0.3%"
+    },
+    {
+      "type": "Grass",
+      "percentage": "0.2%"
     }
   ],
   "safety_warnings": [
-    "High risk: 0.5% is Unpaved."
-  ],
-  "total_distance_m": 56181.2
+    "High risk: 0.2% is Grass."
+  ]
 }
+
+
 ```
 
 ---
