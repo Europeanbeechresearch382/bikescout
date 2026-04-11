@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hello Bikers! | BikeScout</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&family=Inter:wght@400;700;900&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter', sans-serif; padding-top: 80px; line-height: 1.8; }
+        .mono { font-family: 'JetBrains Mono', monospace; }
+        .neon-text { color: #bef264; }
+        .article-content h2 { color: white; font-weight: 900; font-style: italic; text-transform: uppercase; margin-top: 3rem; margin-bottom: 1rem; font-size: 1.5rem; }
+        .article-content p { margin-bottom: 1.5rem; color: #94a3b8; font-size: 1.125rem; }
+    </style>
+</head>
+<body class="bg-[#0b0f1a] text-slate-200">
+
+<nav class="fixed top-0 left-0 w-full z-50 bg-[#0b0f1a]/90 backdrop-blur-md border-b border-slate-800 px-6 py-4">
+    <div class="max-w-6xl mx-auto flex justify-between items-center">
+        <a href="../index.html" class="text-xl font-black italic uppercase tracking-tighter text-white">
+            Bike<span class="neon-text">Scout</span>
+        </a>
+        <div class="hidden md:flex gap-8 font-bold text-xs uppercase tracking-widest text-slate-400">
+            <a href="../index.html" class="hover:text-neon-text transition-colors">Mission</a>
+            <a href="blog.html" class="text-neon-text">Blog</a>
+            <a href="about.html" class="hover:text-neon-text transition-colors">About</a>
+        </div>
+        <button id="menu-btn" class="md:hidden text-white text-2xl"><i class="fas fa-bars"></i></button>
+    </div>
+    <div id="mobile-menu" class="hidden fixed inset-0 bg-black z-[60] flex flex-col items-center justify-center gap-8 text-2xl font-black uppercase italic text-white">
+        <button id="close-btn" class="absolute top-6 right-6 text-3xl"><i class="fas fa-times"></i></button>
+        <a href="../index.html">Home</a>
+        <a href="blog.html">Blog</a>
+        <a href="about.html">About</a>
+    </div>
+</nav>
+
+<article class="max-w-3xl mx-auto py-20 px-6">
+    <header class="mb-12 border-b border-slate-800 pb-12">
+        <div class="mono text-xs font-bold text-neon-text uppercase tracking-[0.4em] mb-4">Transmission_Received // 01</div>
+        <h1 class="text-5xl md:text-7xl font-black uppercase italic leading-none text-white mb-6">Hello <br><span class="neon-text">Bikers!</span></h1>
+        <p class="text-slate-500 font-bold uppercase tracking-widest text-sm italic">Released: April 11, 2026</p>
+    </header>
+
+    <div class="article-content">
+        <p>Exactly one week ago, the first lines of code for BikeScout were pushed. It didn't start as a commercial product, but as a survival tool for riders who are tired of being lied to by their GPS apps.</p>
+
+        <p>We’ve all been there: your routing app promises a "smooth gravel road," but 5km in, you find yourself waist-deep in sticky clay or carrying your bike over an unrideable rock garden. This is the Geospatial Truth Gap, and BikeScout is here to close it.</p>
+
+        <h2>The Challenge: Surface Intelligence</h2>
+        <p>Standard maps classify roads by hierarchy (Primary, Secondary, Path). This works for cars, but it’s useless for cyclists. For us, a "path" could be a manicured forest road or a vertical S4-grade descent.</p>
+        <p>BikeScout solves this by performing Deep Tag Parsing. We extract every metadata detail from OpenStreetMap, surface<, smoothness, tracktype, and width
+        <h2>The Challenge: The Mud Variable</h2>
+        <p>A trail is a living thing. Its condition changes with the sky. Most apps ignore weather history, but BikeScout integrates a 72-Hour Rain Analysis. By cross-referencing rainfall volume with soil permeability (clay vs. sand), our engine predicts the "Mud Risk." If the intelligence says Critical, you better bring a fender or change your route.</p>
+
+        <h2>The Challenge: Real-World Elevation</h2>
+        <p>GPS noise often creates "phantom" vertical gain. BikeScout uses SRTM-V3 30m Arc-Second data with custom smoothing filters. We provide the actual effort required, categorizing climbs based on UCI standards so you can pace your ride perfectly.</p>
+
+        <h2>One Week In: The Future</h2>
+        <p>We are just getting started. BikeScout is currently an MCP Server, meaning it acts as the "brain" that any AI can use to help you plan your missions. In just seven days, we’ve moved from a concept to a functional intelligence tool.</p>
+
+        <p class="italic text-white font-bold mt-12 border-l-4 border-neon-text pl-4">
+            "Innovation is found in the dirt, not the boardroom."
+        </p>
+
+        <p class="mt-8">Ready to shred. Stay tuned for more field notes.</p>
+    </div>
+
+    <footer class="py-12 border-t border-slate-900 text-center text-slate-600 mono text-[10px] uppercase tracking-[0.4em]">
+        BikeScout @ 2026// <span class="text-white">hifly81</span>
+    </footer>
+</article>
+
+<script>
+    const menuBtn = document.getElementById('menu-btn');
+    const closeBtn = document.getElementById('close-btn');
+    const mobileMenu = document.getElementById('mobile-menu');
+    menuBtn.onclick = () => mobileMenu.classList.remove('hidden');
+    closeBtn.onclick = () => mobileMenu.classList.add('hidden');
+</script>
+</body>
+</html>
