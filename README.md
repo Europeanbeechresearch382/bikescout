@@ -303,7 +303,7 @@ The route composition is as follows:
 
 ---
 
-## AI Explorer Prompts
+## Pre-Confiugured Prompts
 
 BikeScout includes pre-configured **AI Prompts**. These prompts provide local context, gear tips, and cultural insights.
 
@@ -342,7 +342,7 @@ In your AI client, you can ask:
 
 **BikeScout** exposes specialized tools to the MCP host. Currently, the server provides a comprehensive scouting tool, with more modules planned for future releases.
 
-### 1. `geocode_location`
+### `geocode_location`
 This tool acts as the intelligent "entry point" for all natural language queries. It translates place names into geographical coordinates, enabling a seamless experience where users don't need to provide raw GPS data.
 
 #### **Functionality:**
@@ -365,7 +365,7 @@ This tool acts as the intelligent "entry point" for all natural language queries
 }
 ```
 
-### 2. `trail_scout`
+### `trail_scout`
 The flagship tool of the server. It acts as a **Master Orchestrator**, merging geographic routing with real-time environmental data and technical bike-setup analysis to provide a comprehensive **"Cycling Dossier"**.
 
 #### **Functionality**
@@ -532,7 +532,7 @@ Unlike standard GPS files, BikeScout automatically injects active <wpt> (waypoin
 }
 ```
 
-### 3. `check_trail_weather`
+### `check_trail_weather`
 A real-time safety tool designed specifically for outdoor activities. It provides a localized 4-hour window forecast.
 
 #### **Functionality:**
@@ -589,7 +589,7 @@ A real-time safety tool designed specifically for outdoor activities. It provide
 }
 ```
 
-### 4. `analyze_route_surfaces`
+### `analyze_route_surfaces`
 
 Analyzes the physical composition of the route to help users choose the appropriate bike (Road, Gravel, or MTB) and categorizes climbs using professional cycling standards.
 This tool goes beyond simple mapping by analyzing the physical composition of the route and cross-referencing it with the user's specific bike setup to ensure safety, performance, and realistic effort estimation.
@@ -759,7 +759,7 @@ This tool goes beyond simple mapping by analyzing the physical composition of th
 }
 ```
 
-### 5. `poi_scout`
+### `poi_scout`
 A specialized safety and logistics tool designed to identify critical cycling amenities. It bypasses standard "commercial noise" by focusing strictly on professional cycling infrastructure and public utilities.
 
 #### **Functionality:**
@@ -815,7 +815,7 @@ A specialized safety and logistics tool designed to identify critical cycling am
 }
 ```
 
-### 6. `check_trail_soil_condition`
+### `check_trail_soil_condition`
 A predictive safety tool that cross-references geological surface data with historical precipitation to estimate trail rideability and mud levels.
 
 #### **Functionality:**
