@@ -1,7 +1,7 @@
 # BikeScout MCP Server
 
 [![License: Apache 2.0](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
-[![Version](https://img.shields.io/badge/Version-0.9.0-green.svg)](https://github.com/hifly81/bikescout/releases)
+[![Version](https://img.shields.io/badge/Version-0.9.1-green.svg)](https://github.com/hifly81/bikescout/releases)
 ![Python](https://img.shields.io/badge/python-3.10-blue.svg)
 [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg?style=flat-square)](http://makeapullrequest.com)
 [![Downloads](https://pepy.tech/badge/global-chem)](https://pepy.tech/project/global-chem)
@@ -316,11 +316,15 @@ You can ask **BikeScout** complex, multi-step requests. It combines real-time da
 
 BikeScout includes pre-configured **AI Prompts**. These prompts provide local context, gear tips, and cultural insights.
 
-| Prompt Name                     | Destination              | Specialization                                                               |
-|:--------------------------------|:-------------------------|:-----------------------------------------------------------------------------|
-| `explore-moab-usa`              | 🏜️ 🇺🇸 Moab, Utah      | Desert riding, technical sandstone, hydration & gear safety.                 |
-| `explore-castelli-romani-italy` | 🇮🇹 🏔️ Castelli Romani | Volcanic terrain, steep climbs, Roman history, and local food stops.         |
-| `explore-dolomiti-italy`        | 🇮🇹 🏛️ Dolomites       | Expert guide for cycling in the Dolomites (UNESCO Heritage), Northern Italy. |
+| Prompt Name                    | Destination              | Specialization                                                               |
+|:-------------------------------|:-------------------------|:-----------------------------------------------------------------------------|
+| `explore-moab-usa`             | 🏜️ 🇺🇸 Moab, Utah      | Desert riding, technical sandstone, hydration & gear safety.                 |
+| `explore-castelliromani-italy` | 🇮🇹 🏔️ Castelli Romani | Volcanic terrain, steep climbs, Roman history, and local food stops.         |
+| `explore-dolomiti-italy`       | 🇮🇹 🏛️ Dolomites       | Expert guide for cycling in the Dolomites (UNESCO Heritage), Northern Italy. |
+| `explore-arenberg-france`	     | 🇫🇷 🚜 Arenberg Forest | Northern French Pavé, mud risk, tire pressure for cobbles, and "The Hell of the North."|
+| `explore-finale-ligure-italy`	 | 🌊 🇮🇹 Finale Ligure	 | World-class Enduro, limestone rock gardens, and "Sea-to-Summit" trails|
+| `explore-derby-australia`	     | 🌿 🇦🇺 Derby, Tasmania | Granite slabs, "Hero Dirt," and world-class MTB flow trails.|
+| `explore-shimanami-japan`	     | 🌉 🇯🇵 Shimanami Kaido | Island hopping, road/gravel touring, and bridge wind analysis.|
 
 ### How to use them:
 

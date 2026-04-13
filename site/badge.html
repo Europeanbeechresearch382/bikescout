@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@700&family=Inter:wght@900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        body { font-family: 'Inter', sans-serif; background-color: #0b0f1a; }
+        .mono { font-family: 'JetBrains Mono', monospace; }
+        .hero-mesh {
+            background-image: radial-gradient(#1e293b 1px, transparent 1px);
+            background-size: 32px 32px;
+        }
+        .neon-text { color: #bef264; }
+        .neon-border { border-color: #bef264; }
+        .slant-bg { clip-path: polygon(0 0, 100% 0, 85% 100%, 0% 100%); }
+    </style>
+</head>
+<body class="w-[1280px] h-[640px] flex items-center justify-center overflow-hidden">
+<div class="hero-mesh w-full h-full relative flex items-center px-20 border-[16px] border-[#161e2d]">
+
+    <div class="w-1/2 relative z-10">
+        <div class="inline-block px-4 py-1 border neon-border neon-text text-[14px] font-bold mb-6 uppercase tracking-[0.3em] mono">
+            Tactical MCP Server
+        </div>
+        <h1 class="text-[110px] font-black italic uppercase leading-none text-white tracking-tighter">
+            BIKE<span class="neon-text">SCOUT</span>
+        </h1>
+        <p class="text-slate-400 text-[24px] mt-6 leading-tight max-w-[500px]">
+            Predictive trail intelligence. Analyze soil, terrain grade and wind vectors via LLM.
+        </p>
+        <div class="mt-10 flex gap-6">
+            <div class="flex items-center gap-2 text-white mono text-[16px]">
+                <i class="fab fa-python neon-text"></i> PIP INSTALL
+            </div>
+            <div class="flex items-center gap-2 text-white mono text-[16px]">
+                <i class="fas fa-satellite neon-text"></i> STRAVA-X
+            </div>
+        </div>
+    </div>
+
+    <div class="w-1/2 flex justify-end">
+        <div class="w-[500px] bg-[#161e2d] border-2 border-slate-700 rounded-lg shadow-2xl p-6 relative">
+            <div class="flex items-center justify-between border-b border-slate-700 pb-4 mb-4">
+                <span class="text-[12px] mono text-slate-500 font-bold uppercase">Live_Intel_Session</span>
+                <i class="fas fa-bullseye neon-text animate-pulse"></i>
+            </div>
+
+            <div class="space-y-4">
+                <div class="bg-black/40 p-3 border-l-4 neon-border">
+                    <div class="text-[10px] text-slate-500 uppercase font-black mono">Mud Risk Prediction</div>
+                    <div class="text-[20px] text-white font-black italic">CRITICAL (72H Rain)</div>
+                </div>
+                <div class="bg-black/40 p-3 border-l-4 border-blue-500">
+                    <div class="text-[10px] text-slate-500 uppercase font-black mono">Calculated PSI</div>
+                    <div class="text-[20px] text-white font-black italic">1.4 BAR FRONT / 1.6 REAR</div>
+                </div>
+                <div class="bg-black/40 p-3 border-l-4 border-purple-500">
+                    <div class="text-[10px] text-slate-500 uppercase font-black mono">Terrain Grade</div>
+                    <div class="text-[20px] text-white font-black italic">STS: S3 (Technical)</div>
+                </div>
+            </div>
+
+            <div class="absolute -bottom-6 -right-6 w-32 h-32 opacity-20">
+                <i class="fas fa-microchip text-[120px] text-white"></i>
+            </div>
+        </div>
+    </div>
+
+    <div class="absolute bottom-10 left-20 text-slate-600 mono text-[12px] uppercase tracking-[0.5em]">
+        https://github.com/hifly81/bikescout
+    </div>
+</div>
+</body>
+</html>

@@ -1,4 +1,5 @@
 import os
+import sys
 from dotenv import load_dotenv
 from mcp.server.fastmcp import FastMCP
 from bikescout.tools.scouting import get_complete_trail_scout
@@ -11,8 +12,9 @@ from bikescout.tools.strava import get_strava_activity
 from bikescout.prompts import BikeScoutPrompts
 from bikescout.resources import BikeScoutResources
 
-# Initialize the MCP Server
+
 mcp = FastMCP("BikeScout")
+prompts_manager = BikeScoutPrompts()
 
 load_dotenv()
 
@@ -140,20 +142,18 @@ def analyze_strava_activity(activity_date: str):
 
 # --- PROMPTS SECTION ---
 
-@mcp.prompt("explore-moab-usa")
-def explore_moab():
-    """Expert guide for Moab, Utah - The MTB Mecca."""
-    return BikeScoutPrompts.MOAB_USA
+# --- PROMPTS SECTION (CLEAN VERSION) ---
 
-@mcp.prompt("explore-castelli-romani-italy")
-def explore_castelli():
-    """Local guide for the Castelli Romani (Albano/Nemi Lakes), Italy."""
-    return BikeScoutPrompts.CASTELLI_ROMANI
+def register_dynamic_prompts(mcp_instance, manager):
+    for slug, content in manager.prompts_data.items():
+        def create_handler(static_content):
+            def handler():
+                return static_content
+            return handler
 
-@mcp.prompt("explore-dolomiti-italy")
-def explore_dolomiti():
-    """Expert guide for cycling in the Dolomites (UNESCO Heritage), Northern Italy."""
-    return BikeScoutPrompts.DOLOMITI
+        mcp_instance.prompt(name=slug)(create_handler(content))
+
+register_dynamic_prompts(mcp, prompts_manager)
 
 
 # --- RESOURCES SECTION ---
