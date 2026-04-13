@@ -142,8 +142,6 @@ def analyze_strava_activity(activity_date: str):
 
 # --- PROMPTS SECTION ---
 
-# --- PROMPTS SECTION (CLEAN VERSION) ---
-
 def register_dynamic_prompts(mcp_instance, manager):
     for slug, content in manager.prompts_data.items():
         def create_handler(static_content):
@@ -151,7 +149,14 @@ def register_dynamic_prompts(mcp_instance, manager):
                 return static_content
             return handler
 
-        mcp_instance.prompt(name=slug)(create_handler(content))
+        mcp_instance.prompt(
+            name=slug,
+            description=(
+                f"SYSTEM_PROMPT: Load this to act as the expert guide for {slug}. "
+                "Do not access as a resource. Use this prompt to initialize your "
+                "knowledge, tools usage logic, and tactical persona for this region."
+            )
+        )(create_handler(content))
 
 register_dynamic_prompts(mcp, prompts_manager)
 
