@@ -35,13 +35,13 @@ def geocode_location(location_name: str):
     return get_coordinates(location_name)
 
 @mcp.tool()
-def trail_scout(lat: float = 41.7615, lon: float = 12.7118, radius_km: int = 10, profile: str = "cycling-mountain"):
+def trail_scout(lat: float = 41.7615, lon: float = 12.7118, radius_km: int = 10, profile: str = "cycling-mountain", rider_weight_kg: float = 80.0):
     """
     Advanced trail discovery.
     Returns route data, difficulty, a GPX file, and a STATIC MAP IMAGE
     that can be displayed directly in the chat.
     """
-    return get_complete_trail_scout(ORS_API_KEY, lat, lon, radius_km, profile)
+    return get_complete_trail_scout(ORS_API_KEY, lat, lon, radius_km, profile, rider_weight_kg)
 
 @mcp.tool()
 def check_trail_weather(lat: float = 41.7615, lon: float = 12.7118):
@@ -54,18 +54,20 @@ def check_trail_weather(lat: float = 41.7615, lon: float = 12.7118):
 
 @mcp.tool()
 def analyze_route_surfaces(
-    lat: float,
-    lon: float,
+    lat: float = 41.7615,
+    lon: float = 12.7118,
     radius_km: int = 10,
     profile: str = "cycling-mountain",
     bike_type: str = "MTB",
     tire_size_option: str = "29",
     points: int = 3,
     seed: int = 42,
-    surface_preference: str = "neutral"
+    surface_preference: str = "neutral",
+    rider_weight_kg: float = 80.0
 ):
     """
-    Analyzes the route surface, technical difficulty, categorize climbs, and bike compatibility with surface-aware preferences.
+    Analyzes the route surface, technical difficulty, categorize climbs,
+    and provides dynamic mechanical setup (PSI/Bar) based on terrain and weight.
 
     Args:
         lat: Latitude of the starting point.
@@ -73,9 +75,10 @@ def analyze_route_surfaces(
         radius_km: Total target distance for the round-trip loop.
         profile: ORS profile (cycling-mountain, cycling-road, cycling-regular).
         bike_type: Type of bike (MTB, Road, Gravel, E-MTB).
-        tire_size_option: For MTB: '26', '27.5', '29'. For Road/Gravel: '700c', '650b'.
+        tire_size_option: Wheel size ('26', '27.5', '29', '700c', '650b').
+        rider_weight_kg: Rider weight in kg to normalize tire pressure (default 85kg).
         points: Complexity of the loop shape (3=triangle, 10=circular).
-        seed: Random seed to generate different route variations for the same area.
+        seed: Random seed to generate different route variations.
     """
     return get_surface_analyzer(
         ORS_API_KEY,
@@ -87,7 +90,8 @@ def analyze_route_surfaces(
         tire_size_option,
         points,
         seed,
-        surface_preference
+        surface_preference,
+        rider_weight_kg
     )
 
 @mcp.tool()

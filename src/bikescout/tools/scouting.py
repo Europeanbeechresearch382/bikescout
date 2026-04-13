@@ -94,7 +94,7 @@ def generate_tactical_gpx(geojson_data, amenities=[]):
 
     return gpx_xml + waypoints + track + '</gpx>'
 
-def get_complete_trail_scout(api_key, lat: float, lon: float, radius_km: int = 10, profile: str = "cycling-mountain"):
+def get_complete_trail_scout(api_key, lat: float, lon: float, radius_km: int = 10, profile: str = "cycling-mountain", rider_weight_kg: float = 80.0):
     """
     The Master Orchestrator: Finds a specific trail and enriches it with
     Surface Analysis, Weather, Cycling POIs, and Mud Risk.
@@ -150,7 +150,8 @@ def get_complete_trail_scout(api_key, lat: float, lon: float, radius_km: int = 1
                 tire_size_option="wide",
                 points=3,                 # Integer representing the number of waypoints
                 seed=42,
-                surface_preference="neutral"
+                surface_preference="neutral",
+                rider_weight_kg=rider_weight_kg
             )
         except Exception as e:
             surface_report = {"status": "Error", "message": f"Surface Analysis skipped: {str(e)}"}

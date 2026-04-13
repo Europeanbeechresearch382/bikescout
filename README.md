@@ -1,7 +1,7 @@
 # BikeScout MCP Server
 
 [![License: Apache 2.0](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
-[![Version](https://img.shields.io/badge/Version-0.8.2-green.svg)](https://github.com/hifly81/bikescout/releases)
+[![Version](https://img.shields.io/badge/Version-0.8.3-green.svg)](https://github.com/hifly81/bikescout/releases)
 ![Python](https://img.shields.io/badge/python-3.10-blue.svg)
 [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg?style=flat-square)](http://makeapullrequest.com)
 [![Downloads](https://pepy.tech/badge/global-chem)](https://pepy.tech/project/global-chem)
@@ -391,6 +391,7 @@ Unlike standard GPS files, BikeScout automatically injects active <wpt> (waypoin
 | `lon` | `float` | Required | Longitude of the starting point (e.g., `9.08`). |
 | `radius_km` | `int` | `10` | The target total length of the loop in kilometers. |
 | `profile` | `string`| `cycling-mountain` | Routing profile: `cycling-mountain`, `cycling-road`, or `cycling-regular`. |
+| `rider_weight_kg` | `float` | `80.0` | **Total rider weight.** Used to calculate technical compatibility and tire setup recommendations. |
 
 #### **Tool Output Example (JSON):**
 ```json
@@ -403,7 +404,7 @@ Unlike standard GPS files, BikeScout automatically injects active <wpt> (waypoin
     "surface_analysis": {
       "status": "Success",
       "profile_used": "cycling-mountain",
-      "technical_summary": {
+      "tactical_briefing": {
         "distance_km": 10.16,
         "elevation_gain_m": 835,
         "climb_category": "Hors Catégorie (HC) - Legendary Challenge",
@@ -412,12 +413,14 @@ Unlike standard GPS files, BikeScout automatically injects active <wpt> (waypoin
           "mtb_scale": "Standard / Unclassified",
           "trail_visibility": "Excellent",
           "technical_notes": "Technical grading based on OSM mountain standards."
-        }
+        },
+        "mud_risk_index": 0.1
       },
-      "bike_setup_check": {
+      "mechanical_setup": {
         "compatible": true,
-        "bike_used": "mountain",
-        "tire_setup": "700c wheels"
+        "bike_category": "mountain",
+        "setup_details": "700c wheels | 84.0 PSI (5.79 Bar) [Standard Setup]",
+        "rider_weight_baseline": "80.0kg"
       },
       "surface_breakdown": [
         {
@@ -455,37 +458,37 @@ Unlike standard GPS files, BikeScout automatically injects active <wpt> (waypoin
   "conditions": {
     "weather": [
       {
+        "time": "10:00",
+        "temp": "14.8°C",
+        "rain_prob": "23%",
+        "wind": "32.8 km/h"
+      },
+      {
+        "time": "11:00",
+        "temp": "15.0°C",
+        "rain_prob": "40%",
+        "wind": "32.4 km/h"
+      },
+      {
+        "time": "12:00",
+        "temp": "14.7°C",
+        "rain_prob": "65%",
+        "wind": "31.0 km/h"
+      },
+      {
         "time": "13:00",
-        "temp": "17.8°C",
-        "rain_prob": "0%",
-        "wind": "7.9 km/h"
-      },
-      {
-        "time": "14:00",
-        "temp": "18.2°C",
-        "rain_prob": "0%",
-        "wind": "9.4 km/h"
-      },
-      {
-        "time": "15:00",
-        "temp": "18.3°C",
-        "rain_prob": "0%",
-        "wind": "10.7 km/h"
-      },
-      {
-        "time": "16:00",
-        "temp": "18.2°C",
-        "rain_prob": "0%",
-        "wind": "7.8 km/h"
+        "temp": "13.8°C",
+        "rain_prob": "78%",
+        "wind": "28.6 km/h"
       }
     ],
     "mud_risk": {
       "status": "Success",
-      "rain_last_72h": "0.0mm",
-      "mud_risk_score": "Low",
-      "safety_advice": "Dry or ideal grip."
+      "rain_last_72h": "10.5mm",
+      "mud_risk_score": "Medium",
+      "safety_advice": "Damp soil, slippery roots possible."
     },
-    "safety_advice": "✅ IDEAL: Perfect conditions for a great ride!"
+    "safety_advice": "💨 WINDY: Strong winds. Use caution on descents and open ridges."
   },
   "logistics": {
     "nearby_amenities": [
@@ -592,7 +595,7 @@ A real-time safety tool designed specifically for outdoor activities. It provide
 ### `analyze_route_surfaces`
 
 Analyzes the physical composition of the route to help users choose the appropriate bike (Road, Gravel, or MTB) and categorizes climbs using professional cycling standards.
-This tool goes beyond simple mapping by analyzing the physical composition of the route and cross-referencing it with the user's specific bike setup to ensure safety, performance, and realistic effort estimation.
+This tool goes beyond simple mapping by cross-referencing terrain data with the user's specific **mechanical setup and body weight** to ensure safety, performance, and realistic effort estimation.
 
 #### **Core Functionality:**
 * **Surface Detection:** Identifies asphalt, gravel, grass, stones, and unpaved sections using OpenStreetMap metadata.
@@ -603,6 +606,7 @@ This tool goes beyond simple mapping by analyzing the physical composition of th
 * **Bike Compatibility Check:** Automatically assesses if the route is suitable based on the bike type and standardized tire setup.
 * **Safety & Technical Grading:** Analyzes OSM tracktype (Grades 1-5) to distinguish between smooth gravel and rough, technical MTB trails.
 * **Surface-Aware Routing:** Fine-tunes the route generation based on user preferences like "avoid unpaved" or "prefer trails."
+* **Tactical Tire Intelligence:** Calculates optimal tire recommendations and pressure baseline by cross-referencing **Rider Weight**, bike type, and dominant surface composition.
 
 #### **Parameters:**
 
@@ -614,6 +618,7 @@ This tool goes beyond simple mapping by analyzing the physical composition of th
 | `profile` | `str` | `cycling-mountain` | ORS routing profile (e.g., `cycling-road`, `cycling-mountain`). |
 | `bike_type` | `str` | `MTB` | User's bike (Options: `Road`, `Gravel`, `MTB`, `E-MTB`, `Enduro`). |
 | `tire_size_option` | `str` | `29` | Standard wheel sizes (MTB: `26`, `27.5`, `29` | Road/Gravel: `700c`, `650b`). |
+| `rider_weight_kg` | `float` | `80.0` | **Total rider weight.** Used to calculate technical compatibility and tire setup recommendations. |
 | `points` | `int` | `3` | Complexity of the loop shape (3 = triangle, 10 = circular). |
 | `seed` | `int` | `42` | Random seed. Change it to discover a different route variation in the same area. |
 | `surface_pref`| `str` | `neutral` | Routing preference (Options: `neutral`, `avoid_unpaved`, `prefer_trails`). |
@@ -631,46 +636,52 @@ This tool goes beyond simple mapping by analyzing the physical composition of th
 {
   "status": "Success",
   "profile_used": "cycling-mountain",
-  "technical_summary": {
-    "distance_km": 39.64,
-    "elevation_gain_m": 1796,
+  "tactical_briefing": {
+    "distance_km": 10.16,
+    "elevation_gain_m": 835,
     "climb_category": "Hors Catégorie (HC) - Legendary Challenge",
-    "avg_gradient_est": "12.9%",
+    "avg_gradient_est": "20.0%",
     "technical_difficulty": {
       "mtb_scale": "Standard / Unclassified",
-      "trail_visibility":"Excellent",
+      "trail_visibility": "Excellent",
       "technical_notes": "Technical grading based on OSM mountain standards."
-    }
+    },
+    "mud_risk_index": 0.1
   },
-  "bike_setup_check": {
+  "mechanical_setup": {
     "compatible": true,
-    "bike_used": "MTB",
-    "tire_setup": "29 wheels (~54mm)"
+    "bike_category": "MTB",
+    "setup_details": "29 wheels | 23.0 PSI (1.59 Bar) [Standard Setup]",
+    "rider_weight_baseline": "80.0kg"
   },
   "surface_breakdown": [
     {
-      "type": "Paved",
-      "percentage": "44.8%"
-    },
-    {
       "type": "Unknown",
-      "percentage": "39.5%"
+      "percentage": "40.9%"
     },
     {
-      "type": "Compact",
-      "percentage": "7.2%"
-    },
-    {
-      "type": "Grass",
-      "percentage": "5.7%"
-    },
-    {
-      "type": "Concrete",
-      "percentage": "1.6%"
+      "type": "Paved",
+      "percentage": "27.0%"
     },
     {
       "type": "Asphalt",
-      "percentage": "1.2%"
+      "percentage": "9.5%"
+    },
+    {
+      "type": "Compact",
+      "percentage": "8.4%"
+    },
+    {
+      "type": "Grass",
+      "percentage": "8.0%"
+    },
+    {
+      "type": "Concrete",
+      "percentage": "3.4%"
+    },
+    {
+      "type": "Unpaved",
+      "percentage": "2.9%"
     }
   ],
   "safety_warnings": []
@@ -682,25 +693,32 @@ This tool goes beyond simple mapping by analyzing the physical composition of th
 {
   "status": "Success",
   "profile_used": "cycling-road",
-  "technical_summary": {
-    "distance_km": 44.48,
-    "elevation_gain_m": 979,
+  "tactical_briefing": {
+    "distance_km": 47.47,
+    "elevation_gain_m": 1000,
     "climb_category": "Category 2 - Hard Climb",
-    "avg_gradient_est": "4.9%"
+    "avg_gradient_est": "4.7%",
+    "technical_difficulty": {
+      "mtb_scale": "Standard / Unclassified",
+      "trail_visibility": "Excellent",
+      "technical_notes": "Technical grading based on OSM mountain standards."
+    },
+    "mud_risk_index": 0.1
   },
-  "bike_setup_check": {
+  "mechanical_setup": {
     "compatible": true,
-    "bike_used": "Road",
-    "tire_setup": "700c wheels"
+    "bike_category": "ROAD",
+    "setup_details": "700c wheels | 87.0 PSI (6.0 Bar) [Efficiency Setup]",
+    "rider_weight_baseline": "80.0kg"
   },
   "surface_breakdown": [
     {
       "type": "Paved",
-      "percentage": "61.3%"
+      "percentage": "60.2%"
     },
     {
       "type": "Unknown",
-      "percentage": "37.4%"
+      "percentage": "38.5%"
     },
     {
       "type": "Asphalt",
@@ -719,42 +737,57 @@ This tool goes beyond simple mapping by analyzing the physical composition of th
 ```json
 {
   "status": "Success",
-  "profile_used": "cycling-regular",
-  "technical_summary": {
-    "distance_km": 38.08,
-    "elevation_gain_m": 976,
-    "climb_category": "Category 1 - Brutal Ascent",
-    "avg_gradient_est": "5.7%"
+  "profile_used": "cycling-mountain",
+  "tactical_briefing": {
+    "distance_km": 27.31,
+    "elevation_gain_m": 885,
+    "climb_category": "Hors Catégorie (HC) - Legendary Challenge",
+    "avg_gradient_est": "10.8%",
+    "technical_difficulty": {
+      "mtb_scale": "Standard / Unclassified",
+      "trail_visibility": "Excellent",
+      "technical_notes": "Technical grading based on OSM mountain standards."
+    },
+    "mud_risk_index": 0.1
   },
-  "bike_setup_check": {
+  "mechanical_setup": {
     "compatible": true,
-    "bike_used": "Gravel",
-    "tire_setup": "700c wheels"
+    "bike_category": "Gravel",
+    "setup_details": "700c wheels | 34.0 PSI (2.34 Bar) [Standard Setup]",
+    "rider_weight_baseline": "80.0kg"
   },
   "surface_breakdown": [
     {
-      "type": "Paved",
-      "percentage": "51.9%"
-    },
-    {
       "type": "Unknown",
-      "percentage": "45.2%"
+      "percentage": "42.0%"
     },
     {
-      "type": "Asphalt",
-      "percentage": "1.3%"
+      "type": "Paved",
+      "percentage": "28.2%"
+    },
+    {
+      "type": "Compact",
+      "percentage": "23.9%"
+    },
+    {
+      "type": "Grass",
+      "percentage": "3.1%"
     },
     {
       "type": "Concrete",
+      "percentage": "1.2%"
+    },
+    {
+      "type": "Unpaved",
       "percentage": "1.1%"
     },
     {
-      "type": "Other",
-      "percentage": "0.5%"
+      "type": "Asphalt",
+      "percentage": "0.4%"
     }
   ],
   "safety_warnings": [
-    "Comfort warning: 0.5% is Other."
+    "Comfort warning: 3.1% is Grass."
   ]
 }
 ```
