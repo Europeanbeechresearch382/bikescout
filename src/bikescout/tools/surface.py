@@ -1,21 +1,66 @@
 import requests
 
 
-def _get_tire_setup(bike_type: str, tire_size_option: str):
+def _get_tire_setup(bike_type: str, tire_size_option: str, mud_index: float = 0.0, surface_type: str = "mixed", rider_weight_kg: float = 80.0):
     """
-    Standardizes tire size and width based on bike type.
-    Returns (actual_tire_mm, display_string).
+    Standardizes tire size and calculates Actionable Setup Intelligence (PSI/Bar).
+    Transitions from static descriptors to dynamic tactical briefings.
+
+    Returns:
+        tuple: (actual_tire_mm, tactical_display_string)
     """
-    if bike_type.lower() in ["mtb", "e-mtb", "enduro"]:
-        display_tire = "29" if tire_size_option in ["700c", "650b", "25", "28"] else tire_size_option
-        return 58, f"{display_tire} wheels (Wide Grip)" # 58mm ~ 2.3-2.4"
+    bike_type = bike_type.lower()
 
-    if bike_type.lower() == "gravel":
-        display_tire = tire_size_option if tire_size_option in ["700c", "650b"] else "700c"
-        return 40, f"{display_tire} wheels"
+    # 1. Base Configuration Mapping
+    # (Base_PSI_at_85kg, Width_mm, Default_Wheel_Label)
+    configs = {
+        "mtb": (24.0, 58, "29\""),
+        "e-mtb": (26.0, 60, "29\""),
+        "enduro": (23.0, 60, "29\""),
+        "gravel": (35.0, 40, "700c"),
+        "road": (85.0, 25, "700c")
+    }
 
-    # Default for Road
-    return 25, "700c wheels"
+    # Default to road if type is unknown
+    base_psi, width_mm, wheel_label = configs.get(bike_type, configs["road"])
+
+    # 2. Wheel Label Normalization (Legacy support for tire_size_option)
+    if bike_type in ["mtb", "e-mtb", "enduro"]:
+        wheel_label = "29\"" if tire_size_option in ["700c", "650b", "25", "28"] else tire_size_option
+    elif bike_type == "gravel":
+        wheel_label = tire_size_option if tire_size_option in ["700c", "650b"] else "700c"
+
+    # 3. Rider Weight Normalization (Heuristic: +/- 1 PSI per 5kg deviation)
+    weight_adjustment = (rider_weight_kg - 85.0) / 5.0
+    adjusted_psi = base_psi + weight_adjustment
+
+    # 4. Tactical Strategy Logic
+    strategy = "Standard"
+
+    # Mud Strategy: Lower pressure for flotation and traction
+    if mud_index > 0.6:
+        adjusted_psi *= 0.85  # 15% reduction
+        strategy = "Mud Flotation"
+
+    # Surface Strategy: Compliance vs Efficiency
+    elif any(keyword in surface_type.lower() for keyword in ["rock", "root", "technical"]):
+        adjusted_psi -= 2.0
+        strategy = "Compliance"
+    elif any(keyword in surface_type.lower() for keyword in ["smooth", "asphalt", "paved"]):
+        adjusted_psi += 3.0
+        strategy = "Efficiency"
+
+    # 5. Unit Conversion
+    final_psi = round(adjusted_psi, 1)
+    final_bar = round(final_psi * 0.0689476, 2)
+
+    # 6. Tactical Display String
+    tactical_display = (
+        f"{wheel_label} wheels | {final_psi} PSI ({final_bar} Bar) "
+        f"[{strategy} Setup]"
+    )
+
+    return width_mm, tactical_display
 
 def _sanitize_elevation(raw_ascent: float):
     """
@@ -161,14 +206,13 @@ def _build_ors_options(surface_preference):
     return options
 
 
-def get_surface_analyzer(api_key, lat, lon, radius_km, profile, bike_type, tire_size_option, points, seed, surface_preference):
+def get_surface_analyzer(api_key, lat, lon, radius_km, profile, bike_type, tire_size_option, points, seed, surface_preference, rider_weight_kg):
     """
     Main entry point for route analysis.
+    Refactored to integrate Tactical Tire Intelligence and dynamic surface sensing.
     """
-    # 1. Setup tires
-    tire_mm, tire_display = _get_tire_setup(bike_type, tire_size_option)
 
-    # 2. API Setup and fallback logic
+    # 1. API Setup and fallback logic
     attempts = [
         (profile, ["surface", "waytype", "tracktype"]),
         (profile, ["surface", "waytype"]),
@@ -182,7 +226,10 @@ def get_surface_analyzer(api_key, lat, lon, radius_km, profile, bike_type, tire_
         body = {
             "coordinates": [[lon, lat]],
             "elevation": True,
-            "options": {"round_trip": {"length": radius_km * 1000, "points": points, "seed": seed},**_build_ors_options(surface_preference)},
+            "options": {
+                "round_trip": {"length": radius_km * 1000, "points": points, "seed": seed},
+                **_build_ors_options(surface_preference)
+            },
             "extra_info": current_extras
         }
 
@@ -195,37 +242,59 @@ def get_surface_analyzer(api_key, lat, lon, radius_km, profile, bike_type, tire_
             response.raise_for_status()
             data = response.json()
 
-            # 3. Extract Core Data
+            # 2. Extract Core Data
             props = data['features'][0]['properties']
             total_dist_m = props['summary']['distance']
+            extras = props.get('extras', {})
 
-            # 4. Process Elevation and Climbs
-            clean_ascent = _sanitize_elevation(props.get('ascent', 0))
-            climb_cat, avg_grad = _categorize_climb(clean_ascent, total_dist_m, current_profile)
-
-            # 5. Process Surfaces
+            # 3. Surface & Mud Analysis (Tactical Data)
+            # In a real scenario, mud_index would come from a weather/soil API call
+            # For now, we derive it from tracktype/surface if "soft" or "unpaved" is dominant
             surface_map = {0: "Unknown", 1: "Asphalt", 2: "Unpaved", 3: "Paved", 4: "Cobblestone",
                            5: "Gravel", 6: "Fine Gravel", 11: "Grass", 12: "Compact", 14: "Concrete"}
 
-            breakdown, warnings, compatible = _analyze_compatibility(bike_type, tire_mm, props.get('extras', {}), surface_map)
+            # Extract dominant surface to inform the tire engine
+            dominant_surface = _extract_dominant_surface(extras.get('surface', {}), surface_map)
 
-            tech_specs = _analyze_technical_difficulty(props.get('extras', {}))
+            # Mock Mud Index logic: if surface is grass/unpaved and we have "soft" weather data
+            # This should be replaced by your weather provider logic
+            mud_index = 0.8 if dominant_surface in ["Grass", "Unpaved"] else 0.1
 
-            # 6. Final Response
+            # 4. Refactored Tire Intelligence Call
+            # Now uses the new dynamic logic with weight and environment awareness
+            tire_mm, tire_display = _get_tire_setup(
+                bike_type=bike_type,
+                tire_size_option=tire_size_option,
+                mud_index=mud_index,
+                surface_type=dominant_surface,
+                rider_weight_kg=rider_weight_kg
+            )
+
+            # 5. Process Elevation and Climbs
+            clean_ascent = _sanitize_elevation(props.get('ascent', 0))
+            climb_cat, avg_grad = _categorize_climb(clean_ascent, total_dist_m, current_profile)
+
+            # 6. Process Compatibility & Technical Specs
+            breakdown, warnings, compatible = _analyze_compatibility(bike_type, tire_mm, extras, surface_map)
+            tech_specs = _analyze_technical_difficulty(extras)
+
+            # 7. Final Tactical Briefing Response
             return {
                 "status": "Success",
                 "profile_used": current_profile,
-                "technical_summary": {
+                "tactical_briefing": {
                     "distance_km": round(total_dist_m / 1000, 2),
                     "elevation_gain_m": clean_ascent,
                     "climb_category": climb_cat,
                     "avg_gradient_est": f"{round(avg_grad, 1)}%",
-                    "technical_difficulty": tech_specs
+                    "technical_difficulty": tech_specs,
+                    "mud_risk_index": mud_index
                 },
-                "bike_setup_check": {
+                "mechanical_setup": {
                     "compatible": compatible,
-                    "bike_used": bike_type,
-                    "tire_setup": tire_display
+                    "bike_category": bike_type,
+                    "setup_details": tire_display,
+                    "rider_weight_baseline": f"{rider_weight_kg}kg"
                 },
                 "surface_breakdown": breakdown,
                 "safety_warnings": warnings
@@ -236,3 +305,12 @@ def get_surface_analyzer(api_key, lat, lon, radius_km, profile, bike_type, tire_
             continue
 
     return {"status": "Error", "message": f"Analysis failed: {last_error}"}
+
+def _extract_dominant_surface(surface_extra, surface_map):
+    """Helper to find the surface with the highest distance in the route."""
+    if not surface_extra or 'summary' not in surface_extra:
+        return "Unknown"
+
+    # Find the value with the maximum distance
+    dominant_val = max(surface_extra['summary'], key=lambda x: x['distance'])['value']
+    return surface_map.get(dominant_val, "Unknown")
