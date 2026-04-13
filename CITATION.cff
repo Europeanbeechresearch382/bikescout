@@ -1,0 +1,21 @@
+cff-version: 1.2.0
+message: "If you use this software in your research or tactical planning, please cite it as below."
+authors:
+  - family-names: "hifly81"
+    given-names: "BikeScout Creator"
+    orcid: "https://orcid.org/0009-0009-1778-241X"
+title: "BikeScout: Tactical Cycling Intelligence MCP Server"
+version: 0.9.0
+date-released: 2026-04-13
+url: "https://github.com/hifly81/bikescout"
+repository-code: "https://github.com/hifly81/bikescout"
+license: Apache 2
+keywords:
+  - mcp-server
+  - cycling-intelligence
+  - strava-integration
+  - geospatial-ai
+  - mud-prediction
+abstract: >-
+  BikeScout is a specialized MCP (Model Context Protocol) server designed for cyclists and mountain bikers. 
+  It provides intelligent trail recommendations by combining real-world map data with advanced routing analysis.
