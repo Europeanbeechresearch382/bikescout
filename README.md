@@ -484,9 +484,18 @@ Unlike standard GPS files, BikeScout automatically injects active <wpt> (waypoin
     ],
     "mud_risk": {
       "status": "Success",
-      "rain_last_72h": "10.5mm",
-      "mud_risk_score": "Medium",
-      "safety_advice": "Damp soil, slippery roots possible."
+      "environmental_context": {
+        "raw_rain_72h": "10.5mm",
+        "avg_temp": "17.9°C",
+        "avg_wind_speed": "19.2km/h",
+        "drying_efficiency": "1.14x"
+      },
+      "tactical_analysis": {
+        "adjusted_moisture_index": 9.2,
+        "mud_risk_score": "Medium",
+        "surface_detected": "dirt",
+        "safety_advice": "Damp soil. Slick roots and loose corners possible."
+      }
     },
     "safety_advice": "💨 WINDY: Strong winds. Use caution on descents and open ridges."
   },
@@ -867,10 +876,18 @@ A predictive safety tool that cross-references geological surface data with hist
 ```json
 {
   "status": "Success",
-  "rain_last_72h": "18.5mm",
-  "mud_risk_score": "High",
-  "soil_type": "clay",
-  "safety_advice": "Heavy mud. High risk of drivetrain wear. Avoid unpaved clay trails."
+  "environmental_context": {
+    "raw_rain_72h": "10.5mm",
+    "avg_temp": "17.9°C",
+    "avg_wind_speed": "19.2km/h",
+    "drying_efficiency": "1.14x"
+  },
+  "tactical_analysis": {
+    "adjusted_moisture_index": 9.2,
+    "mud_risk_score": "Medium",
+    "surface_detected": "dirt",
+    "safety_advice": "Damp soil. Slick roots and loose corners possible."
+  }
 }
 ```
 

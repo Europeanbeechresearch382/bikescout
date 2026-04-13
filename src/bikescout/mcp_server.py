@@ -108,7 +108,7 @@ def poi_scout(lat: float = 41.7615, lon: float = 12.7118, radius_km: int = 5):
     return get_poi_scout(ORS_API_KEY, lat, lon, radius_km)
 
 @mcp.tool()
-def check_trail_soil_condition(lat: float, lon: float, surface_type: str = "dirt"):
+def check_trail_soil_condition(lat: float = 41.7615, lon: float = 12.7118, surface_type: str = "dirt"):
     """
     Analyzes rain history and soil type to predict mud levels.
     """
