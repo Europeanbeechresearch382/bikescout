@@ -1,7 +1,7 @@
 import os
 import sys
 from dotenv import load_dotenv
-from mcp.server.fastmcp import FastMCP
+from fastmcp import FastMCP
 from bikescout.tools.scouting import get_complete_trail_scout
 from bikescout.tools.weather import get_weather_forecast
 from bikescout.tools.surface import get_surface_analyzer
