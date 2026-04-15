@@ -9,6 +9,7 @@ from bikescout.tools.geocoding import get_coordinates
 from bikescout.tools.poi import get_poi_scout
 from bikescout.tools.mud import get_mud_risk_analysis
 from bikescout.tools.strava import get_strava_activity
+from bikescout.tools.gonogo import calculate_ride_windows
 from bikescout.prompts import BikeScoutPrompts
 from bikescout.resources import BikeScoutResources
 
@@ -76,6 +77,22 @@ def check_trail_weather(lat: float = 41.7615, lon: float = 12.7118):
     including technical safety advice on gear and riding conditions.
     """
     data = get_weather_forecast(lat, lon)
+    return {"payload_version": BIKESCOUT_PROTOCOL_VERSION, **data}
+
+@mcp.tool()
+def ride_window_planner(
+        lat: float = 41.7615,
+        lon: float = 12.7118,
+        ride_duration_hours: float = 2.0,
+        surface_type: str = "dirt"
+):
+    """
+    Tactical Go/No-Go Planner.
+    Predicts the best riding window by cross-referencing weather stability
+    and TAEL soil drainage efficiency for the next 12-24 hours.
+    """
+
+    data = calculate_ride_windows(lat, lon, ride_duration_hours, surface_type)
     return {"payload_version": BIKESCOUT_PROTOCOL_VERSION, **data}
 
 @mcp.tool()

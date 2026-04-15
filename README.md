@@ -30,6 +30,7 @@ The system provides precise setup advice, tailoring your equipment to the demand
 * **Smart Safety & Weather Forecast**: Cross-references location data with real-time weather to ensure you don't get caught in a storm.
 * **Pro-Cycling Gear Advice**: Provides specific technical advice on clothing and gear based on temperature, wind, and rain thresholds.
 * **Seamless Location Search**: No GPS coordinates required. Use natural language (e.g., *"Find a ride in Albano Laziale"*) via integrated Nominatim Geocoding.
+* **Tactical Ride Window Planner (Go/No-Go)**: A high-value decision engine that calculates the optimal time to start your ride. It analyzes consecutive hourly slots and cross-references them with atmospheric hazards and soil memory to provide a color-coded tactical verdict.
 * **Instant Map Previews**: Automatically generates a **Static Map (.png)** of the route to visualize the trail directly within the chat interface.
 * **Local Expert Knowledge**: Specialized regional prompts for world-class destinations like the **Dolomites (UNESCO)**, **Moab (USA)**, and **Castelli Romani**.
 * **Pro Climb Categorization**: Automatically identifies and names specific climbs (from **Category 4** to **Hors Catégorie**) using professional cycling standards based on length and average gradient.
@@ -540,6 +541,43 @@ A real-time safety tool designed specifically for outdoor activities. It provide
     "wind_speed": 8.3
   },
   "safety_advice": "✅ IDEAL: Perfect conditions for a great ride!"
+}
+```
+
+### `ride_window_planner`
+The ultimate **Decision Intelligence** tool for the modern rider. It goes beyond simple weather reporting by calculating the optimal "Strategic Window" to deploy. It cross-references atmospheric stability with the **TAEL (Terrain-Aware Evaporation Lag)** index to determine exactly when the terrain will be at its peak performance.
+
+#### **Functionality**
+* **Sliding Window Logic:** Instead of a static snapshot, it iterates through consecutive hourly blocks to find the highest "Confidence Score" for your specific ride duration.
+* **Ground Memory Integration:** It factors in the `mud_risk_score` as a persistent penalty, ensuring that "sunny but swampy" conditions are flagged correctly.
+* **Tactical Scoring System:** Uses a weighted algorithm that penalizes rain probability exponentially (the "Mission Killer") while adjusting for wind safety and thermal comfort.
+* **Auto-Normalization:** A robust data layer that cleans string-based API responses (e.g., converting "93%" to `93.0`) for real-time mathematical analysis.
+
+#### **Parameters**
+| Parameter | Type | Default | Description |
+| :--- | :--- | :--- | :--- |
+| `lat` | `float` | Required | Latitude of the deployment area. |
+| `lon` | `float` | Required | Longitude of the deployment area. |
+| `ride_duration_hours` | `float` | `2.0` | Target length of the mission (defines the sliding window size). |
+| `surface_type` | `str` | `"dirt"` | Used to calculate specific soil drainage coefficients for the TAEL index. |
+
+#### **Example Output (JSON)**
+```json
+{
+  "payload_version": "1.0",
+  "status": "Success",
+  "planner_report": {
+    "verdict": "CAUTION",
+    "tactical_color": "YELLOW",
+    "confidence_score": "62.5/100",
+    "best_window": "10:00 - 12:00",
+    "environmental_briefing": {
+      "rain_avg": "12%",
+      "wind_max": "18 km/h",
+      "temp_avg": "16°C"
+    },
+    "mud_risk_impact": "30%"
+  }
 }
 ```
 
