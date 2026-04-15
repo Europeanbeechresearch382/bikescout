@@ -1,0 +1,25 @@
+{
+  "$schema": "https://glama.ai/mcp/schemas/server.json",
+  "name": "BikeScout",
+  "description": "Tactical cycling intelligence server for trail discovery, predictive mud risk (TAEL index), and optimal ride window planning.",
+  "maintainers": [
+    {
+      "name": "hifly81",
+      "github": "hifly81"
+    }
+  ],
+  "capabilities": {
+    "tools": true,
+    "resources": false
+  },
+  "categories": [
+    "Geospatial",
+    "Weather",
+    "Sports",
+    "Data Analysis"
+  ],
+  "related_servers": [
+    "mcp-server-google-maps",
+    "mcp-server-strava"
+  ]
+}
