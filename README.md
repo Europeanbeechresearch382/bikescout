@@ -1,7 +1,7 @@
 # BikeScout MCP Server
 
 [![License: Apache 2.0](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
-[![Version](https://img.shields.io/badge/Version-0.9.4-green.svg)](https://github.com/hifly81/bikescout/releases)
+[![Version](https://img.shields.io/badge/Version-0.9.5-green.svg)](https://github.com/hifly81/bikescout/releases)
 ![Python](https://img.shields.io/badge/python-3.10-blue.svg)
 [![hifly81/bikescout](https://glama.ai/mcp/servers/hifly81/bikescout/badges/score.svg)](https://glama.ai/mcp/servers/hifly81/bikescout)
 [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg?style=flat-square)](http://makeapullrequest.com)
@@ -30,6 +30,7 @@ The system provides precise setup advice, tailoring your equipment to the demand
 * **Smart Safety & Weather Forecast**: Cross-references location data with real-time weather to ensure you don't get caught in a storm.
 * **Pro-Cycling Gear Advice**: Provides specific technical advice on clothing and gear based on temperature, wind, and rain thresholds.
 * **Seamless Location Search**: No GPS coordinates required. Use natural language (e.g., *"Find a ride in Albano Laziale"*) via integrated Nominatim Geocoding.
+* **Tactical Ride Window Planner (Go/No-Go)**: A high-value decision engine that calculates the optimal time to start your ride. It analyzes consecutive hourly slots and cross-references them with atmospheric hazards and soil memory to provide a color-coded tactical verdict.
 * **Instant Map Previews**: Automatically generates a **Static Map (.png)** of the route to visualize the trail directly within the chat interface.
 * **Local Expert Knowledge**: Specialized regional prompts for world-class destinations like the **Dolomites (UNESCO)**, **Moab (USA)**, and **Castelli Romani**.
 * **Pro Climb Categorization**: Automatically identifies and names specific climbs (from **Category 4** to **Hors Catégorie**) using professional cycling standards based on length and average gradient.
@@ -37,45 +38,7 @@ The system provides precise setup advice, tailoring your equipment to the demand
 
 ## Why BikeScout? (vs Generic Maps)
 
-While Google Maps or standard navigation tools are excellent for urban commuting, they fail when the terrain gets technical. **BikeScout** bridges the gap between a simple "line on a map" and the technical reality of professional cycling, turning your AI into an expert local guide.
-
-### Truth in Elevation (Progressive Filtering)
-Raw satellite data (SRTM) often suffers from "noise," overestimating total vertical gain by up to 40% in mountainous areas due to sudden spikes in readings.
-* **Generic Maps:** Display "jagged" elevation profiles that inflate effort and make charts unreadable.
-* **BikeScout:** Uses a **Progressive Elevation Filter**. Our algorithm recognizes and smooths out satellite sensor errors, returning a total ascent value that matches real-world barometric sensors (Garmin/Wahoo).
-
-### Beyond "Paved" vs "Unpaved" (S-Scale Grading)
-For a standard navigator, a trail is just a trail. For a cyclist, the difference between packed gravel and a bed of loose rocks is the difference between fun and danger.
-* **Generic Maps:** Indiscriminately label everything that isn't asphalt as "unpaved."
-* **BikeScout:** Parses deep OpenStreetMap metadata to extract the **MTB-Scale (S0-S5)** and **SAC-Scale**. It warns you if you'll encounter a Grade S0 (easy) or an S3 (technical with rocks and steps), allowing you to decide if your setup is appropriate.
-
-### Beyond traditional POI
-Generic maps often prioritize sponsored results or restaurants. BikeScout probes deep OpenStreetMap tags like amenity=drinking_water and shop=bicycle. These points are often verified by the cycling community, ensuring you find a working fountain on a mountain pass rather than a closed supermarket.
-
-### Historical Weather data
-Standard forecasts only tell you if it will rain. BikeScout analyzes what has already happened. Since clay-heavy soil can remain unrideable for days after a storm while sandy soil dries in hours, this tool provides the specific context needed for off-road decision making.
-
-### Discipline-Specific Intelligence
-Effort is relative to your gear. 500m of climbing feels different on a 7kg Road bike than on a 16kg Enduro rig with 2.4" knobby tires.
-* **Generic Maps:** Provide "standard" travel times and difficulty based on generic averages.
-* **BikeScout:** Features a **Dynamic Effort Engine**. It calculates difficulty and climb categorization (from Cat 4 to *Hors Catégorie*) based specifically on your **Bike Type** (Road, Gravel, MTB, Enduro) and your **Tire Setup**.
-
-### Native AI Orchestration (MCP)
-BikeScout isn't just an isolated script; it's a native extension for next-generation large language models.
-* **Generic Maps:** Require manual searches, screenshots, and visual interpretation by the user.
-* **BikeScout:** Is a **Model Context Protocol (MCP)** server. It allows Claude, Cursor, or other LLMs to "reason" like a local guide, automatically cross-referencing weather, soil type, and technical setup in a single conversational flow.
-
-### Comparison at a Glance
-
-| Feature | Generic Maps | BikeScout AI |
-| :--- | :--- | :--- |
-| **Elevation Gain** | Raw & Noisy | **Filtered & Realistic** |
-| **Surface Analysis** | Basic (Paved/Dirt) | **Technical (S-Scale/Tracktype)** |
-| **Difficulty Rating** | Time-based only | **Weighted by Bike Type** |
-| **Climb Grading** | None | **UCI-Standard (Cat 4 to HC)** |
-| **Safety Logistics** | General Stores/Gas | **Cycling POIs (Water/Repair/Shelter)** |
-| **Condition Predictive** | Future Weather only | **Mud Risk (72h Rain + Soil Analysis)** |
-| **AI Integration** | Manual / External | **Native MCP Tooling** |
+See the related [comparison section](site/md/comparison.md)
 
 ## News, Blog & Live Demo
 
@@ -268,7 +231,7 @@ You can ask **BikeScout** complex, multi-step requests. It combines real-time da
 
 ---
 
-## Pre-Confiugured Prompts
+## Pre-Configured Prompts
 
 BikeScout includes pre-configured **AI Prompts**. These prompts provide local context, gear tips, and cultural insights.
 
@@ -361,6 +324,12 @@ Unlike standard GPS files, BikeScout automatically injects active <wpt> (waypoin
 | `radius_km` | `int` | `10`               | The target total length of the loop in kilometers. |
 | `profile` | `string`| `cycling-mountain` | Routing profile: `cycling-mountain`, `cycling-road`, or `cycling-regular`. |
 | `rider_weight_kg` | `float` | `80.0`             | **Total rider weight.** Used to calculate technical compatibility and tire setup recommendations. |
+| `bike_type` | `str` | `MTB` | User's bike (Options: `Road`, `Gravel`, `MTB`, `E-MTB`, `Enduro`). |
+| `tire_size_option` | `str` | `29` | Standard wheel sizes (MTB: `26`, `27.5`, `29` | Road/Gravel: `700c`, `650b`). |
+| `rider_weight_kg` | `float` | `80.0` | **Total rider weight.** Used to calculate technical compatibility and tire setup recommendations. |
+| `points` | `int` | `3` | Complexity of the loop shape (3 = triangle, 10 = circular). |
+| `seed` | `int` | `42` | Random seed. Change it to discover a different route variation in the same area. |
+| `surface_pref`| `str` | `neutral` | Routing preference (Options: `neutral`, `avoid_unpaved`, `prefer_trails`). |
 | `include_gpx` | `bool` | `True`             | Whether to include the raw XML GPX content. Set to `False` to prevent payload/token limit issues. |
 | `include_map` | `bool` | `False`            | Whether to generate the Static Map URL via **Stadia Maps** (OpenStreetMap data). |
 | `output_level` | `string` | `standard`         | Verbosity level: `summary` (essential stats), `standard` (default briefing), or `full` (complete technical breakdown and amenities). |
@@ -572,6 +541,43 @@ A real-time safety tool designed specifically for outdoor activities. It provide
     "wind_speed": 8.3
   },
   "safety_advice": "✅ IDEAL: Perfect conditions for a great ride!"
+}
+```
+
+### `ride_window_planner`
+The ultimate **Decision Intelligence** tool for the modern rider. It goes beyond simple weather reporting by calculating the optimal "Strategic Window" to deploy. It cross-references atmospheric stability with the **TAEL (Terrain-Aware Evaporation Lag)** index to determine exactly when the terrain will be at its peak performance.
+
+#### **Functionality**
+* **Sliding Window Logic:** Instead of a static snapshot, it iterates through consecutive hourly blocks to find the highest "Confidence Score" for your specific ride duration.
+* **Ground Memory Integration:** It factors in the `mud_risk_score` as a persistent penalty, ensuring that "sunny but swampy" conditions are flagged correctly.
+* **Tactical Scoring System:** Uses a weighted algorithm that penalizes rain probability exponentially (the "Mission Killer") while adjusting for wind safety and thermal comfort.
+* **Auto-Normalization:** A robust data layer that cleans string-based API responses (e.g., converting "93%" to `93.0`) for real-time mathematical analysis.
+
+#### **Parameters**
+| Parameter | Type | Default | Description |
+| :--- | :--- | :--- | :--- |
+| `lat` | `float` | Required | Latitude of the deployment area. |
+| `lon` | `float` | Required | Longitude of the deployment area. |
+| `ride_duration_hours` | `float` | `2.0` | Target length of the mission (defines the sliding window size). |
+| `surface_type` | `str` | `"dirt"` | Used to calculate specific soil drainage coefficients for the TAEL index. |
+
+#### **Example Output (JSON)**
+```json
+{
+  "payload_version": "1.0",
+  "status": "Success",
+  "planner_report": {
+    "verdict": "CAUTION",
+    "tactical_color": "YELLOW",
+    "confidence_score": "62.5/100",
+    "best_window": "10:00 - 12:00",
+    "environmental_briefing": {
+      "rain_avg": "12%",
+      "wind_max": "18 km/h",
+      "temp_avg": "16°C"
+    },
+    "mud_risk_impact": "30%"
+  }
 }
 ```
 

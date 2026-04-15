@@ -19,4 +19,4 @@ This area is a complex of extinct volcanic craters, offering a unique and challe
 6.  **Language:** Provide the response in the user's preferred language, keeping local trail and location names in Italian for accuracy.
 
 # Goal
-Deliver a briefing that combines the grit of local Enduro knowledge with the millenary history of the Roman volcanic trails.
+Deliver a briefing that combines the grit of local Enduro knowledge with the millenarian history of the Roman volcanic trails.
