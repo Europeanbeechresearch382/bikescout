@@ -6,10 +6,11 @@
 [![hifly81/bikescout](https://glama.ai/mcp/servers/hifly81/bikescout/badges/score.svg)](https://glama.ai/mcp/servers/hifly81/bikescout)
 [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg?style=flat-square)](http://makeapullrequest.com)
 
-**BikeScout** is a specialized **MCP server** for **MTB, Road, E-Bike, and Gravel** mission planning.
-It transforms raw map data into **Tactical Intelligence**, predicting terrain conditions and trail hazards.
-The system provides **precise setup advice**, tailoring your equipment to the demands of the specific route.
-Identify technical challenges and environmental risks before you even leave the garage.
+---
+
+BikeScout is a specialized MCP server for MTB, Road, E-Bike, and Gravel mission planning.
+It transforms raw map data into Tactical Intelligence, predicting terrain conditions and trail hazards.
+The system provides precise setup advice, tailoring your equipment to the demands of the specific route, identifying technical challenges and environmental risks before you even leave the garage.
 ---
 
 
