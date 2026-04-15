@@ -118,6 +118,11 @@ def get_complete_trail_scout(
         radius_km: int = 10,
         profile: str = "cycling-mountain",
         rider_weight_kg: float = 80.0,
+        bike_type: str = "MTB",
+        tire_size_option: str = "29",
+        points: int = 3,
+        seed: int = 42,
+        surface_preference: str = "neutral",
         include_gpx: bool = True,
         include_map: bool = False,
         output_level: str = "standard"  # "summary" | "standard" | "full"
@@ -167,9 +172,9 @@ def get_complete_trail_scout(
             try:
                 surface_report = get_surface_analyzer(
                     api_key=api_key, lat=lat, lon=lon, radius_km=radius_km,
-                    profile=profile, bike_type="mountain" if "mountain" in profile else "gravel",
-                    tire_size_option="wide", points=3, seed=42,
-                    surface_preference="neutral", rider_weight_kg=rider_weight_kg
+                    profile=profile, bike_type=bike_type,
+                    tire_size_option=tire_size_option, points=points, seed=seed,
+                    surface_preference=surface_preference, rider_weight_kg=rider_weight_kg
                 )
             except Exception as e:
                 surface_report = {"status": "Error", "message": str(e)}
@@ -182,7 +187,7 @@ def get_complete_trail_scout(
         amenities = []
         if output_level == "full":
             try:
-                poi_res = get_poi_scout(api_key, lat, lon, radius_km=2.0)
+                poi_res = get_poi_scout(api_key, lat, lon, radius_km)
                 amenities = poi_res.get('amenities', []) if poi_res.get('status') == "Success" else []
             except:
                 amenities = []

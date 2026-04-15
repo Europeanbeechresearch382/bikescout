@@ -50,6 +50,11 @@ def trail_scout(
         radius_km: int = 10,
         profile: str = "cycling-mountain",
         rider_weight_kg: float = 80.0,
+        bike_type: str = "MTB",
+        tire_size_option: str = "29",
+        points: int = 3,
+        seed: int = 42,
+        surface_preference: str = "neutral",
         include_gpx: bool = True,
         include_map: bool = False,
         output_level: str = "standard"  # "summary" | "standard" | "full"
@@ -59,7 +64,8 @@ def trail_scout(
     Returns route data, difficulty, a GPX file, and a STATIC MAP IMAGE
     that can be displayed directly in the chat.
     """
-    data = get_complete_trail_scout(ORS_API_KEY, lat, lon, radius_km, profile, rider_weight_kg, include_gpx, include_map, output_level)
+    data = get_complete_trail_scout(
+        ORS_API_KEY, lat, lon, radius_km, profile, rider_weight_kg, bike_type, tire_size_option, points, seed, surface_preference, include_gpx, include_map, output_level)
     return {"payload_version": BIKESCOUT_PROTOCOL_VERSION, **data}
 
 @mcp.tool()

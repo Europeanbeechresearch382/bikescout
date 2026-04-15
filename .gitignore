@@ -5,3 +5,4 @@ src/bikescout/tools/__pycache__/
 dist/
 scripts/
 demo/
+site/guides/guide-template.html
