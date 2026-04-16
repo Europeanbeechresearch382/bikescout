@@ -362,7 +362,8 @@ Unlike standard GPS files, BikeScout automatically injects active <wpt> (waypoin
         "technical_difficulty": {
           "mtb_scale": "Standard / Unclassified",
           "trail_visibility": "Excellent",
-          "technical_notes": "Technical grading based on OSM mountain standards."
+          "technical_notes": "Technical grading based on OSM mountain standards.",
+          "fitness_context": "Evaluated for intermediate level"
         },
         "mud_risk_index": 0.1
       },
@@ -639,7 +640,8 @@ This tool goes beyond simple mapping by cross-referencing terrain data with the 
     "technical_difficulty": {
       "mtb_scale": "Standard / Unclassified",
       "trail_visibility": "Excellent",
-      "technical_notes": "Technical grading based on OSM mountain standards."
+      "technical_notes": "Technical grading based on OSM mountain standards.",
+      "fitness_context": "Evaluated for intermediate level"
     },
     "mud_risk": {
       "score": 10.26,
@@ -708,7 +710,8 @@ This tool goes beyond simple mapping by cross-referencing terrain data with the 
     "technical_difficulty": {
       "mtb_scale": "Standard / Unclassified",
       "trail_visibility": "Excellent",
-      "technical_notes": "Technical grading based on OSM mountain standards."
+      "technical_notes": "Technical grading based on OSM mountain standards.",
+      "fitness_context": "Evaluated for intermediate level"
     },
     "mud_risk": {
       "score": 10.26,
@@ -767,7 +770,8 @@ This tool goes beyond simple mapping by cross-referencing terrain data with the 
     "technical_difficulty": {
       "mtb_scale": "Standard / Unclassified",
       "trail_visibility": "Excellent",
-      "technical_notes": "Technical grading based on OSM mountain standards."
+      "technical_notes": "Technical grading based on OSM mountain standards.",
+      "fitness_context": "Evaluated for intermediate level"
     },
     "mud_risk": {
       "score": 10.26,

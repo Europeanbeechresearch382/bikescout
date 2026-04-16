@@ -2,69 +2,9 @@ import requests
 from bikescout.tools.mud import get_mud_risk_analysis
 from bikescout.tools.geophysic import haversine_distance
 from bikescout.tools.bike_setup import analyze_compatibility
+from bikescout.tools.bike_setup import get_tire_setup
 from bikescout.schemas import RiderProfile, BikeSetup, MissionConstraints
 
-
-def _get_tire_setup(bike_type: str, tire_size_option: str, mud_index: float = 0.0, surface_type: str = "mixed", rider_weight_kg: float = 80.0):
-    """
-    Standardizes tire size and calculates Actionable Setup Intelligence (PSI/Bar).
-    Transitions from static descriptors to dynamic tactical briefings.
-
-    Returns:
-        tuple: (actual_tire_mm, tactical_display_string)
-    """
-    bike_type = bike_type.lower()
-
-    # 1. Base Configuration Mapping
-    # (Base_PSI_at_85kg, Width_mm, Default_Wheel_Label)
-    configs = {
-        "mtb": (24.0, 58, "29\""),
-        "e-mtb": (26.0, 60, "29\""),
-        "enduro": (23.0, 60, "29\""),
-        "gravel": (35.0, 40, "700c"),
-        "road": (85.0, 25, "700c")
-    }
-
-    # Default to road if type is unknown
-    base_psi, width_mm, wheel_label = configs.get(bike_type, configs["road"])
-
-    # 2. Wheel Label Normalization (Legacy support for tire_size_option)
-    if bike_type in ["mtb", "e-mtb", "enduro"]:
-        wheel_label = "29\"" if tire_size_option in ["700c", "650b", "25", "28"] else tire_size_option
-    elif bike_type == "gravel":
-        wheel_label = tire_size_option if tire_size_option in ["700c", "650b"] else "700c"
-
-    # 3. Rider Weight Normalization (Heuristic: +/- 1 PSI per 5kg deviation)
-    weight_adjustment = (rider_weight_kg - 85.0) / 5.0
-    adjusted_psi = base_psi + weight_adjustment
-
-    # 4. Tactical Strategy Logic
-    strategy = "Standard"
-
-    # Mud Strategy: Lower pressure for flotation and traction
-    if mud_index > 0.6:
-        adjusted_psi *= 0.85  # 15% reduction
-        strategy = "Mud Flotation"
-
-    # Surface Strategy: Compliance vs Efficiency
-    elif any(keyword in surface_type.lower() for keyword in ["rock", "root", "technical"]):
-        adjusted_psi -= 2.0
-        strategy = "Compliance"
-    elif any(keyword in surface_type.lower() for keyword in ["smooth", "asphalt", "paved"]):
-        adjusted_psi += 3.0
-        strategy = "Efficiency"
-
-    # 5. Unit Conversion
-    final_psi = round(adjusted_psi, 1)
-    final_bar = round(final_psi * 0.0689476, 2)
-
-    # 6. Tactical Display String
-    tactical_display = (
-        f"{wheel_label} wheels | {final_psi} PSI ({final_bar} Bar) "
-        f"[{strategy} Setup]"
-    )
-
-    return width_mm, tactical_display
 
 def _sanitize_elevation(raw_ascent: float):
     """
@@ -134,16 +74,13 @@ def _categorize_climb(total_ascent: float, total_dist_m: float, bike_type: str):
 
     return category, display_gradient
 
-def _analyze_technical_difficulty(extras: dict):
+def _analyze_technical_difficulty(extras: dict, fitness_level: str = "intermediate"):
     """
-    Parses OSM tags for professional technical grading (MTB-Scale & SAC-Scale).
+    Parses OSM tags for technical grading and cross-references with rider fitness.
     """
     # 1. MTB Scale (Singletrail-Skala S0-S5)
-    # ORS returns 'surface' or 'tracktype' summaries, but specific scale tags
-    # are often in the 'steepness' or 'suitability' segments if enabled.
-    # Se ORS non passa il tag diretto, usiamo il tracktype come fallback intelligente.
-
-    mtb_val = extras.get('mtb_scale', {}).get('summary', [{}])[0].get('value', 'N/A')
+    mtb_summary = extras.get('mtb_scale', {}).get('summary', [])
+    mtb_val = str(mtb_summary[0].get('value', 'N/A')) if mtb_summary else 'N/A'
 
     scale_info = {
         "0": "S0: Smooth, paved/firm trails without obstacles.",
@@ -155,13 +92,30 @@ def _analyze_technical_difficulty(extras: dict):
     }
 
     # 2. Trail Visibility
-    vis_val = extras.get('trail_visibility', {}).get('summary', [{}])[0].get('value', '1')
+    vis_summary = extras.get('trail_visibility', {}).get('summary', [])
+    vis_val = str(vis_summary[0].get('value', '1')) if vis_summary else '1'
     vis_map = {"1": "Excellent", "2": "Good", "3": "Poor", "4": "Invisible/Requires GPS"}
 
+    # 3. Fitness-Based Technical Advice
+    # Se il livello tecnico è S2+ e il rider è beginner, aggiungiamo un warning.
+    tech_note = "Technical grading based on OSM mountain standards."
+
+    try:
+        level_int = int(mtb_val)
+        if fitness_level == "beginner" and level_int >= 2:
+            tech_note = "FITNESS ALERT: This trail requires technical maneuvers (S2+) that might be exhausting for a beginner."
+        elif fitness_level == "pro" and level_int >= 3:
+            tech_note = "PRO ADVICE: High technicality (S3+) detected. Ideal for testing suspension and technical handling."
+        elif fitness_level == "beginner" and level_int <= 1:
+            tech_note = "Confidence Builder: Technical level is well-suited for your fitness and skill profile."
+    except ValueError:
+        pass # mtb_val is N/A or non-numeric
+
     return {
-        "mtb_scale": scale_info.get(str(mtb_val), "Standard / Unclassified"),
-        "trail_visibility": vis_map.get(str(vis_val), "Standard"),
-        "technical_notes": "Technical grading based on OSM mountain standards."
+        "mtb_scale": scale_info.get(mtb_val, "Standard / Unclassified"),
+        "trail_visibility": vis_map.get(vis_val, "Standard"),
+        "technical_notes": tech_note,
+        "fitness_context": f"Evaluated for {fitness_level} level"
     }
 
 def _build_ors_options(surface_preference):
@@ -254,7 +208,7 @@ def get_surface_analyzer(api_key, lat, lon, rider, bike, mission):
                 env_context = {}
 
             # --- 4. Tire Intelligence ---
-            tire_mm, tire_display = _get_tire_setup(
+            tire_mm, tire_display = get_tire_setup(
                 bike_type=bike.bike_type,
                 tire_size_option=bike.tire_size,
                 mud_index=mud_index,
@@ -268,7 +222,7 @@ def get_surface_analyzer(api_key, lat, lon, rider, bike, mission):
 
             # --- 6. Process Compatibility & Technical Specs ---
             breakdown, warnings, compatible = analyze_compatibility(bike.bike_type, tire_mm, extras, surface_map)
-            tech_specs = _analyze_technical_difficulty(extras)
+            tech_specs = _analyze_technical_difficulty(extras, rider.fitness_level)
 
             if mud_index > 10:
                 warnings.append(f"MUD ALERT: {safety_advice}")
