@@ -3,6 +3,9 @@ import matplotlib.colors as mcolors
 import numpy as np
 import io
 import base64
+import uuid
+import time
+from pathlib import Path
 from bikescout.schemas import RouteGeometry
 
 def _generate_altimetry_plot(geometry: list, width: int = 8, height: int = 3):
@@ -86,41 +89,44 @@ def _generate_altimetry_plot(geometry: list, width: int = 8, height: int = 3):
 
 def get_elevation_profile_image(geometry: RouteGeometry, width: int = 8, height: int = 3):
     """
-    Generates a visual 'sparkline' image (base64 encoded PNG) of the route's elevation profile.
-
-    The plot colors segments based on gradient steepness:
-    - Green: Flat/Easy (<3%)
-    - Yellow: Moderate (4-7%)
-    - Red: Steep Wall (>8%)
-
-    Args:
-        geometry: The route coordinates object containing elevation data (Z-axis).
-        width: Width of the generated image (matplotlib inches).
-        height: Height of the generated image (matplotlib inches).
+    Generates an elevation profile, saves it to ~/.bikescout/altimetry/
+    and performs auto-cleaning of old files.
     """
     try:
-        # Access the raw coordinates list from the geometry object
-        # Adjust based on how RouteGeometry is defined (e.g., geometry.coordinates)
         coords_list = geometry.coordinates
 
-        base64_image = _generate_altimetry_plot(coords_list, width, height)
+        home_dir = Path.home() / ".bikescout" / "altimetry"
+        home_dir.mkdir(parents=True, exist_ok=True)
 
-        if not base64_image:
-            return {
-                "status": "Error",
-                "message": "Failed to generate plot. Invalid or insufficient geometry data."
-            }
+        now = time.time()
+        for f in home_dir.glob("*.png"):
+            if f.is_file() and (now - f.stat().st_mtime) > (3 * 86400): # 3 days
+                try:
+                    f.unlink()
+                except: pass
+
+        plot_result = _generate_altimetry_plot(coords_list, width, height)
+
+        raw_data = plot_result.get("image_data_url") if isinstance(plot_result, dict) else plot_result
+        if "base64," in raw_data:
+            raw_data = raw_data.split("base64,")[1]
+
+        if not raw_data:
+            return {"status": "Error", "message": "No plot data."}
+
+        filename = f"bs_altimetry_{uuid.uuid4().hex[:6]}.png"
+        file_path = home_dir / filename
+
+        with open(file_path, "wb") as f:
+            f.write(base64.b64decode(raw_data))
 
         return {
             "status": "Success",
-            "image_type": "plot/altimetry",
-            "format": "png",
-            "encoding": "base64",
-            "image_data_url": f"data:image/png;base64,{base64_image}"
+            "message": "Elevation profile stored in BikeScout home directory.",
+            "file_location": str(file_path),
+            "summary": "Visual sparkline generated and cached.",
+            "instructions": f"The file is safe in your home directory: {file_path}"
         }
 
     except Exception as e:
-        return {
-            "status": "Error",
-            "message": f"Altimetry visualization failed: {str(e)}"
-        }
+        return {"status": "Error", "message": f"Altimetry home-storage failed: {str(e)}"}

@@ -1,4 +1,7 @@
 import requests
+import uuid
+import time
+from pathlib import Path
 from bikescout.tools.maps import get_static_map_url
 from bikescout.tools.weather import get_weather_forecast
 from bikescout.tools.surface import get_surface_analyzer
@@ -38,80 +41,134 @@ def calculate_detailed_difficulty(dist_km: float, ascent_m: float) -> str:
 
 def generate_tactical_gpx(geojson_data, amenities=[]):
     """
-    Generates a GPX with tactical waypoints and optimized track segments.
-    Features: Cooldown for steep climbs, Summit detection, and Point Decimation.
+    Generates a GPX file with tactical waypoints and optimized track segments.
+    Output is saved to ~/.bikescout/gpx/ to avoid Context Window overflow.
+
+    Features:
+    - Robust data extraction (handles objects and dicts)
+    - Climbing 'WALL' detection (>10% grade) with cooldown
+    - Automatic Summit detection
+    - Point Decimation (Max 1500 points for device compatibility)
+    - Automatic cleanup of files older than 14 days
     """
-    feature = geojson_data['features'][0]
-    coords = feature['geometry']['coordinates']  # [lon, lat, ele]
+    try:
+        # 1. STORAGE CONFIGURATION & AUTO-CLEANUP
+        # Set path to user home directory: ~/.bikescout/gpx/
+        home_dir = Path.home() / ".bikescout" / "gpx"
+        home_dir.mkdir(parents=True, exist_ok=True)
 
-    # --- OPTIMIZATION: POINT DECIMATION ---
-    # MCP limit safety: if track is too dense, we downsample to stay under payload limits.
-    # We target a max of ~1500 points for the track segment.
-    MAX_TRACK_POINTS = 1500
-    step = 1
-    if len(coords) > MAX_TRACK_POINTS:
-        step = len(coords) // MAX_TRACK_POINTS
+        # Cleanup: Remove GPX files older than 14 days to save disk space
+        now = time.time()
+        for f in home_dir.glob("*.gpx"):
+            if f.is_file() and (now - f.stat().st_mtime) > (14 * 86400):
+                try:
+                    f.unlink()
+                except:
+                    pass # Ignore errors during deletion
 
-    optimized_coords = coords[::step]
+        # 2. ROBUST DATA EXTRACTION
+        # Handle both RouteGeometry objects (attribute access) and GeoJSON dicts (subscript access)
+        if hasattr(geojson_data, 'coordinates'):
+            # It's an object (e.g., Pydantic model)
+            coords = geojson_data.coordinates
+        elif isinstance(geojson_data, dict) and 'features' in geojson_data:
+            # It's a standard GeoJSON dictionary
+            feature = geojson_data['features'][0]
+            coords = feature['geometry']['coordinates']
+        else:
+            # Fallback: assume the input is the coordinate list itself
+            coords = geojson_data
 
-    gpx_xml = '<?xml version="1.0" encoding="UTF-8"?>\n'
-    gpx_xml += '<gpx version="1.1" creator="BikeScout" xmlns="http://www.topografix.com/GPX/1/1">\n'
+        # 3. OPTIMIZATION: POINT DECIMATION
+        # We target a max of 1500 points to ensure compatibility with GPS head units
+        MAX_TRACK_POINTS = 1500
+        step = max(1, len(coords) // MAX_TRACK_POINTS)
+        optimized_coords = coords[::step]
 
-    waypoints = ""
+        # 4. XML HEADER CONSTRUCTION
+        gpx_xml = '<?xml version="1.0" encoding="UTF-8"?>\n'
+        gpx_xml += '<gpx version="1.1" creator="BikeScout" xmlns="http://www.topografix.com/GPX/1/1">\n'
 
-    # --- A. WAYPOINT: CYCLING AMENITIES ---
-    for poi in amenities:
-        name = poi.get('name', 'Cycling POI')
-        loc = poi.get('location', {})
-        p_lat, p_lon = loc.get('lat'), loc.get('lon')
+        waypoints = ""
 
-        if p_lat and p_lon:
-            waypoints += f'  <wpt lat="{p_lat}" lon="{p_lon}">\n'
-            waypoints += f'    <name>{name}</name>\n'
-            waypoints += f'    <sym>Watering Hole</sym>\n'
+        # --- A. WAYPOINT: CYCLING AMENITIES (Water, etc.) ---
+        for poi in amenities:
+            name = poi.get('name', 'Cycling POI')
+            loc = poi.get('location', {})
+            p_lat, p_lon = loc.get('lat'), loc.get('lon')
+
+            if p_lat and p_lon:
+                waypoints += f'  <wpt lat="{p_lat}" lon="{p_lon}">\n'
+                waypoints += f'    <name>{name}</name>\n'
+                waypoints += f'    <sym>Watering Hole</sym>\n'
+                waypoints += f'  </wpt>\n'
+
+        # --- B. WAYPOINT: SUMMIT DETECTION ---
+        # coordinates format: [longitude, latitude, elevation]
+        if coords and len(coords[0]) > 2:
+            peak = max(coords, key=lambda x: x[2])
+            waypoints += f'  <wpt lat="{peak[1]}" lon="{peak[0]}">\n'
+            waypoints += f'    <name>SUMMIT: {int(peak[2])}m</name>\n'
+            waypoints += f'    <sym>Summit</sym>\n'
             waypoints += f'  </wpt>\n'
 
-    # --- B. WAYPOINT: SUMMIT ---
-    if coords and len(coords[0]) > 2:
-        peak = max(coords, key=lambda x: x[2])
-        waypoints += f'  <wpt lat="{peak[1]}" lon="{peak[0]}">\n'
-        waypoints += f'    <name>SUMMIT: {int(peak[2])}m</name>\n'
-        waypoints += f'    <sym>Summit</sym>\n'
-        waypoints += f'  </wpt>\n'
+        # --- C. WAYPOINT: STEEP CLIMBS (COOLDOWN LOGIC) ---
+        # Detects sections over 10% grade. Uses cooldown to avoid waypoint clutter.
+        last_wall_index = -50
+        for i in range(5, len(coords) - 10, 10):
+            # Cooldown check: Skip if a 'WALL' was placed in the last 40 points
+            if i < last_wall_index + 40:
+                continue
 
-    # --- C. WAYPOINT: STEEP CLIMBS (COOLDOWN LOGIC) ---
-    # We use a last_wall_index to prevent "WALL" clutter.
-    # i += 30 in a for loop doesn't work in Python, so we use a state check.
-    last_wall_index = -50
+            p1, p2 = coords[i], coords[i+10]
 
-    for i in range(5, len(coords) - 10, 10):
-        # Cooldown: skip if we placed a WALL in the last 40 coordinate points
-        if i < last_wall_index + 40:
-            continue
+            # Fast distance approximation in meters
+            d_lat = (p2[1] - p1[1]) * 111139
+            d_lon = (p2[0] - p1[0]) * 111139 * 0.7
+            dist = (d_lat**2 + d_lon**2)**0.5
 
-        p1, p2 = coords[i], coords[i+10]
+            if dist > 60:
+                grade = ((p2[2] - p1[2]) / dist) * 100
+                if grade > 10:
+                    waypoints += f'  <wpt lat="{p1[1]}" lon="{p1[0]}">\n'
+                    waypoints += f'    <name>WALL: {int(grade)}%</name>\n'
+                    waypoints += f'    <sym>Danger Area</sym>\n'
+                    waypoints += f'  </wpt>\n'
+                    last_wall_index = i
 
-        # Fast distance approx (meters)
-        d_lat = (p2[1] - p1[1]) * 111139
-        d_lon = (p2[0] - p1[0]) * 111139 * 0.7
-        dist = (d_lat**2 + d_lon**2)**0.5
+        # --- D. TRACK CONSTRUCTION ---
+        track = '  <trk>\n    <name>BikeScout Tactical Route</name>\n    <trkseg>\n'
+        for lon, lat, ele in optimized_coords:
+            track += f'      <trkpt lat="{lat}" lon="{lon}"><ele>{ele}</ele></trkpt>\n'
+        track += '    </trkseg>\n  </trk>\n'
 
-        if dist > 60:
-            grade = ((p2[2] - p1[2]) / dist) * 100
-            if grade > 10:
-                waypoints += f'  <wpt lat="{p1[1]}" lon="{p1[0]}">\n'
-                waypoints += f'    <name>WALL: {int(grade)}%</name>\n'
-                waypoints += f'    <sym>Danger Area</sym>\n'
-                waypoints += f'  </wpt>\n'
-                last_wall_index = i # Trigger cooldown
+        # 5. FILE PERSISTENCE
+        full_content = gpx_xml + waypoints + track + '</gpx>'
+        filename = f"tactical_route_{uuid.uuid4().hex[:6]}.gpx"
+        file_path = home_dir / filename
 
-    # --- D. TRACK (USING OPTIMIZED COORDS) ---
-    track = '  <trk>\n    <name>BikeScout Tactical Route</name>\n    <trkseg>\n'
-    for lon, lat, ele in optimized_coords:
-        track += f'      <trkpt lat="{lat}" lon="{lon}"><ele>{ele}</ele></trkpt>\n'
-    track += '    </trkseg>\n  </trk>\n'
+        with open(file_path, "w", encoding="utf-8") as f:
+            f.write(full_content)
 
-    return gpx_xml + waypoints + track + '</gpx>'
+        # 6. RETURN LIGHTWEIGHT RESPONSE
+        # Returning the path instead of the full XML string prevents Context Window crashes
+        return {
+            "status": "Success",
+            "message": "Tactical GPX file successfully exported.",
+            "file_location": str(file_path),
+            "tactical_stats": {
+                "total_points": len(coords),
+                "optimized_points": len(optimized_coords),
+                "waypoints_count": waypoints.count('<wpt')
+            },
+            "instructions": f"The file is safe in your home directory: {file_path}"
+        }
+
+    except Exception as e:
+        return {
+            "status": "Error",
+            "message": f"GPX Generation failed: {str(e)}"
+        }
 
 def get_complete_trail_scout(
         api_key,
@@ -220,16 +277,32 @@ def get_complete_trail_scout(
 
         # GPX Content: Generate only if requested (heaviest part)
         if include_gpx:
-            response_payload["gpx_content"] = generate_tactical_gpx(data, amenities)
+            try:
+                gpx_report = generate_tactical_gpx(
+                    geojson_data=route_geo,
+                    amenities=nearby_pois if 'nearby_pois' in locals() else []
+                )
+                if gpx_report["status"] == "Success":
+                    response_payload["gpx_export_path"] = gpx_report["file_location"]
+                    response_payload["gpx_stats"] = gpx_report.get("tactical_stats")
+                else:
+                    response_payload["gpx_error"] = gpx_report.get("message")
+
+            except Exception as e:
+                response_payload["gpx_error"] = f"GPX generation failed: {str(e)}"
 
         # Elevation Profile
         if output_level != "summary":
             try:
                 altimetry_report = get_elevation_profile_image(geometry=route_geo)
+
                 if altimetry_report["status"] == "Success":
-                    response_payload["elevation_profile_url"] = altimetry_report["image_data_url"]
+                    response_payload["elevation_profile_path"] = altimetry_report["file_location"]
+
+                response_payload["elevation_summary"] = altimetry_report.get("summary", "")
+
             except Exception as e:
-                response_payload["elevation_profile_error"] = str(e)
+                response_payload["elevation_profile_error"] = f"Main call failed: {str(e)}"
 
         return response_payload
 

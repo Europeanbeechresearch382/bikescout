@@ -1,7 +1,7 @@
 # BikeScout MCP Server
 
 [![License: Apache 2.0](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
-[![Version](https://img.shields.io/badge/Version-1.0.0-green.svg)](https://github.com/hifly81/bikescout/releases)
+[![Version](https://img.shields.io/badge/Version-1.0.1-green.svg)](https://github.com/hifly81/bikescout/releases)
 ![Python](https://img.shields.io/badge/python-3.10-blue.svg)
 [![hifly81/bikescout](https://glama.ai/mcp/servers/hifly81/bikescout/badges/score.svg)](https://glama.ai/mcp/servers/hifly81/bikescout)
 [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg?style=flat-square)](http://makeapullrequest.com)
@@ -360,6 +360,7 @@ Unlike standard GPS files, BikeScout automatically injects active <wpt> (waypoin
 #### **Tool Output Example (JSON):**
 ```json
 {
+  "payload_version": "1.0",
   "status": "Success",
   "info": {
     "distance_km": 10.67,
@@ -369,22 +370,33 @@ Unlike standard GPS files, BikeScout automatically injects active <wpt> (waypoin
       "status": "Success",
       "profile_used": "cycling-mountain",
       "tactical_briefing": {
-        "distance_km": 10.16,
-        "elevation_gain_m": 835,
+        "distance_km": 10.12,
+        "elevation_gain_m": 586,
         "climb_category": "Hors Catégorie (HC) - Legendary Challenge",
-        "avg_gradient_est": "20.0%",
+        "avg_gradient_est": "19.3%",
         "technical_difficulty": {
           "mtb_scale": "Standard / Unclassified",
           "trail_visibility": "Excellent",
           "technical_notes": "Technical grading based on OSM mountain standards.",
           "fitness_context": "Evaluated for intermediate level"
         },
-        "mud_risk_index": 0.1
+        "mud_risk": {
+          "score": 49.36,
+          "label": "Extreme",
+          "details": "Total saturation. Trail damage likely. Recommend Go/No-Go re-evaluation.",
+          "environmental_factors": {
+            "raw_rain_72h": "20.9mm",
+            "avg_temp": "17.4°C",
+            "drying_efficiency": "0.42x",
+            "shadow_penalty_active": "Yes",
+            "solar_altitude": "-19.5°"
+          }
+        }
       },
       "mechanical_setup": {
         "compatible": true,
-        "bike_category": "mountain",
-        "setup_details": "700c wheels | 84.0 PSI (5.79 Bar) [Standard Setup]",
+        "bike_category": "MTB",
+        "setup_details": "29 wheels | 19.6 PSI (1.35 Bar) [Mud Flotation Setup]",
         "rider_weight_baseline": "80.0kg"
       },
       "surface_breakdown": [
@@ -417,54 +429,60 @@ Unlike standard GPS files, BikeScout automatically injects active <wpt> (waypoin
           "percentage": "2.9%"
         }
       ],
-      "safety_warnings": []
+      "emtb_tactical": {
+        "estimated_drain_wh": 2740.8,
+        "remaining_battery_pct": 0,
+        "safety_buffer_status": "CRITICAL",
+        "breakdown_wh": {
+          "horizontal_base": 121.4,
+          "vertical_climb": 221.4,
+          "terrain_friction": 2397.9
+        }
+      },
+      "safety_warnings": [
+        "MUD ALERT: Total saturation. Trail damage likely. Recommend Go/No-Go re-evaluation.",
+        "RANGE ANXIETY: SoC at finish is 0.0%. Drop to Eco!"
+      ]
     }
   },
   "conditions": {
     "weather": [
       {
-        "time": "10:00",
-        "temp": "14.8°C",
-        "rain_prob": "23%",
-        "wind": "32.8 km/h"
+        "time": "21:00",
+        "temp": "14.1°C",
+        "rain_prob": "0%",
+        "wind": "3.3 km/h"
       },
       {
-        "time": "11:00",
-        "temp": "15.0°C",
-        "rain_prob": "40%",
-        "wind": "32.4 km/h"
+        "time": "22:00",
+        "temp": "13.4°C",
+        "rain_prob": "0%",
+        "wind": "4.0 km/h"
       },
       {
-        "time": "12:00",
-        "temp": "14.7°C",
-        "rain_prob": "65%",
-        "wind": "31.0 km/h"
-      },
-      {
-        "time": "13:00",
-        "temp": "13.8°C",
-        "rain_prob": "78%",
-        "wind": "28.6 km/h"
+        "time": "23:00",
+        "temp": "13.1°C",
+        "rain_prob": "0%",
+        "wind": "4.2 km/h"
       }
     ],
     "mud_risk": {
       "status": "Success",
       "environmental_context": {
-        "raw_rain_72h": "10.5mm",
-        "avg_temp": "17.9°C",
-        "avg_wind_speed": "19.2km/h",
-        "drying_efficiency": "1.14x",
+        "raw_rain_72h": "20.9mm",
+        "avg_temp": "17.4°C",
+        "drying_efficiency": "0.42x",
         "shadow_penalty_active": "Yes",
-        "solar_altitude": "-18.2°"
+        "solar_altitude": "-19.5°"
       },
       "tactical_analysis": {
-        "adjusted_moisture_index": 9.2,
-        "mud_risk_score": "Medium",
+        "adjusted_moisture_index": 49.36,
+        "mud_risk_score": "Extreme",
         "surface_detected": "dirt",
-        "safety_advice": "Damp soil. Slick roots and loose corners possible."
+        "safety_advice": "Total saturation. Trail damage likely. Recommend Go/No-Go re-evaluation."
       }
     },
-    "safety_advice": "💨 WINDY: Strong winds. Use caution on descents and open ridges."
+    "safety_advice": "🌥️ CHILLY: Light jacket or arm warmers recommended."
   },
   "logistics": {
     "nearby_amenities": [
@@ -506,9 +524,14 @@ Unlike standard GPS files, BikeScout automatically injects active <wpt> (waypoin
       }
     ]
   },
-  "map_image_url": "https://tiles.stadiamaps.com/static/outdoors?center=41.746509%2C12.7157365&zoom=13&size=600x400%402x&api_key=xxx&path=color:0xff0000ff|weight:4|enc:cp{}F_xqlABpG`CzFnFmDjBqEfCgB|V_Sx\yEbHaFrCnE_EbFzKuBvLnCm@yJvFgHzCi@~FjAhBsA|DVlEjDvExG|EuGnRdS~H{Rg@`HgHCsNiIsNgLeDaJcGwL_LpHwD|PeKpNoPpHcF`Jp@bVsB`HmHbDeRwOqOZqK}EDyBcLaPc@tM_@v@"
-  "gpx_content": "\" xmlns=\"http://www.topografix.com/GPX/1/1\">\n  <wpt lat=\"41.761793\" ....",
-  "elevation_profile_url": "data:image/png;base64, iV..."
+  "gpx_export_path": "/home/hifly/.bikescout/gpx/tactical_route_39382d.gpx",
+  "gpx_stats": {
+    "total_points": 396,
+    "optimized_points": 396,
+    "waypoints_count": 4
+  },
+  "elevation_profile_path": "/home/hifly/.bikescout/altimetry/bs_altimetry_01c3ec.png",
+  "elevation_summary": "Visual sparkline generated and cached."
 }
 ```
 
