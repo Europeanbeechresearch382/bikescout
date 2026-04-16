@@ -4,7 +4,8 @@ from bikescout.tools.weather import get_weather_forecast
 from bikescout.tools.surface import get_surface_analyzer
 from bikescout.tools.poi import get_poi_scout
 from bikescout.tools.mud import get_mud_risk_analysis
-from bikescout.schemas import RiderProfile, BikeSetup, MissionConstraints
+from bikescout.tools.altimetry import get_elevation_profile_image
+from bikescout.schemas import RiderProfile, BikeSetup, MissionConstraints, RouteGeometry
 
 OVERPASS_URL = "https://overpass-api.de/api/interpreter"
 ORS_BASE_URL = "https://api.openrouteservice.org/v2/directions"
@@ -152,6 +153,7 @@ def get_complete_trail_scout(
         feature = data['features'][0]
         props = feature['properties']
         summary = props.get('summary', {})
+        route_geo = RouteGeometry(coordinates=feature['geometry']['coordinates'])
 
         dist_km = round(summary.get('distance', 0) / 1000, 2)
         ascent_m = round(props.get('ascent', 0), 0)
@@ -219,6 +221,15 @@ def get_complete_trail_scout(
         # GPX Content: Generate only if requested (heaviest part)
         if include_gpx:
             response_payload["gpx_content"] = generate_tactical_gpx(data, amenities)
+
+        # Elevation Profile
+        if output_level != "summary":
+            try:
+                altimetry_report = get_elevation_profile_image(geometry=route_geo)
+                if altimetry_report["status"] == "Success":
+                    response_payload["elevation_profile_url"] = altimetry_report["image_data_url"]
+            except Exception as e:
+                response_payload["elevation_profile_error"] = str(e)
 
         return response_payload
 

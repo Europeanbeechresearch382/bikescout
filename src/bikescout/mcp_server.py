@@ -2,7 +2,7 @@ import os
 import sys
 from dotenv import load_dotenv
 from fastmcp import FastMCP
-from bikescout.schemas import RiderProfile, BikeSetup, MissionConstraints
+from bikescout.schemas import RiderProfile, BikeSetup, MissionConstraints, RouteGeometry
 from bikescout.tools.scouting import get_complete_trail_scout
 from bikescout.tools.weather import get_weather_forecast
 from bikescout.tools.surface import get_surface_analyzer
@@ -11,6 +11,7 @@ from bikescout.tools.poi import get_poi_scout
 from bikescout.tools.mud import get_mud_risk_analysis
 from bikescout.tools.strava import get_strava_activity
 from bikescout.tools.gonogo import calculate_ride_windows
+from bikescout.tools.altimetry import get_elevation_profile_image
 from bikescout.prompts import BikeScoutPrompts
 from bikescout.resources import BikeScoutResources
 
@@ -157,6 +158,25 @@ def analyze_strava_activity(activity_date: str):
         STRAVA_CLIENT_SECRET,
         STRAVA_REFRESH_TOKEN
     )
+    return {"payload_version": BIKESCOUT_PROTOCOL_VERSION, **data}
+
+@mcp.tool()
+def elevation_profile_image(geometry: RouteGeometry, width: int = 8, height: int = 3):
+    """
+    Generates a visual 'sparkline' image (base64 encoded PNG) of the route's elevation profile.
+
+    The plot colors segments based on gradient steepness:
+    - Green: Flat/Easy (<3%)
+    - Yellow: Moderate (4-7%)
+    - Red: Steep Wall (>8%)
+    """
+    if not all([STRAVA_CLIENT_ID, STRAVA_CLIENT_SECRET, STRAVA_REFRESH_TOKEN]):
+        return {
+            "status": "Error",
+            "message": "Strava credentials missing. Please set STRAVA_CLIENT_ID, CLIENT_SECRET and REFRESH_TOKEN."
+        }
+
+    data = get_elevation_profile_image(geometry, width, height)
     return {"payload_version": BIKESCOUT_PROTOCOL_VERSION, **data}
 
 # --- PROMPTS SECTION ---
