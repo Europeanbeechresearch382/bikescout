@@ -228,31 +228,42 @@ What to check:
 
 ---
 
-## Specialized Tactical Skills (Local Intelligence)
+## BikeScout Skills
 
-BikeScout features a suite of **Local Expert Skills** that function as specialized knowledge modules. Instead of providing generic advice, these skills inject high-fidelity "Tactical Intelligence" into the AI's reasoning.
-This allows the system to adapt tool outputs, such as tire pressure, battery management, and risk assessment to the specific soil, geology, and culture of world-class cycling destinations.
+BikeScout doesn't just provide raw data; it utilizes a system of **Actionable Knowledge Bases** (Skills) to transform data into tactical decisions. The system operates on two distinct levels:
+
+### 1. Global Foundation Skills
+These skills ensure that every mission starts with a certified mechanical and safety baseline, regardless of the location.
+
+| Skill Name | Purpose | Tactical Output |
+| :--- | :--- | :--- |
+| `apply_safety_protocol` | **Safety & M-Check** | Generates dynamic checklists based on `mission_type` (MTB, E-Bike, Road, Gravel). |
+| `get_baseline_mechanics` | **Standard Setup** | Provides baseline tire pressures and mechanical configurations from the BikeScout Registry. |
+
+### 2. Local Expert Skills 
+These skills inject "Local Wisdom" into the AI's reasoning, adapting calculations (pressure, battery, risk) to the specific geology and environment of the territory.
 
 | Skill / Knowledge Base | Destination | Tactical Specialization |
 | :--- | :--- | :--- |
-| `get_moab_intel` | 🏜️ **Moab, Utah** | High-desert survival, slickrock traction mastery, and hydration/gear safety protocols. |
-| `get_castelli_intel` | 🌋 **Castelli Romani** | Volcanic soil (dust/mud) behavior, steep punchy climbs, and the "Fraschetta" cultural protocol. |
-| `get_dolomiti_intel` | 🏔️ **Dolomites, Italy** | High-altitude weather vigilance, UNESCO limestone grip analysis, and 1:1 gearing strategy. |
-| `get_arenberg_intel` | 🧱 **Arenberg Forest** | Northern French Pavé, "Hell of the North" vibration damping, and stone humidity risk (TAEL). |
-| `get_finale_intel` | 🌊 **Finale Ligure** | Enduro World Series standards, brake fade management, and limestone rock garden setup. |
-| `get_derby_intel` | 🌿 **Derby, Tasmania** | Granite slab traction, "Hero Dirt" saturation levels, and high-speed rebound optimization. |
+| `get_moab_intel` | 🏜️ **Moab, Utah** | High-desert survival, Slickrock traction mastery, and extreme hydration protocols. |
+| `get_castelli_intel` | 🌋 **Castelli Romani** | Volcanic soil behavior (dust/mud), aggressive spikes in gradient, and cultural stop protocols. |
+| `get_dolomiti_intel` | 🏔️ **Dolomites, Italy** | High-altitude weather vigilance, UNESCO limestone grip analysis, and 1:1 gearing strategies. |
+| `get_arenberg_intel` | 🧱 **Arenberg Forest** | Vibration damping on Pavé, stone humidity risk (TAEL), and "Roubaix-spec" setup. |
+| `get_finale_intel` | 🌊 **Finale Ligure** | EWS standards, brake fade management, and limestone rock garden suspension tuning. |
+| `get_derby_intel` | 🌿 **Derby, Tasmania** | Granite slab traction, "Hero Dirt" saturation analysis, and high-speed rebound optimization. |
 | `get_shimanami_intel` | 🌉 **Shimanami Kaido** | Bridge crosswind analysis, island-hopping logistics, and road/gravel touring efficiency. |
 
-### **How These Skills Work**
 
-These are **Actionable Knowledge Bases**. The AI utilizes a "Retrieve-and-Reason" logic to generate briefings:
+### **How These Skills Work: Retrieve-and-Reason**
 
-1.  **Context Detection**: When you query a location, the AI identifies the relevant region (e.g., *Finale Ligure*).
-2.  **Skill Invocation**: It automatically triggers the corresponding skill (e.g., `get_finale_intel`) to load the expert intelligence profile.
-3.  **Data Cross-Referencing**: It combines "Local Wisdom" (from the skill) with "Real-Time Data" (from `trail_scout` and `check_trail_soil_condition`).
-4.  **Synthesized Briefing**: The final response is a unique synthesis. For example, the `analyze_route_surfaces` tool might suggest a specific tire pressure *because* the local expert intelligence knows the limestone is currently in a high-humidity window.
+The AI goes beyond simple data reading, performing a dynamic synthesis in four phases:
 
----
+1.  **Context Detection**: Identifies the region and mission type (e.g., *Enduro in Finale Ligure*).
+2.  **Foundation Setting**: Invokes `get_baseline_mechanics` to establish a technical starting point (e.g., *1.8 Bar for MTB*).
+3.  **Local Skill Invocation**: Triggers the local skill (e.g., `get_finale_intel`) to load the geological profile (e.g., *"Wet Limestone = Zero Traction"*).
+4.  **Synthesized Briefing**: Cross-references everything with real-time data.
+    * *Example:* The `analyze_route_surfaces` tool will suggest lowering pressure to 1.6 Bar and using soft compounds *because* the local expert intelligence knows that specific terrain doesn't drain quickly after the rain detected by the weather tool.
+
 
 ## Tools Reference
 
