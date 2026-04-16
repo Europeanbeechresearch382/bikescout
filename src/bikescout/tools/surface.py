@@ -4,6 +4,7 @@ from bikescout.tools.mud import get_mud_risk_analysis
 from bikescout.tools.geophysic import haversine_distance
 from bikescout.tools.bike_setup import analyze_compatibility
 from bikescout.tools.bike_setup import get_tire_setup
+from bikescout.tools.battery import calculate_battery_drain
 from bikescout.schemas import RiderProfile, BikeSetup, MissionConstraints
 
 
@@ -158,7 +159,7 @@ def get_surface_analyzer(api_key, lat, lon, rider, bike, mission):
     """
     Main entry point for route analysis.
     Upgraded with Tactical SMA Elevation Smoothing, Geodesic Accuracy,
-    and TAEL Mud Risk Model.
+    TAEL Mud Risk Model and E-MTB battery drain.
     """
 
     attempts = [
@@ -186,50 +187,46 @@ def get_surface_analyzer(api_key, lat, lon, rider, bike, mission):
         }
 
         try:
-            response = requests.post(url, json=body, headers=headers)
-            if response.status_code == 400:
-                last_error = response.json().get('error', {}).get('message', 'Bad Request')
+            res = requests.post(url, json=body, headers=headers)
+
+            if res.status_code != 200:
+                try:
+                    last_error = res.json().get('error', {}).get('message', f"HTTP {res.status_code}")
+                except:
+                    last_error = f"HTTP {res.status_code}"
                 continue
 
-            response.raise_for_status()
-            data = response.json()
-
-            # --- 1. Extract Geometry & Tactical Smoothing ---
+            data = res.json()
             feature = data['features'][0]
             props = feature['properties']
             geometry = feature['geometry']['coordinates'] # List of [lon, lat, ele]
             extras = props.get('extras', {})
 
-            # --- 2. SMA Elevation Sanitization ---
-            clean_ascent = _sanitize_elevation_profile(
-                geometry=geometry,
-                window_size=7,
-                threshold=0.5
-            )
+            # --- 1. Tactical Elevation & Distance ---
+            # SMA Smoothing filters satellite noise
+            clean_ascent = _sanitize_elevation_profile(geometry, window_size=7, threshold=0.5)
 
-            # --- 2b. Geodesic Accuracy Calculation (Haversine) ---
+            # Haversine Distance (Geodesic)
             real_dist_m = 0
             for i in range(len(geometry) - 1):
                 p1, p2 = geometry[i], geometry[i+1]
                 real_dist_m += haversine_distance(p1[1], p1[0], p2[1], p2[0])
 
-            # --- 3. Surface & Mud Analysis (TAEL Model) ---
+            # --- 2. Surface & Mud Analysis (TAEL Model) ---
             surface_map = {0: "Unknown", 1: "Asphalt", 2: "Unpaved", 3: "Paved", 4: "Cobblestone",
                            5: "Gravel", 6: "Fine Gravel", 11: "Grass", 12: "Compact", 14: "Concrete"}
 
             dominant_surface = _extract_dominant_surface(extras.get('surface', {}), surface_map)
             mud_analysis = get_mud_risk_analysis(lat, lon, dominant_surface)
 
-            if mud_analysis["status"] == "Success":
-                mud_index = mud_analysis["tactical_analysis"]["adjusted_moisture_index"]
-                mud_risk_label = mud_analysis["tactical_analysis"]["mud_risk_score"]
-                safety_advice = mud_analysis["tactical_analysis"]["safety_advice"]
-                env_context = mud_analysis["environmental_context"]
-            else:
-                mud_index, mud_risk_label = 0.5, "Unknown (Telemetry Failure)"
-                safety_advice, env_context = "Weather data unavailable.", {}
+            # Fallback
+            t_analysis = mud_analysis.get("tactical_analysis", {})
+            mud_index = t_analysis.get("adjusted_moisture_index", 0.5)
+            mud_risk_label = t_analysis.get("mud_risk_score", "Unknown")
+            safety_advice = t_analysis.get("safety_advice", "Telemetry unavailable.")
+            env_context = mud_analysis.get("environmental_context", {})
 
-            # --- 4. Tactical Tire Intelligence ---
+            # --- 3. Tactical Setup & Compatibility ---
             tire_mm, tire_display = get_tire_setup(
                 bike_type=bike.bike_type,
                 tire_size_option=bike.tire_size,
@@ -238,15 +235,32 @@ def get_surface_analyzer(api_key, lat, lon, rider, bike, mission):
                 rider_weight_kg=rider.weight_kg
             )
 
-            # --- 5. Categorization & Technical Specs ---
             climb_cat, avg_grad = _categorize_climb(clean_ascent, real_dist_m, current_profile)
             breakdown, warnings, compatible = analyze_compatibility(bike.bike_type, tire_mm, extras, surface_map)
             tech_specs = _analyze_technical_difficulty(extras, rider.fitness_level)
 
-            if mud_index > 0.7: # Threshold for critical mud warning
+            if mud_index > 0.7:
                 warnings.append(f"MUD ALERT: {safety_advice}")
 
-            # --- 6. Final Tactical Briefing Response ---
+            # --- 4. E-MTB Power Management ---
+            emtb_analysis = None
+            is_emtb = "E-" in bike.bike_type.upper() or getattr(bike, 'battery_wh', 0) > 0
+
+            if is_emtb:
+                emtb_analysis = calculate_battery_drain(
+                    battery_wh=getattr(bike, 'battery_wh', 500),
+                    assist_level=getattr(mission, 'assist_mode', "Trail"),
+                    weight_kg=rider.weight_kg + 24, # Rider + avg E-Bike weight
+                    ascent_m=clean_ascent,
+                    distance_km=real_dist_m / 1000,
+                    surface_breakdown=breakdown,
+                    mud_index=mud_index
+                )
+
+                if emtb_analysis and emtb_analysis["remaining_battery_pct"] < 15:
+                    warnings.append(f"RANGE ANXIETY: SoC at finish is {emtb_analysis['remaining_battery_pct']}%. Drop to Eco!")
+
+            # --- 5. Final Tactical Response Assembly ---
             return {
                 "status": "Success",
                 "profile_used": current_profile,
@@ -270,11 +284,12 @@ def get_surface_analyzer(api_key, lat, lon, rider, bike, mission):
                     "rider_weight_baseline": f"{rider.weight_kg}kg"
                 },
                 "surface_breakdown": breakdown,
+                "emtb_tactical": emtb_analysis,
                 "safety_warnings": warnings
             }
 
         except Exception as e:
-            last_error = str(e)
+            last_error = f"Local processing error: {str(e)}"
             continue
 
     return {"status": "Error", "message": f"Analysis failed: {last_error}"}

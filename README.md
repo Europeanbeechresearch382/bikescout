@@ -29,6 +29,7 @@ You can ask **BikeScout** complex, multi-step requests. It combines real-time da
 ### Bike Setup & Surface Intelligence
 * *"Check this route `[LAT, LON]` for a **15km loop**. I'm on a **Road Bike with 25mm tires**. Is it compatible? Give me the exact percentage of gravel vs asphalt."*
 * *"I'm planning a ride in **Kyoto, Japan**. Find a **30km loop** that is at least **70% gravel**, but only if the rain probability is below **10%** for the next 4 hours."*
+* *"I'm riding an E-MTB (750Wh battery) in Boost mode. Analyze this 40km route and tell me if I'll have enough juice to finish the final Category 2 climb, considering the current mud risk."*
 
 ### Visual Elevation & Gradient Analysis
 * *"Plan a 40km route starting from Bormio. I need the Visual Elevation Profile to see the exact gradients of the Stelvio climb. Highlight sections over 12% so I can manage my pacing."*
@@ -281,20 +282,26 @@ Used for tire pressure and difficulty scaling.
 
 #### **Bike Setup (`bike`)**
 | Field | Type | Default | Description |
-| :--- | :--- | :--- | :--- |
-| `bike_type` | `string` | `MTB` | Geometry profile. Options: `Road`, `Gravel`, `MTB`, `Enduro`. |
-| `tire_size` | `string` | `29` | Diameter/Standard. Options: `26`, `27.5`, `29`, `700c`, `650b`. |
+| :--- | :--- |:--------| :--- |
+| `bike_type` | `string` | `MTB`   | Geometry profile. Options: `Road`, `Gravel`, `MTB`, `Enduro`. |
+| `tire_size` | `string` | `29`    | Diameter/Standard. Options: `26`, `27.5`, `29`, `700c`, `650b`. |
 | `is_ebike` | `bool` | `false` | If true, triggers battery consumption and motor-assist logic. |
-| `battery_wh` | `int` | `null` | Battery capacity in Watt-hours (required if `is_ebike` is true). |
+| `battery_wh` | `int` | `625`   | Battery capacity in Watt-hours (required if `is_ebike` is true). |
 
 #### **Mission Constraints (`mission`)**
-| Field | Type | Default | Description |
-| :--- | :--- | :--- | :--- |
-| `radius_km` | `int` | `10` | Total target distance for the loop. |
-| `profile` | `string` | `cycling-mountain` | ORS Routing profile. |
-| `surface_preference` | `string` | `neutral` | Options: `neutral`, `avoid_unpaved`, `prefer_trails`. |
-| `points` | `int` | `3` | Complexity of the loop (higher = more circular). |
-| `seed` | `int` | `42` | Randomizer seed to reproduce specific route variations. |
+| Field                | Type     | Default            | Description                                                                                                                                                                                                                                                                                            |
+|:---------------------|:---------|:-------------------|:-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| `radius_km`          | `int`    | `10`               | Total target distance for the loop.                                                                                                                                                                                                                                                                    |
+| `profile`            | `string` | `cycling-mountain` | ORS Routing profile.                                                                                                                                                                                                                                                                                   |
+| `surface_preference` | `string` | `neutral`          | Options: `neutral`, `avoid_unpaved`, `prefer_trails`.                                                                                                                                                                                                                                                  |
+| `points`             | `int`    | `3`                | Complexity of the loop (higher = more circular).                                                                                                                                                                                                                                                       |
+| `seed`               | `int`    | `42`               | Randomizer seed to reproduce specific route variations.                                                                                                                                                                                                                                                |
+| `assist_mode`        | `string` | `Eco`              | Defines the motor's power output profile (Eco, Trail, Boost). This tactical parameter scales the energy consumption model by adjusting the motor-to-rider assistance ratio, directly impacting predicted battery range and "Safety Buffer" alerts based on terrain resistance. 'Eco', 'Trail', 'Boost' |
+
+#### **Route Geometry (`geometry`)**
+| Field                | Type     | Default | Description                                                                                                                                                                                                                                                                                            |
+|:---------------------|:---------|:--------|:-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| `coordinates`          | `list[list[float]]`    | `...`   | A list of GPS points in GeoJSON format. Each sub-list represents a coordinate triplet: [longitude, latitude, elevation]. This sequence is used by the SMA Filter to sanitize elevation and by the Haversine formula for geodesic accuracy.                                                                                                                                                                                                                                                                   |
 
 ### `geocode_location`
 This tool acts as the intelligent "entry point" for all natural language queries. It translates place names into geographical coordinates, enabling a seamless experience where users don't need to provide raw GPS data.
@@ -616,6 +623,7 @@ This tool goes beyond simple mapping by cross-referencing terrain data with the 
 * **Tactical Tire Intelligence:** Calculates optimal tire recommendations and pressure baseline by cross-referencing **Rider Weight**, bike type, and dominant surface composition.
 * **Mud Risk Score:** Provides a localized risk rating (Low/Medium/High) to help cyclists prevent drivetrain damage and avoid unrideable sections.
 * **TAEL (Terrain-Aware Evaporation Lag):** A tactical model that cross-references 72h rainfall and geological drainage with real-time solar altitude to predict trail saturation and "Shadow-Lock" mud persistence.
+* **E-MTB Power Predictor:** A physics-based energy model ($W = m \cdot g \cdot h$) that predicts battery drain by cross-referencing Total System Weight, Assist Mode, Surface Drag, and Mud Suction effects.
 
 #### **Parameters:**
 
@@ -627,13 +635,6 @@ This tool goes beyond simple mapping by cross-referencing terrain data with the 
 | **`bike`** | `object` | Required | [Bike Setup](#bike-setup-bike).                         |
 | **`mission`** | `object` | Required | [Mission Constraints](#mission-constraints-mission).    |
 
-#### **Technical Insights:**
-
-> **Reality Filter:** This tool automatically reduces raw satellite elevation data by up to 40% on steep terrain to correct for SRTM sensor noise, ensuring the "Elevation Gain" matches real-world barometric sensors.
->
-> **Effort Multiplier:** Climb categories are calculated with a **1.4x intensity factor** for MTB profiles to account for the increased rolling resistance and technical effort of off-road ascending.
->
-> **MTB-Scale Integration:** Routes are analyzed for technical obstacles. An "S3" rating will trigger warnings for Gravel/Road setups, indicating sections with rock gardens or high steps.
 
 **Example Output (JSON) for MTB:**
 ```json
@@ -824,6 +825,90 @@ This tool goes beyond simple mapping by cross-referencing terrain data with the 
 }
 ```
 
+**Example Output (JSON) for E-Bike:**
+```json
+{
+  "payload_version": "1.0",
+  "status": "Success",
+  "profile_used": "cycling-mountain",
+  "tactical_briefing": {
+    "distance_km": 10.12,
+    "elevation_gain_m": 586,
+    "climb_category": "Hors Catégorie (HC) - Legendary Challenge",
+    "avg_gradient_est": "19.3%",
+    "technical_difficulty": {
+      "mtb_scale": "Standard / Unclassified",
+      "trail_visibility": "Excellent",
+      "technical_notes": "Technical grading based on OSM mountain standards.",
+      "fitness_context": "Evaluated for intermediate level"
+    },
+    "mud_risk": {
+      "score": 24.19,
+      "label": "High",
+      "details": "Significant saturation. High risk of sliding in technical sectors.",
+      "environmental_factors": {
+        "raw_rain_72h": "25.6mm",
+        "avg_temp": "17.4°C",
+        "drying_efficiency": "1.06x",
+        "shadow_penalty_active": "No",
+        "solar_altitude": "52.5°"
+      }
+    }
+  },
+  "mechanical_setup": {
+    "compatible": true,
+    "bike_category": "MTB",
+    "setup_details": "29 wheels | 19.6 PSI (1.35 Bar) [Mud Flotation Setup]",
+    "rider_weight_baseline": "80.0kg"
+  },
+  "surface_breakdown": [
+    {
+      "type": "Unknown",
+      "percentage": "40.9%"
+    },
+    {
+      "type": "Paved",
+      "percentage": "27.0%"
+    },
+    {
+      "type": "Asphalt",
+      "percentage": "9.5%"
+    },
+    {
+      "type": "Compact",
+      "percentage": "8.4%"
+    },
+    {
+      "type": "Grass",
+      "percentage": "8.0%"
+    },
+    {
+      "type": "Concrete",
+      "percentage": "3.4%"
+    },
+    {
+      "type": "Unpaved",
+      "percentage": "2.9%"
+    }
+  ],
+  "emtb_tactical": {
+    "estimated_drain_wh": 1518,
+    "remaining_battery_pct": 0,
+    "safety_buffer_status": "CRITICAL",
+    "breakdown_wh": {
+      "horizontal_base": 121.4,
+      "vertical_climb": 221.4,
+      "terrain_friction": 1175.1
+    }
+  },
+  "safety_warnings": [
+    "MUD ALERT: Significant saturation. High risk of sliding in technical sectors.",
+    "RANGE ANXIETY: SoC at finish is 0.0%. Drop to Eco!"
+  ]
+}
+```
+
+
 ### `poi_scout`
 A specialized safety and logistics tool designed to identify critical cycling amenities. It bypasses standard "commercial noise" by focusing strictly on professional cycling infrastructure and public utilities.
 
@@ -929,11 +1014,11 @@ Generates a high-resolution visual analysis of the route's elevation profile. Un
 
 #### **Parameters:**
 
-| Parameter  | Type     | Default      | Description                                                                  |
-|:-----------|:---------|:-------------|:-----------------------------------------------------------------------------|
-| `geometry` | `object` | **Required** | A validated RouteGeometry object containing the [[lon, lat, ele], ...] list. |
-| `width`    | `int`    | 8            | Width of the generated image (matplotlib inches).                            |
-| `height`    | `int`    | 3            | Height of the generated image (matplotlib inches).          |
+| Parameter  | Type     | Default      | Description                                        |
+|:-----------|:---------|:-------------|:---------------------------------------------------|
+| `geometry` | `object` | **Required** | [Route Geometry](#route-geometry-geometry).         |
+| `width`    | `int`    | 8            | Width of the generated image (matplotlib inches).  |
+| `height`    | `int`    | 3            | Height of the generated image (matplotlib inches). |
 
 
 #### **Example Output (JSON):**
