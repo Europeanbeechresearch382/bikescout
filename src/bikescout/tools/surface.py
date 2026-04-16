@@ -1,78 +1,34 @@
 import requests
+import numpy as np
 from bikescout.tools.mud import get_mud_risk_analysis
 from bikescout.tools.geophysic import haversine_distance
+from bikescout.tools.bike_setup import analyze_compatibility
+from bikescout.tools.bike_setup import get_tire_setup
+from bikescout.tools.battery import calculate_battery_drain
+from bikescout.schemas import RiderProfile, BikeSetup, MissionConstraints
 
 
-def _get_tire_setup(bike_type: str, tire_size_option: str, mud_index: float = 0.0, surface_type: str = "mixed", rider_weight_kg: float = 80.0):
+def _sanitize_elevation_profile(geometry, window_size=7, threshold=0.5):
     """
-    Standardizes tire size and calculates Actionable Setup Intelligence (PSI/Bar).
-    Transitions from static descriptors to dynamic tactical briefings.
-
-    Returns:
-        tuple: (actual_tire_mm, tactical_display_string)
+    Filters satellite SRTM noise using a Simple Moving Average and Hysteresis.
+    Ensures that flat roads don't accumulate 'phantom' elevation gain.
     """
-    bike_type = bike_type.lower()
+    elevations = [p[2] for p in geometry if len(p) > 2]
+    if len(elevations) < window_size:
+        return 0.0
 
-    # 1. Base Configuration Mapping
-    # (Base_PSI_at_85kg, Width_mm, Default_Wheel_Label)
-    configs = {
-        "mtb": (24.0, 58, "29\""),
-        "e-mtb": (26.0, 60, "29\""),
-        "enduro": (23.0, 60, "29\""),
-        "gravel": (35.0, 40, "700c"),
-        "road": (85.0, 25, "700c")
-    }
+    # Apply SMA smoothing
+    weights = np.ones(window_size) / window_size
+    smoothed = np.convolve(elevations, weights, mode='valid')
 
-    # Default to road if type is unknown
-    base_psi, width_mm, wheel_label = configs.get(bike_type, configs["road"])
+    total_ascent = 0.0
+    for i in range(1, len(smoothed)):
+        diff = smoothed[i] - smoothed[i-1]
+        # Only count ascent if change exceeds 0.5m (Hysteresis)
+        if diff > threshold:
+            total_ascent += diff
 
-    # 2. Wheel Label Normalization (Legacy support for tire_size_option)
-    if bike_type in ["mtb", "e-mtb", "enduro"]:
-        wheel_label = "29\"" if tire_size_option in ["700c", "650b", "25", "28"] else tire_size_option
-    elif bike_type == "gravel":
-        wheel_label = tire_size_option if tire_size_option in ["700c", "650b"] else "700c"
-
-    # 3. Rider Weight Normalization (Heuristic: +/- 1 PSI per 5kg deviation)
-    weight_adjustment = (rider_weight_kg - 85.0) / 5.0
-    adjusted_psi = base_psi + weight_adjustment
-
-    # 4. Tactical Strategy Logic
-    strategy = "Standard"
-
-    # Mud Strategy: Lower pressure for flotation and traction
-    if mud_index > 0.6:
-        adjusted_psi *= 0.85  # 15% reduction
-        strategy = "Mud Flotation"
-
-    # Surface Strategy: Compliance vs Efficiency
-    elif any(keyword in surface_type.lower() for keyword in ["rock", "root", "technical"]):
-        adjusted_psi -= 2.0
-        strategy = "Compliance"
-    elif any(keyword in surface_type.lower() for keyword in ["smooth", "asphalt", "paved"]):
-        adjusted_psi += 3.0
-        strategy = "Efficiency"
-
-    # 5. Unit Conversion
-    final_psi = round(adjusted_psi, 1)
-    final_bar = round(final_psi * 0.0689476, 2)
-
-    # 6. Tactical Display String
-    tactical_display = (
-        f"{wheel_label} wheels | {final_psi} PSI ({final_bar} Bar) "
-        f"[{strategy} Setup]"
-    )
-
-    return width_mm, tactical_display
-
-def _sanitize_elevation(raw_ascent: float):
-    """
-    Filters satellite SRTM noise. Applies progressive reduction based on ascent intensity.
-    """
-    if raw_ascent > 2000:
-        return round(raw_ascent * 0.60, 0)  # 40% reduction for high noise
-    if raw_ascent > 1000:
-        return round(raw_ascent * 0.70, 0)  # 30% reduction
-    return round(raw_ascent * 0.85, 0)      # 15% reduction for light hills
+    return round(total_ascent, 0)
 
 def _categorize_climb(total_ascent: float, total_dist_m: float, bike_type: str):
     """
@@ -132,16 +88,13 @@ def _categorize_climb(total_ascent: float, total_dist_m: float, bike_type: str):
 
     return category, display_gradient
 
-def _analyze_technical_difficulty(extras: dict):
+def _analyze_technical_difficulty(extras: dict, fitness_level: str = "intermediate"):
     """
-    Parses OSM tags for professional technical grading (MTB-Scale & SAC-Scale).
+    Parses OSM tags for technical grading and cross-references with rider fitness.
     """
     # 1. MTB Scale (Singletrail-Skala S0-S5)
-    # ORS returns 'surface' or 'tracktype' summaries, but specific scale tags
-    # are often in the 'steepness' or 'suitability' segments if enabled.
-    # Se ORS non passa il tag diretto, usiamo il tracktype come fallback intelligente.
-
-    mtb_val = extras.get('mtb_scale', {}).get('summary', [{}])[0].get('value', 'N/A')
+    mtb_summary = extras.get('mtb_scale', {}).get('summary', [])
+    mtb_val = str(mtb_summary[0].get('value', 'N/A')) if mtb_summary else 'N/A'
 
     scale_info = {
         "0": "S0: Smooth, paved/firm trails without obstacles.",
@@ -153,39 +106,31 @@ def _analyze_technical_difficulty(extras: dict):
     }
 
     # 2. Trail Visibility
-    vis_val = extras.get('trail_visibility', {}).get('summary', [{}])[0].get('value', '1')
+    vis_summary = extras.get('trail_visibility', {}).get('summary', [])
+    vis_val = str(vis_summary[0].get('value', '1')) if vis_summary else '1'
     vis_map = {"1": "Excellent", "2": "Good", "3": "Poor", "4": "Invisible/Requires GPS"}
 
+    # 3. Fitness-Based Technical Advice
+    # Se il livello tecnico è S2+ e il rider è beginner, aggiungiamo un warning.
+    tech_note = "Technical grading based on OSM mountain standards."
+
+    try:
+        level_int = int(mtb_val)
+        if fitness_level == "beginner" and level_int >= 2:
+            tech_note = "FITNESS ALERT: This trail requires technical maneuvers (S2+) that might be exhausting for a beginner."
+        elif fitness_level == "pro" and level_int >= 3:
+            tech_note = "PRO ADVICE: High technicality (S3+) detected. Ideal for testing suspension and technical handling."
+        elif fitness_level == "beginner" and level_int <= 1:
+            tech_note = "Confidence Builder: Technical level is well-suited for your fitness and skill profile."
+    except ValueError:
+        pass # mtb_val is N/A or non-numeric
+
     return {
-        "mtb_scale": scale_info.get(str(mtb_val), "Standard / Unclassified"),
-        "trail_visibility": vis_map.get(str(vis_val), "Standard"),
-        "technical_notes": "Technical grading based on OSM mountain standards."
+        "mtb_scale": scale_info.get(mtb_val, "Standard / Unclassified"),
+        "trail_visibility": vis_map.get(vis_val, "Standard"),
+        "technical_notes": tech_note,
+        "fitness_context": f"Evaluated for {fitness_level} level"
     }
-
-def _analyze_compatibility(bike_type: str, tire_mm: int, extras: dict, surface_map: dict):
-    """
-    Checks if the bike setup is compatible with the detected surfaces.
-    """
-    breakdown = []
-    warnings = []
-    is_compatible = True
-
-    if 'surface' in extras:
-        for item in extras['surface']['summary']:
-            name = surface_map.get(item['value'], "Other")
-            percentage = round(item['amount'], 1)
-
-            if bike_type.lower() == "road":
-                if name in ["Gravel", "Unpaved", "Pebbles", "Grass", "Other"]:
-                    is_compatible = False
-                    warnings.append(f"Safety risk: {percentage}% of the route is {name}.")
-            elif bike_type.lower() == "gravel":
-                if name in ["Pebbles", "Grass", "Other"]:
-                    warnings.append(f"Comfort warning: {percentage}% is {name}.")
-
-            breakdown.append({"type": name, "percentage": f"{percentage}%"})
-
-    return breakdown, warnings, is_compatible
 
 def _build_ors_options(surface_preference):
     """
@@ -207,15 +152,19 @@ def _build_ors_options(surface_preference):
 
     return options
 
-def get_surface_analyzer(api_key, lat, lon, radius_km, profile, bike_type, tire_size_option, points, seed, surface_preference, rider_weight_kg):
+import requests
+import numpy as np
+
+def get_surface_analyzer(api_key, lat, lon, rider, bike, mission):
     """
     Main entry point for route analysis.
-    Integrated with Geodesic Accuracy (Haversine) and TAEL Mud Risk Model.
+    Upgraded with Tactical SMA Elevation Smoothing, Geodesic Accuracy,
+    TAEL Mud Risk Model and E-MTB battery drain.
     """
 
     attempts = [
-        (profile, ["surface", "waytype", "tracktype"]),
-        (profile, ["surface", "waytype"]),
+        (mission.profile, ["surface", "waytype", "tracktype"]),
+        (mission.profile, ["surface", "waytype"]),
         ("cycling-regular", ["surface", "waytype"])
     ]
 
@@ -227,87 +176,102 @@ def get_surface_analyzer(api_key, lat, lon, radius_km, profile, bike_type, tire_
             "coordinates": [[lon, lat]],
             "elevation": True,
             "options": {
-                "round_trip": {"length": radius_km * 1000, "points": points, "seed": seed},
-                **_build_ors_options(surface_preference)
+                "round_trip": {
+                    "length": mission.radius_km * 1000,
+                    "points": mission.complexity,
+                    "seed": mission.seed
+                },
+                **_build_ors_options(mission.surface_preference)
             },
             "extra_info": current_extras
         }
 
         try:
-            response = requests.post(url, json=body, headers=headers)
-            if response.status_code == 400:
-                last_error = response.json().get('error', {}).get('message', 'Bad Request')
+            res = requests.post(url, json=body, headers=headers)
+
+            if res.status_code != 200:
+                try:
+                    last_error = res.json().get('error', {}).get('message', f"HTTP {res.status_code}")
+                except:
+                    last_error = f"HTTP {res.status_code}"
                 continue
 
-            response.raise_for_status()
-            data = response.json()
-
-            # --- 2. Extract Geometry & Core Data ---
+            data = res.json()
             feature = data['features'][0]
             props = feature['properties']
             geometry = feature['geometry']['coordinates'] # List of [lon, lat, ele]
             extras = props.get('extras', {})
 
-            # --- 2b. GEODESIC ACCURACY UPGRADE ---
-            # Instead of using props['summary']['distance'], we calculate the real distance
-            # summing segments with Haversine to avoid latitude distortion.
+            # --- 1. Tactical Elevation & Distance ---
+            # SMA Smoothing filters satellite noise
+            clean_ascent = _sanitize_elevation_profile(geometry, window_size=7, threshold=0.5)
+
+            # Haversine Distance (Geodesic)
             real_dist_m = 0
             for i in range(len(geometry) - 1):
-                p1 = geometry[i]
-                p2 = geometry[i+1]
-                # ORS uses [lon, lat], haversine needs (lat1, lon1, lat2, lon2)
+                p1, p2 = geometry[i], geometry[i+1]
                 real_dist_m += haversine_distance(p1[1], p1[0], p2[1], p2[0])
 
-            # --- 3. Surface & Mud Analysis (INTEGRATED TAEL MODEL) ---
+            # --- 2. Surface & Mud Analysis (TAEL Model) ---
             surface_map = {0: "Unknown", 1: "Asphalt", 2: "Unpaved", 3: "Paved", 4: "Cobblestone",
                            5: "Gravel", 6: "Fine Gravel", 11: "Grass", 12: "Compact", 14: "Concrete"}
 
             dominant_surface = _extract_dominant_surface(extras.get('surface', {}), surface_map)
             mud_analysis = get_mud_risk_analysis(lat, lon, dominant_surface)
 
-            if mud_analysis["status"] == "Success":
-                mud_index = mud_analysis["tactical_analysis"]["adjusted_moisture_index"]
-                mud_risk_label = mud_analysis["tactical_analysis"]["mud_risk_score"]
-                safety_advice = mud_analysis["tactical_analysis"]["safety_advice"]
-                env_context = mud_analysis["environmental_context"]
-            else:
-                mud_index = 0.5
-                mud_risk_label = "Unknown (Telemetry Failure)"
-                safety_advice = "Weather data unavailable. Proceed with caution."
-                env_context = {}
+            # Fallback
+            t_analysis = mud_analysis.get("tactical_analysis", {})
+            mud_index = t_analysis.get("adjusted_moisture_index", 0.5)
+            mud_risk_label = t_analysis.get("mud_risk_score", "Unknown")
+            safety_advice = t_analysis.get("safety_advice", "Telemetry unavailable.")
+            env_context = mud_analysis.get("environmental_context", {})
 
-            # --- 4. Tire Intelligence ---
-            tire_mm, tire_display = _get_tire_setup(
-                bike_type=bike_type,
-                tire_size_option=tire_size_option,
+            # --- 3. Tactical Setup & Compatibility ---
+            tire_mm, tire_display = get_tire_setup(
+                bike_type=bike.bike_type,
+                tire_size_option=bike.tire_size,
                 mud_index=mud_index,
                 surface_type=dominant_surface,
-                rider_weight_kg=rider_weight_kg
+                rider_weight_kg=rider.weight_kg
             )
 
-            # --- 5. Process Elevation and Climbs (Using REAL Geodesic Distance) ---
-            clean_ascent = _sanitize_elevation(props.get('ascent', 0))
             climb_cat, avg_grad = _categorize_climb(clean_ascent, real_dist_m, current_profile)
+            breakdown, warnings, compatible = analyze_compatibility(bike.bike_type, tire_mm, extras, surface_map)
+            tech_specs = _analyze_technical_difficulty(extras, rider.fitness_level)
 
-            # --- 6. Process Compatibility & Technical Specs ---
-            breakdown, warnings, compatible = _analyze_compatibility(bike_type, tire_mm, extras, surface_map)
-            tech_specs = _analyze_technical_difficulty(extras)
-
-            if mud_index > 10:
+            if mud_index > 0.7:
                 warnings.append(f"MUD ALERT: {safety_advice}")
 
-            # --- 7. Final Tactical Briefing Response ---
+            # --- 4. E-MTB Power Management ---
+            emtb_analysis = None
+            is_emtb = "E-" in bike.bike_type.upper() or getattr(bike, 'battery_wh', 0) > 0
+
+            if is_emtb:
+                emtb_analysis = calculate_battery_drain(
+                    battery_wh=getattr(bike, 'battery_wh', 500),
+                    assist_level=getattr(mission, 'assist_mode', "Trail"),
+                    weight_kg=rider.weight_kg + 24, # Rider + avg E-Bike weight
+                    ascent_m=clean_ascent,
+                    distance_km=real_dist_m / 1000,
+                    surface_breakdown=breakdown,
+                    mud_index=mud_index
+                )
+
+                if emtb_analysis and emtb_analysis["remaining_battery_pct"] < 15:
+                    warnings.append(f"RANGE ANXIETY: SoC at finish is {emtb_analysis['remaining_battery_pct']}%. Drop to Eco!")
+
+            # --- 5. Final Tactical Response Assembly ---
             return {
                 "status": "Success",
                 "profile_used": current_profile,
                 "tactical_briefing": {
-                    "distance_km": round(real_dist_m / 1000, 2), # Now geodesic accurate
+                    "distance_km": round(real_dist_m / 1000, 2),
                     "elevation_gain_m": clean_ascent,
                     "climb_category": climb_cat,
                     "avg_gradient_est": f"{round(avg_grad, 1)}%",
                     "technical_difficulty": tech_specs,
                     "mud_risk": {
-                        "score": mud_index,
+                        "score": round(mud_index, 2),
                         "label": mud_risk_label,
                         "details": safety_advice,
                         "environmental_factors": env_context
@@ -315,16 +279,17 @@ def get_surface_analyzer(api_key, lat, lon, radius_km, profile, bike_type, tire_
                 },
                 "mechanical_setup": {
                     "compatible": compatible,
-                    "bike_category": bike_type,
+                    "bike_category": bike.bike_type,
                     "setup_details": tire_display,
-                    "rider_weight_baseline": f"{rider_weight_kg}kg"
+                    "rider_weight_baseline": f"{rider.weight_kg}kg"
                 },
                 "surface_breakdown": breakdown,
+                "emtb_tactical": emtb_analysis,
                 "safety_warnings": warnings
             }
 
         except Exception as e:
-            last_error = str(e)
+            last_error = f"Local processing error: {str(e)}"
             continue
 
     return {"status": "Error", "message": f"Analysis failed: {last_error}"}

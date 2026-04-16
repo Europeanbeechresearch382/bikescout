@@ -1,10 +1,12 @@
 # BikeScout MCP Server
 
 [![License: Apache 2.0](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
-[![Version](https://img.shields.io/badge/Version-0.9.5-green.svg)](https://github.com/hifly81/bikescout/releases)
+[![Version](https://img.shields.io/badge/Version-1.0.0-green.svg)](https://github.com/hifly81/bikescout/releases)
 ![Python](https://img.shields.io/badge/python-3.10-blue.svg)
 [![hifly81/bikescout](https://glama.ai/mcp/servers/hifly81/bikescout/badges/score.svg)](https://glama.ai/mcp/servers/hifly81/bikescout)
 [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg?style=flat-square)](http://makeapullrequest.com)
+[![Discord](https://img.shields.io/badge/Discord-7289DA?style=flat&logo=discord&logoColor=white)](https://discord.gg/TCetrnAM5b)
+[![Reddit](https://img.shields.io/badge/Reddit-FF4500?style=flat&logo=reddit&logoColor=white)](https://www.reddit.com/r/BikeScout/)
 
 BikeScout is a specialized MCP server for MTB, Road, E-Bike, and Gravel mission planning.
 It transforms raw map data into Tactical Intelligence, predicting terrain conditions and trail hazards.
@@ -14,6 +16,40 @@ The system provides precise setup advice, tailoring your equipment to the demand
   <video src="https://github.com/user-attachments/assets/cd984f3d-0ba8-4590-9645-99f2b5e980b6" width="100%" controls autoplay muted loop>
   </video>
 </div>
+
+---
+
+## Example Queries
+
+You can ask **BikeScout** complex, multi-step requests. It combines real-time data with technical cycling intelligence to provide expert-level answers.
+
+### Advanced Planning (Multi-Tool)
+* *"I'm at **Monte Cavo** with my **Gravel bike (40mm tires)**. Plan a **25km loop** for me. Check if the terrain is compatible with my bike, verify the afternoon rain probability, and suggest a 'Fraschetta' for the finish. Use the **Castelli Romani guide**."*
+* *"I want to ride in **Moab** tomorrow. I have a **hardtail MTB**. Find me a **20km route** that isn't too technical (avoid Grade 4/5 tracks), check the heat forecast, and give me the desert safety checklist."*
+* *"I'm a 75kg rider on a Gravel bike with 38mm tubeless tires. Based on the surface breakdown of this route (60% loose gravel, 40% asphalt), calculate my optimal tire pressure for maximum traction without risking rim strikes."*
+
+### Bike Setup & Surface Intelligence
+* *"Check this route `[LAT, LON]` for a **15km loop**. I'm on a **Road Bike with 25mm tires**. Is it compatible? Give me the exact percentage of gravel vs asphalt."*
+* *"I'm planning a ride in **Kyoto, Japan**. Find a **30km loop** that is at least **70% gravel**, but only if the rain probability is below **10%** for the next 4 hours."*
+* *"I'm riding an E-MTB (750Wh battery) in Boost mode. Analyze this 40km route and tell me if I'll have enough juice to finish the final Category 2 climb, considering the current mud risk."*
+
+### Visual Elevation & Gradient Analysis
+* *"Plan a 40km route starting from Bormio. I need the Visual Elevation Profile to see the exact gradients of the Stelvio climb. Highlight sections over 12% so I can manage my pacing."*
+* *"Check this route [LAT, LON]. Generate the high-resolution altitude chart and tell me if the descent is too steep for a rider with rim brakes."*
+
+### Local Expertise
+* *"Use the **Dolomiti local guide** to plan a road cycling route starting from **Cortina**. I need at least **800m of elevation gain**. Also, recommend the correct tire pressure for high-altitude descents and a mountain hut for a strudel stop."*
+* *"Are there any named trails near **Vancouver, Canada**? Analyze the surface types and tell me if they are suitable for a beginner on an **E-MTB**."*
+* *"Plan a hiking/biking hybrid mission in the Swiss Alps. Use the SAC-Scale to identify sections where I might need to carry my bike (hike-a-bike) due to technical rock gardens."*
+
+### Quick Tech Checks
+* *"Give me the **safety checklist** and calculate the **tire pressure** for a **90kg rider** on **2.3" tubeless tires** for a muddy ride."*
+* *"What is the terrain breakdown for a **10km ride** in **Taichung**? I need to know if I'll encounter any 'Grade 5' technical segments."*
+
+### Post-Ride Analysis & Terrain Truth
+* *"Analyze my Strava ride from 2026-04-12. Compare my average speed with the Mud Risk at that time and tell me if the terrain conditions were the reason for my slow pace."*
+* *"Check my ride from last Sunday on Strava. Cross-reference the GPS path with the 72h rain history to see if the 'High' mud risk I encountered was accurately predicted."*
+* *"Get my activity from Strava for [Date]. Based on the surface types detected and the weather context of that day, was my tire pressure setup (1.8 bar) optimal or should I have gone lower?"*
 
 ---
 
@@ -32,6 +68,7 @@ The system provides precise setup advice, tailoring your equipment to the demand
 * **Seamless Location Search**: No GPS coordinates required. Use natural language (e.g., *"Find a ride in Albano Laziale"*) via integrated Nominatim Geocoding.
 * **Tactical Ride Window Planner (Go/No-Go)**: A high-value decision engine that calculates the optimal time to start your ride. It analyzes consecutive hourly slots and cross-references them with atmospheric hazards and soil memory to provide a color-coded tactical verdict.
 * **Instant Map Previews**: Automatically generates a **Static Map (.png)** of the route to visualize the trail directly within the chat interface.
+* **Generates a high-resolution visual analysis of the route's elevation profile**:. Unlike simple line charts, this tool produces a tactical graphical representation that integrates color-coded slope data, allowing for an immediate assessment of vertical difficulties.
 * **Local Expert Knowledge**: Specialized regional prompts for world-class destinations like the **Dolomites (UNESCO)**, **Moab (USA)**, and **Castelli Romani**.
 * **Pro Climb Categorization**: Automatically identifies and names specific climbs (from **Category 4** to **Hors Catégorie**) using professional cycling standards based on length and average gradient.
 * **Post-Ride Tactical Analysis (Strava Integration)**: Fuses actual **Strava** activity logs with environmental intelligence. By decoding GPS polylines, it cross-references your past performance with historical **Mud Risk** and weather data to validate your gear choice and analyze how trail conditions impacted your speed and effort.
@@ -101,7 +138,6 @@ You have successfully deployed your tactical scout. Your AI is now ready to anal
 
 ---
 
-
 ## Prerequisites
 
 - **Python 3.10+**
@@ -110,21 +146,9 @@ You have successfully deployed your tactical scout. Your AI is now ready to anal
 - **Strava Account (Optional)**: Required only for the **Post-Ride Tactical Analysis** feature.
 - **Stadia Maps Account (Optional)**: Required only for generating Static Route Maps.
 
-### How to obtain Strava API Credentials:
 To enable Strava integration, you need to create a developer application and generate a long-lived Refresh Token:
 
-1. **Create an App**: Go to the [Strava Settings API](https://www.strava.com/settings/api) and create an application (set "Localhost" as the Authorization Callback Domain).
-2. **Get Client ID & Secret**: Note down your `STRAVA_CLIENT_ID` and `STRAVA_CLIENT_SECRET`.
-3. **Authorize and Get Code**: Paste the following URL in your browser (replace `YOUR_CLIENT_ID` with your actual ID):
-   `https://www.strava.com/oauth/authorize?client_id=YOUR_CLIENT_ID&response_type=code&redirect_uri=http://localhost&approval_prompt=force&scope=read,activity:read_all`
-4. **Exchange Code for Refresh Token**: Click "Authorize", then copy the `code` parameter from the URL of the resulting blank page. Use this command in your terminal to get the final `STRAVA_REFRESH_TOKEN`:
-   ```bash
-   curl -X POST [https://www.strava.com/oauth/token](https://www.strava.com/oauth/token) \
-     -d client_id=YOUR_CLIENT_ID \
-     -d client_secret=YOUR_CLIENT_SECRET \
-     -d code=YOUR_CODE_FROM_URL \
-     -d grant_type=authorization_code
-   ```
+See the related [how to obtain a Strava key section](site/md/strava_key.md)
 
 ## Installation
 
@@ -204,75 +228,69 @@ What to check:
 
 ---
 
-## Example Queries
+## Specialized Tactical Skills (Local Intelligence)
 
-You can ask **BikeScout** complex, multi-step requests. It combines real-time data with technical cycling intelligence to provide expert-level answers.
+BikeScout features a suite of **Local Expert Skills** that function as specialized knowledge modules. Instead of providing generic advice, these skills inject high-fidelity "Tactical Intelligence" into the AI's reasoning.
+This allows the system to adapt tool outputs, such as tire pressure, battery management, and risk assessment to the specific soil, geology, and culture of world-class cycling destinations.
 
-### Advanced Planning (Multi-Tool)
-* *"I'm at **Monte Cavo** with my **Gravel bike (40mm tires)**. Plan a **25km loop** for me. Check if the terrain is compatible with my bike, verify the afternoon rain probability, and suggest a 'Fraschetta' for the finish. Use the **Castelli Romani guide**."*
-* *"I want to ride in **Moab** tomorrow. I have a **hardtail MTB**. Find me a **20km route** that isn't too technical (avoid Grade 4/5 tracks), check the heat forecast, and give me the desert safety checklist."*
-
-### Bike Setup & Surface Intelligence
-* *"Check this route `[LAT, LON]` for a **15km loop**. I'm on a **Road Bike with 25mm tires**. Is it compatible? Give me the exact percentage of gravel vs asphalt."*
-* *"I'm planning a ride in **Kyoto, Japan**. Find a **30km loop** that is at least **70% gravel**, but only if the rain probability is below **10%** for the next 4 hours."*
-
-### Local Expertise
-* *"Use the **Dolomiti local guide** to plan a road cycling route starting from **Cortina**. I need at least **800m of elevation gain**. Also, recommend the correct tire pressure for high-altitude descents and a mountain hut for a strudel stop."*
-* *"Are there any named trails near **Vancouver, Canada**? Analyze the surface types and tell me if they are suitable for a beginner on an **E-MTB**."*
-
-### Quick Tech Checks
-* *"Give me the **safety checklist** and calculate the **tire pressure** for a **90kg rider** on **2.3" tubeless tires** for a muddy ride."*
-* *"What is the terrain breakdown for a **10km ride** in **Taichung**? I need to know if I'll encounter any 'Grade 5' technical segments."*
-
-### Post-Ride Analysis & Terrain Truth
-* *"Analyze my Strava ride from 2026-04-12. Compare my average speed with the Mud Risk at that time and tell me if the terrain conditions were the reason for my slow pace."*
-* *"Check my ride from last Sunday on Strava. Cross-reference the GPS path with the 72h rain history to see if the 'High' mud risk I encountered was accurately predicted."*
-* *"Get my activity from Strava for [Date]. Based on the surface types detected and the weather context of that day, was my tire pressure setup (1.8 bar) optimal or should I have gone lower?"*
-
----
-
-## Pre-Configured Prompts
-
-BikeScout includes pre-configured **AI Prompts**. These prompts provide local context, gear tips, and cultural insights.
-
-| Prompt Name                    | Destination              | Specialization                                                               |
-|:-------------------------------|:-------------------------|:-----------------------------------------------------------------------------|
-| `explore-moab-usa`             | 🏜️ 🇺🇸 Moab, Utah      | Desert riding, technical sandstone, hydration & gear safety.                 |
-| `explore-castelliromani-italy` | 🇮🇹 🏔️ Castelli Romani | Volcanic terrain, steep climbs, Roman history, and local food stops.         |
-| `explore-dolomiti-italy`       | 🇮🇹 🏛️ Dolomites       | Expert guide for cycling in the Dolomites (UNESCO Heritage), Northern Italy. |
-| `explore-arenberg-france`	     | 🇫🇷 🚜 Arenberg Forest | Northern French Pavé, mud risk, tire pressure for cobbles, and "The Hell of the North."|
-| `explore-finale-ligure-italy`	 | 🌊 🇮🇹 Finale Ligure	 | World-class Enduro, limestone rock gardens, and "Sea-to-Summit" trails|
-| `explore-derby-australia`	     | 🌿 🇦🇺 Derby, Tasmania | Granite slabs, "Hero Dirt," and world-class MTB flow trails.|
-| `explore-shimanami-japan`	     | 🌉 🇯🇵 Shimanami Kaido | Island hopping, road/gravel touring, and bridge wind analysis.|
-
-### How to use them:
-
-1. Open your MCP-compatible client (e.g., Claude Desktop or Cline).
-2. Look for the **Prompts** library (usually a 📄 or ✨ icon).
-3. Select an explorer prompt to start a guided session.
-
----
-
-## Knowledge Resources
-
-BikeScout provides direct access to specialized cycling knowledge bases via the **MCP Resource** protocol. These resources can be read by the AI to provide accurate, data-driven advice.
-
-| Resource URI | Content | Use Case |
+| Skill / Knowledge Base | Destination | Tactical Specialization |
 | :--- | :--- | :--- |
-| `bikescout://safety/checklist` | Essential pre-ride safety steps. | Checking brakes, bolts, and emergency gear. |
-| `bikescout://tech/tire-pressure` | Recommended PSI/Bar by terrain. | Optimizing grip for Mud, Rock, or Asphalt. |
+| `get_moab_intel` | 🏜️ **Moab, Utah** | High-desert survival, slickrock traction mastery, and hydration/gear safety protocols. |
+| `get_castelli_intel` | 🌋 **Castelli Romani** | Volcanic soil (dust/mud) behavior, steep punchy climbs, and the "Fraschetta" cultural protocol. |
+| `get_dolomiti_intel` | 🏔️ **Dolomites, Italy** | High-altitude weather vigilance, UNESCO limestone grip analysis, and 1:1 gearing strategy. |
+| `get_arenberg_intel` | 🧱 **Arenberg Forest** | Northern French Pavé, "Hell of the North" vibration damping, and stone humidity risk (TAEL). |
+| `get_finale_intel` | 🌊 **Finale Ligure** | Enduro World Series standards, brake fade management, and limestone rock garden setup. |
+| `get_derby_intel` | 🌿 **Derby, Tasmania** | Granite slab traction, "Hero Dirt" saturation levels, and high-speed rebound optimization. |
+| `get_shimanami_intel` | 🌉 **Shimanami Kaido** | Bridge crosswind analysis, island-hopping logistics, and road/gravel touring efficiency. |
 
-### How to access:
+### **How These Skills Work**
 
-In your AI client, you can ask:
-* *"Read the safety checklist from BikeScout"* * *"What is the recommended tire pressure for wet gravel?"*
-  The AI will automatically fetch the data from the resource URI.
+These are **Actionable Knowledge Bases**. The AI utilizes a "Retrieve-and-Reason" logic to generate briefings:
+
+1.  **Context Detection**: When you query a location, the AI identifies the relevant region (e.g., *Finale Ligure*).
+2.  **Skill Invocation**: It automatically triggers the corresponding skill (e.g., `get_finale_intel`) to load the expert intelligence profile.
+3.  **Data Cross-Referencing**: It combines "Local Wisdom" (from the skill) with "Real-Time Data" (from `trail_scout` and `check_trail_soil_condition`).
+4.  **Synthesized Briefing**: The final response is a unique synthesis. For example, the `analyze_route_surfaces` tool might suggest a specific tire pressure *because* the local expert intelligence knows the limestone is currently in a high-humidity window.
 
 ---
 
 ## Tools Reference
 
 **BikeScout** exposes specialized tools to the MCP host. Currently, the server provides a comprehensive scouting tool, with more modules planned for future releases.
+
+### **Object Schemas**
+
+#### **Rider Profile (`rider`)**
+
+Used for tire pressure and difficulty scaling.
+
+| Field | Type | Default | Description |
+| :--- | :--- | :--- | :--- |
+| `weight_kg` | `float` | `80.0` | Total weight (rider + gear) for PSI and energy calculations. |
+| `fitness_level` | `string` | `intermediate` | Affects difficulty grading. Options: `beginner`, `intermediate`, `advanced`, `pro`. |
+
+#### **Bike Setup (`bike`)**
+| Field | Type | Default | Description |
+| :--- | :--- |:--------| :--- |
+| `bike_type` | `string` | `MTB`   | Geometry profile. Options: `Road`, `Gravel`, `MTB`, `Enduro`. |
+| `tire_size` | `string` | `29`    | Diameter/Standard. Options: `26`, `27.5`, `29`, `700c`, `650b`. |
+| `is_ebike` | `bool` | `false` | If true, triggers battery consumption and motor-assist logic. |
+| `battery_wh` | `int` | `625`   | Battery capacity in Watt-hours (required if `is_ebike` is true). |
+
+#### **Mission Constraints (`mission`)**
+| Field                | Type     | Default            | Description                                                                                                                                                                                                                                                                                            |
+|:---------------------|:---------|:-------------------|:-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| `radius_km`          | `int`    | `10`               | Total target distance for the loop.                                                                                                                                                                                                                                                                    |
+| `profile`            | `string` | `cycling-mountain` | ORS Routing profile.                                                                                                                                                                                                                                                                                   |
+| `surface_preference` | `string` | `neutral`          | Options: `neutral`, `avoid_unpaved`, `prefer_trails`.                                                                                                                                                                                                                                                  |
+| `points`             | `int`    | `3`                | Complexity of the loop (higher = more circular).                                                                                                                                                                                                                                                       |
+| `seed`               | `int`    | `42`               | Randomizer seed to reproduce specific route variations.                                                                                                                                                                                                                                                |
+| `assist_mode`        | `string` | `Eco`              | Defines the motor's power output profile (Eco, Trail, Boost). This tactical parameter scales the energy consumption model by adjusting the motor-to-rider assistance ratio, directly impacting predicted battery range and "Safety Buffer" alerts based on terrain resistance. 'Eco', 'Trail', 'Boost' |
+
+#### **Route Geometry (`geometry`)**
+| Field                | Type     | Default | Description                                                                                                                                                                                                                                                                                            |
+|:---------------------|:---------|:--------|:-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| `coordinates`          | `list[list[float]]`    | `...`   | A list of GPS points in GeoJSON format. Each sub-list represents a coordinate triplet: [longitude, latitude, elevation]. This sequence is used by the SMA Filter to sanitize elevation and by the Haversine formula for geodesic accuracy.                                                                                                                                                                                                                                                                   |
 
 ### `geocode_location`
 This tool acts as the intelligent "entry point" for all natural language queries. It translates place names into geographical coordinates, enabling a seamless experience where users don't need to provide raw GPS data.
@@ -317,22 +335,16 @@ Unlike standard GPS files, BikeScout automatically injects active <wpt> (waypoin
       - Hydration & Service: Precisely locates water fountains and repair shops found during the POI scouting.
 
 #### **Parameters:**
-| Parameter | Type | Default            | Description |
-| :--- | :--- |:-------------------| :--- |
-| `lat` | `float` | Required           | Latitude of the starting point (e.g., `45.81`). |
-| `lon` | `float` | Required           | Longitude of the starting point (e.g., `9.08`). |
-| `radius_km` | `int` | `10`               | The target total length of the loop in kilometers. |
-| `profile` | `string`| `cycling-mountain` | Routing profile: `cycling-mountain`, `cycling-road`, or `cycling-regular`. |
-| `rider_weight_kg` | `float` | `80.0`             | **Total rider weight.** Used to calculate technical compatibility and tire setup recommendations. |
-| `bike_type` | `str` | `MTB` | User's bike (Options: `Road`, `Gravel`, `MTB`, `E-MTB`, `Enduro`). |
-| `tire_size_option` | `str` | `29` | Standard wheel sizes (MTB: `26`, `27.5`, `29` | Road/Gravel: `700c`, `650b`). |
-| `rider_weight_kg` | `float` | `80.0` | **Total rider weight.** Used to calculate technical compatibility and tire setup recommendations. |
-| `points` | `int` | `3` | Complexity of the loop shape (3 = triangle, 10 = circular). |
-| `seed` | `int` | `42` | Random seed. Change it to discover a different route variation in the same area. |
-| `surface_pref`| `str` | `neutral` | Routing preference (Options: `neutral`, `avoid_unpaved`, `prefer_trails`). |
-| `include_gpx` | `bool` | `True`             | Whether to include the raw XML GPX content. Set to `False` to prevent payload/token limit issues. |
-| `include_map` | `bool` | `False`            | Whether to generate the Static Map URL via **Stadia Maps** (OpenStreetMap data). |
-| `output_level` | `string` | `standard`         | Verbosity level: `summary` (essential stats), `standard` (default briefing), or `full` (complete technical breakdown and amenities). |
+| Parameter | Type | Default | Description                                             |
+| :--- | :--- | :--- |:--------------------------------------------------------|
+| `lat` | `float` | Required | Latitude of the starting point (e.g., `45.81`).         |
+| `lon` | `float` | Required | Longitude of the starting point (e.g., `9.08`).         |
+| **`rider`** | `object` | Required | [Rider Profile](#rider-profile-rider).                  |
+| **`bike`** | `object` | Required | [Bike Setup](#bike-setup-bike).                         |
+| **`mission`** | `object` | Required | [Mission Constraints](#mission-constraints-mission).    |
+| `include_gpx` | `bool` | `True` | Whether to include the raw XML GPX content.             |
+| `include_map` | `bool` | `False` | Whether to generate the Static Map URL via Stadia Maps. |
+| `output_level` | `string` | `standard` | Verbosity level: `summary`, `standard`, or `full`.      |
 
 #### **Tool Output Example (JSON):**
 ```json
@@ -353,7 +365,8 @@ Unlike standard GPS files, BikeScout automatically injects active <wpt> (waypoin
         "technical_difficulty": {
           "mtb_scale": "Standard / Unclassified",
           "trail_visibility": "Excellent",
-          "technical_notes": "Technical grading based on OSM mountain standards."
+          "technical_notes": "Technical grading based on OSM mountain standards.",
+          "fitness_context": "Evaluated for intermediate level"
         },
         "mud_risk_index": 0.1
       },
@@ -483,7 +496,8 @@ Unlike standard GPS files, BikeScout automatically injects active <wpt> (waypoin
     ]
   },
   "map_image_url": "https://tiles.stadiamaps.com/static/outdoors?center=41.746509%2C12.7157365&zoom=13&size=600x400%402x&api_key=xxx&path=color:0xff0000ff|weight:4|enc:cp{}F_xqlABpG`CzFnFmDjBqEfCgB|V_Sx\yEbHaFrCnE_EbFzKuBvLnCm@yJvFgHzCi@~FjAhBsA|DVlEjDvExG|EuGnRdS~H{Rg@`HgHCsNiIsNgLeDaJcGwL_LpHwD|PeKpNoPpHcF`Jp@bVsB`HmHbDeRwOqOZqK}EDyBcLaPc@tM_@v@"
-  "gpx_content": "\" xmlns=\"http://www.topografix.com/GPX/1/1\">\n  <wpt lat=\"41.761793\" lon=\"12.709082\">\n    <name>Water Fountain 💧</name>\n    <sym>Watering Hole</sym>\n  </wpt>\n  <wpt lat=\"41.761158\" lon=\"12.703411\">\n    <name>Water Fountain 💧</name>\n    <sym>Watering Hole</sym>\n  </wpt>\n  <wpt lat=\"41.761246\" lon=\"12.703337\">\n    <name>Water Fountain 💧</name>\n    <sym>Watering Hole</sym>\n  </wpt>\n  <wpt lat=\"41.761305\" lon=\"12.703291\">\n    <name>Water Fountain 💧</name>\n    <sym>Watering Hole</sym>\n  </wpt>\n  <wpt lat=\"41.752849\" lon=\"12.708615\">\n    <name>SUMMIT: 895m</name>\n    <sym>Summit</sym>\n  </wpt>\n  <wpt lat=\"41.761165\" lon=\"12.708999\">\n    <name>WALL: 30%</name>\n    <sym>Danger Area</sym>\n  </wpt>\n  <wpt lat=\"41.759931\" lon=\"12.709608\">\n    <name>WALL: 30%</name>\n    <sym>Danger Area</sym>\n  </wpt>\n  <wpt lat=\"41.738585\" lon=\"12.720096\">\n    <name>WALL: 13%</name>\n    <sym>Danger Area</sym>\n  </wpt>\n  <wpt lat=\"41.739722\" lon=\"12.722081\">\n    <name>WALL: 24%</name>\n    <sym>Danger Area</sym>\n  </wpt>\n  <wpt lat=\"41.749825\" lon=\"12.708244\">\n    <name>WALL: 10%</name>\n    <sym>Danger Area</sym>\n  </wpt>\n  <trk>\n    <name>BikeScout Tactical Route</name>\n    <trkseg>\n      <trkpt lat=\"41.761455\" lon=\"12.711841\"><ele>705.2</ele></trkpt>\n      <trkpt lat=\"41.761426\" lon=\"12.711786\"><ele>706.4</ele></trkpt>\n      <trkpt lat=\"41.761415\" lon=\"12.711547\"><ele>739.0</ele></trkpt>\n      <trkpt lat=\"41.761413\" lon=\"12.711403\"><ele>739.0</ele></trkpt>\n      <trkpt lat=\"41.761533\" lon=\"12.711189\"><ele>739.0</ele></trkpt>\n      <trkpt lat=\"41.761533\" lon=\"12.711111\"><ele>739.0</ele></trkpt>\n      <trkpt lat=\"41.761553\" lon=\"12.710914\"><ele>732.5</ele></trkpt>\n      <trkpt lat=\"41.761527\" lon=\"12.710738\"><ele>730.9</ele></trkpt>\n      <trkpt lat=\"41.76152\" lon=\"12.710373\"><ele>726.0</ele></trkpt>\n      <trkpt lat=\"41.761443\" lon=\"12.710467\"><ele>726.0</ele></trkpt>\n      <trkpt lat=\"41.761361\" lon=\"12.710084\"><ele>720.5</ele></trkpt>\n      <trkpt lat=\"41.761278\" lon=\"12.709834\"><ele>701.0</ele></trkpt>\n      <trkpt lat=\"41.76118\" lon=\"12.709566\"><ele>701.0</ele></trkpt>\n      <trkpt lat=\"41.761145\" lon=\"12.709436\"><ele>696.0</ele></trkpt>\n      <trkpt lat=\"41.76113\" lon=\"12.709303\"><ele>697.0</ele></trkpt>\n      <trkpt lat=\"41.761165\" lon=\"12.708999\"><ele>677.0</ele></trkpt>\n      <trkpt lat=\"41.761076\" lon=\"12.709096\"><ele>697.0</ele></trkpt>\n      <trkpt lat=\"41.76085\" lon=\"12.709209\"><ele>699.9</ele></trkpt>\n      <trkpt lat=\"41.760785\" lon=\"12.709212\"><ele>698.8</ele></trkpt>\n      <trkpt lat=\"41.760714\" lon=\"12.709173\"><ele>707.0</ele></trkpt>\n      <trkpt lat=\"41.760609\" lon=\"12.709132\"><ele>687.6</ele></trkpt>\n      <trkpt lat=\"41.760552\" lon=\"12.709202\"><ele>707.0</ele></trkpt>\n      <trkpt lat=\"41.760339\" lon=\"12.709375\"><ele>707.0</ele></trkpt>\n      <trkpt lat=\"41.7601\" lon=\"12.709397\"><ele>707.0</ele></trkpt>\n      <trkpt lat=\"41.760035\" lon=\"12.709483\"><ele>707.0</ele></trkpt>\n      <trkpt lat=\"41.759931\" lon=\"12.709608\"><ele>721.0</ele></trkpt>\n      <trkpt lat=\"41.759633\" lon=\"12.709825\"><ele>721.0</ele></trkpt>\n      <trkpt lat=\"41.759591\" lon=\"12.710083\"><ele>730.1</ele></trkpt>\n      <trkpt lat=\"41.759516\" lon=\"12.710211\"><ele>732.9</ele></trkpt>\n      <trkpt lat=\"41.759501\" lon=\"12.710303\"><ele>742.0</ele></trkpt>\n      <trkpt lat=\"41.759482\" lon=\"12.710468\"><ele>742.0</ele></trkpt>\n      <trkpt lat=\"41.759307\" lon=\"12.710641\"><ele>742.0</ele></trkpt>\n      <trkpt lat=\"41.759277\" lon=\"12.710744\"><ele>742.0</ele></trkpt>\n      <trkpt lat=\"41.759207\" lon=\"12.71081\"><ele>748.1</ele></trkpt>\n      <trkpt lat=\"41.759121\" lon=\"12.71083\"><ele>760.0</ele></trkpt>\n      <trkpt lat=\"41.7591\" lon=\"12.710968\"><ele>763.6</ele></trkpt>\n      <trkpt lat=\"41.759054\" lon=\"12.71113\"><ele>765.0</ele></trkpt>\n      <trkpt lat=\"41.759017\" lon=\"12.711192\"><ele>765.0</ele></trkpt>\n      <trkpt lat=\"41.758978\" lon=\"12.711392\"><ele>765.0</ele></trkpt>\n      <trkpt lat=\"41.758957\" lon=\"12.711517\"><ele>765.0</ele></trkpt>\n      <trkpt lat=\"41.758929\" lon=\"12.711532\"><ele>764.0</ele></trkpt>\n      <trkpt lat=\"41.758892\" lon=\"12.711592\"><ele>763.6</ele></trkpt>\n      <trkpt lat=\"41.75889\" lon=\"12.711671\"><ele>759.0</ele></trkpt>\n      <trkpt lat=\"41.758749\" lon=\"12.711663\"><ele>765.0</ele></trkpt>\n      <trkpt lat=\"41.758633\" lon=\"12.711657\"><ele>765.0</ele></trkpt>\n      <trkpt lat=\"41.758372\" lon=\"12.711645\"><ele>765.0</ele></trkpt>\n      <trkpt lat=\"41.758255\" lon=\"12.711684\"><ele>764.0</ele></trkpt>\n      <trkpt lat=\"41.757572\" lon=\"12.712092\"><ele>764.0</ele></trkpt>\n      <trkpt lat=\"41.757093\" lon=\"12.712508\"><ele>768.3</ele></trkpt>\n      <trkpt lat=\"41.756557\" lon=\"12.71307\"><ele>774.0</ele></trkpt>\n      <trkpt lat=\"41.755964\" lon=\"12.713669\"><ele>769.0</ele></trkpt>\n      <trkpt lat=\"41.755364\" lon=\"12.714279\"><ele>778.0</ele></trkpt>\n      <trkpt lat=\"41.754917\" lon=\"12.71469\"><ele>786.9</ele></trkpt>\n      <trkpt lat=\"41.754694\" lon=\"12.714814\"><ele>786.6</ele></trkpt>\n      <trkpt lat=\"41.754538\" lon=\"12.714851\"><ele>788.0</ele></trkpt>\n      <trkpt lat=\"41.75426\" lon=\"12.714855\"><ele>799.0</ele></trkpt>\n      <trkpt lat=\"41.753772\" lon=\"12.714909\"><ele>800.5</ele></trkpt>\n      <trkpt lat=\"41.75347\" lon=\"12.714983\"><ele>800.2</ele></trkpt>\n      <trkpt lat=\"41.753054\" lon=\"12.715125\"><ele>800.7</ele></trkpt>\n      <trkpt lat=\"41.752776\" lon=\"12.715195\"><ele>800.8</ele></trkpt>\n      <trkpt lat=\"41.752627\" lon=\"12.715187\"><ele>800.7</ele></trkpt>\n      <trkpt lat=\"41.752562\" lon=\"12.715149\"><ele>801.0</ele></trkpt>\n      <trkpt lat=\"41.750632\" lon=\"12.715664\"><ele>843.0</ele></trkpt>\n      <trkpt lat=\"41.749774\" lon=\"12.715939\"><ele>843.0</ele></trkpt>\n      <trkpt lat=\"41.74963\" lon=\"12.715928\"><ele>848.6</ele></trkpt>\n      <trkpt lat=\"41.749333\" lon=\"12.716024\"><ele>848.0</ele></trkpt>\n      <trkpt lat=\"41.749125\" lon=\"12.716239\"><ele>849.4</ele></trkpt>\n      <trkpt lat=\"41.748989\" lon=\"12.716561\"><ele>850.7</ele></trkpt>\n      <trkpt lat=\"41.748893\" lon=\"12.716625\"><ele>851.8</ele></trkpt>\n      <trkpt lat=\"41.748741\" lon=\"12.716926\"><ele>851.8</ele></trkpt>\n      <trkpt lat=\"41.74871\" lon=\"12.71696\"><ele>851.0</ele></trkpt>\n      <trkpt lat=\"41.748541\" lon=\"12.717151\"><ele>857.5</ele></trkpt>\n      <trkpt lat=\"41.748309\" lon=\"12.717065\"><ele>859.6</ele></trkpt>\n      <trkpt lat=\"41.748157\" lon=\"12.716904\"><ele>860.4</ele></trkpt>\n      <trkpt lat=\"41.747925\" lon=\"12.716786\"><ele>861.1</ele></trkpt>\n      <trkpt lat=\"41.747813\" lon=\"12.716861\"><ele>861.7</ele></trkpt>\n      <trkpt lat=\"41.747044\" lon=\"12.716776\"><ele>866.0</ele></trkpt>\n      <trkpt lat=\"41.747124\" lon=\"12.716372\"><ele>854.5</ele></trkpt>\n      <trkpt lat=\"41.747231\" lon=\"12.716208\"><ele>854.0</ele></trkpt>\n      <trkpt lat=\"41.747356\" lon=\"12.716077\"><ele>853.8</ele></trkpt>\n      <trkpt lat=\"41.747452\" lon=\"12.716023\"><ele>853.6</ele></trkpt>\n      <trkpt lat=\"41.747566\" lon=\"12.716028\"><ele>854.4</ele></trkpt>\n      <trkpt lat=\"41.747715\" lon=\"12.715992\"><ele>855.0</ele></trkpt>\n      <trkpt lat=\"41.747952\" lon=\"12.715769\"><ele>855.1</ele></trkpt>\n      <trkpt lat=\"41.748299\" lon=\"12.715527\"><ele>853.5</ele></trkpt>\n      <trkpt lat=\"41.748489\" lon=\"12.715332\"><ele>854.5</ele></trkpt>\n      <trkpt lat=\"41.748623\" lon=\"12.715246\"><ele>855.0</ele></trkpt>\n      <trkpt lat=\"41.748662\" lon=\"12.715152\"><ele>856.0</ele></trkpt>\n      <trkpt lat=\"41.748646\" lon=\"12.715071\"><ele>856.0</ele></trkpt>\n      <trkpt lat=\"41.748641\" lon=\"12.714968\"><ele>846.3</ele></trkpt>\n      <trkpt lat=\"41.748527\" lon=\"12.714894\"><ele>843.0</ele></trkpt>\n      <trkpt lat=\"41.748442\" lon=\"12.714956\"><ele>833.3</ele></trkpt>\n      <trkpt lat=\"41.748366\" lon=\"12.714941\"><ele>831.7</ele></trkpt>\n      <trkpt lat=\"41.748046\" lon=\"12.714995\"><ele>829.6</ele></trkpt>\n      <trkpt lat=\"41.747673\" lon=\"12.714986\"><ele>829.0</ele></trkpt>\n      <trkpt lat=\"41.747293\" lon=\"12.715127\"><ele>829.8</ele></trkpt>\n      <trkpt lat=\"41.746967\" lon=\"12.715361\"><ele>827.2</ele></trkpt>\n      <trkpt lat=\"41.746866\" lon=\"12.715394\"><ele>826.9</ele></trkpt>\n      <trkpt lat=\"41.746705\" lon=\"12.715355\"><ele>826.1</ele></trkpt>\n      <trkpt lat=\"41.746466\" lon=\"12.715477\"><ele>815.0</ele></trkpt>\n      <trkpt lat=\"41.745477\" lon=\"12.715505\"><ele>796.1</ele></trkpt>\n      <trkpt lat=\"41.74513\" lon=\"12.715198\"><ele>787.1</ele></trkpt>\n      <trkpt lat=\"41.744917\" lon=\"12.715153\"><ele>785.4</ele></trkpt>\n      <trkpt lat=\"41.744856\" lon=\"12.714912\"><ele>783.2</ele></trkpt>\n      <trkpt lat=\"41.744589\" lon=\"12.714556\"><ele>783.0</ele></trkpt>\n      <trkpt lat=\"41.744316\" lon=\"12.714352\"><ele>780.5</ele></trkpt>\n      <trkpt lat=\"41.744074\" lon=\"12.714134\"><ele>759.0</ele></trkpt>\n      <trkpt lat=\"41.744177\" lon=\"12.714506\"><ele>785.0</ele></trkpt>\n      <trkpt lat=\"41.744269\" lon=\"12.714764\"><ele>785.9</ele></trkpt>\n      <trkpt lat=\"41.744352\" lon=\"12.714932\"><ele>786.0</ele></trkpt>\n      <trkpt lat=\"41.744593\" lon=\"12.715299\"><ele>786.0</ele></trkpt>\n      <trkpt lat=\"41.744813\" lon=\"12.715583\"><ele>785.9</ele></trkpt>\n      <trkpt lat=\"41.744851\" lon=\"12.715735\"><ele>785.8</ele></trkpt>\n      <trkpt lat=\"41.744832\" lon=\"12.715936\"><ele>785.7</ele></trkpt>\n      <trkpt lat=\"41.744792\" lon=\"12.716038\"><ele>785.9</ele></trkpt>\n      <trkpt lat=\"41.744603\" lon=\"12.716361\"><ele>787.3</ele></trkpt>\n      <trkpt lat=\"41.744539\" lon=\"12.716498\"><ele>787.3</ele></trkpt>\n      <trkpt lat=\"41.744504\" lon=\"12.716652\"><ele>787.3</ele></trkpt>\n      <trkpt lat=\"41.744453\" lon=\"12.717093\"><ele>789.2</ele></trkpt>\n      <trkpt lat=\"41.744416\" lon=\"12.717259\"><ele>790.4</ele></trkpt>\n      <trkpt lat=\"41.744305\" lon=\"12.717544\"><ele>793.2</ele></trkpt>\n      <trkpt lat=\"41.744204\" lon=\"12.717717\"><ele>795.7</ele></trkpt>\n      <trkpt lat=\"41.74412\" lon=\"12.71781\"><ele>796.2</ele></trkpt>\n      <trkpt lat=\"41.744031\" lon=\"12.717853\"><ele>796.5</ele></trkpt>\n      <trkpt lat=\"41.743591\" lon=\"12.717953\"><ele>799.1</ele></trkpt>\n      <trkpt lat=\"41.743404\" lon=\"12.718027\"><ele>799.6</ele></trkpt>\n      <trkpt lat=\"41.743261\" lon=\"12.718134\"><ele>799.5</ele></trkpt>\n      <trkpt lat=\"41.74319\" lon=\"12.7183\"><ele>791.0</ele></trkpt>\n      <trkpt lat=\"41.743158\" lon=\"12.718267\"><ele>797.8</ele></trkpt>\n      <trkpt lat=\"41.743126\" lon=\"12.718286\"><ele>798.2</ele></trkpt>\n      <trkpt lat=\"41.743112\" lon=\"12.718381\"><ele>798.6</ele></trkpt>\n      <trkpt lat=\"41.74312\" lon=\"12.718453\"><ele>798.1</ele></trkpt>\n      <trkpt lat=\"41.74292\" lon=\"12.71853\"><ele>795.6</ele></trkpt>\n      <trkpt lat=\"41.742694\" lon=\"12.71846\"><ele>791.9</ele></trkpt>\n      <trkpt lat=\"41.74258\" lon=\"12.718366\"><ele>789.9</ele></trkpt>\n      <trkpt lat=\"41.742484\" lon=\"12.71834\"><ele>788.1</ele></trkpt>\n      <trkpt lat=\"41.742393\" lon=\"12.718359\"><ele>787.9</ele></trkpt>\n      <trkpt lat=\"41.742274\" lon=\"12.718299\"><ele>787.2</ele></trkpt>\n      <trkpt lat=\"41.742203\" lon=\"12.718289\"><ele>786.3</ele></trkpt>\n      <trkpt lat=\"41.742036\" lon=\"12.718195\"><ele>783.2</ele></trkpt>\n      <trkpt lat=\"41.741982\" lon=\"12.718141\"><ele>783.0</ele></trkpt>\n      <trkpt lat=\"41.741745\" lon=\"12.718069\"><ele>780.0</ele></trkpt>\n      <trkpt lat=\"41.741515\" lon=\"12.717933\"><ele>778.2</ele></trkpt>\n      <trkpt lat=\"41.741349\" lon=\"12.717918\"><ele>777.9</ele></trkpt>\n      <trkpt lat=\"41.741203\" lon=\"12.717956\"><ele>777.1</ele></trkpt>\n      <trkpt lat=\"41.741089\" lon=\"12.717881\"><ele>776.1</ele></trkpt>\n      <trkpt lat=\"41.740953\" lon=\"12.717897\"><ele>775.6</ele></trkpt>\n      <trkpt lat=\"41.740899\" lon=\"12.717961\"><ele>775.6</ele></trkpt>\n      <trkpt lat=\"41.74084\" lon=\"12.718067\"><ele>775.1</ele></trkpt>\n      <trkpt lat=\"41.740839\" lon=\"12.718313\"><ele>776.8</ele></trkpt>\n      <trkpt lat=\"41.740799\" lon=\"12.718366\"><ele>749.0</ele></trkpt>\n      <trkpt lat=\"41.740746\" lon=\"12.718437\"><ele>740.4</ele></trkpt>\n      <trkpt lat=\"41.740679\" lon=\"12.718472\"><ele>739.9</ele></trkpt>\n      <trkpt lat=\"41.740667\" lon=\"12.718383\"><ele>738.5</ele></trkpt>\n      <trkpt lat=\"41.740558\" lon=\"12.718395\"><ele>737.9</ele></trkpt>\n      <trkpt lat=\"41.740468\" lon=\"12.718431\"><ele>737.4</ele></trkpt>\n      <trkpt lat=\"41.740356\" lon=\"12.718425\"><ele>735.3</ele></trkpt>\n      <trkpt lat=\"41.740329\" lon=\"12.718453\"><ele>734.6</ele></trkpt>\n      <trkpt lat=\"41.740338\" lon=\"12.718476\"><ele>733.9</ele></trkpt>\n      <trkpt lat=\"41.740175\" lon=\"12.718502\"><ele>731.2</ele></trkpt>\n      <trkpt lat=\"41.739939\" lon=\"12.71837\"><ele>727.5</ele></trkpt>\n      <trkpt lat=\"41.739782\" lon=\"12.718326\"><ele>726.3</ele></trkpt>\n      <trkpt lat=\"41.739722\" lon=\"12.718255\"><ele>724.5</ele></trkpt>\n      <trkpt lat=\"41.739602\" lon=\"12.718271\"><ele>724.6</ele></trkpt>\n      <trkpt lat=\"41.73946\" lon=\"12.718255\"><ele>723.8</ele></trkpt>\n      <trkpt lat=\"41.739486\" lon=\"12.718296\"><ele>723.8</ele></trkpt>\n      <trkpt lat=\"41.739323\" lon=\"12.718271\"><ele>719.8</ele></trkpt>\n      <trkpt lat=\"41.739136\" lon=\"12.717897\"><ele>715.5</ele></trkpt>\n      <trkpt lat=\"41.739015\" lon=\"12.717709\"><ele>711.1</ele></trkpt>\n      <trkpt lat=\"41.738947\" lon=\"12.717731\"><ele>710.3</ele></trkpt>\n      <trkpt lat=\"41.738856\" lon=\"12.717682\"><ele>708.2</ele></trkpt>\n      <trkpt lat=\"41.738693\" lon=\"12.717397\"><ele>706.2</ele></trkpt>\n      <trkpt lat=\"41.738615\" lon=\"12.717379\"><ele>705.5</ele></trkpt>\n      <trkpt lat=\"41.73855\" lon=\"12.717391\"><ele>704.8</ele></trkpt>\n      <trkpt lat=\"41.738432\" lon=\"12.717267\"><ele>702.1</ele></trkpt>\n      <trkpt lat=\"41.738382\" lon=\"12.71714\"><ele>699.8</ele></trkpt>\n      <trkpt lat=\"41.73844\" lon=\"12.717027\"><ele>699.8</ele></trkpt>\n      <trkpt lat=\"41.738334\" lon=\"12.716948\"><ele>698.6</ele></trkpt>\n      <trkpt lat=\"41.737971\" lon=\"12.716332\"><ele>697.3</ele></trkpt>\n      <trkpt lat=\"41.73761\" lon=\"12.716122\"><ele>697.0</ele></trkpt>\n      <trkpt lat=\"41.737613\" lon=\"12.715988\"><ele>685.0</ele></trkpt>\n      <trkpt lat=\"41.737389\" lon=\"12.716287\"><ele>675.3</ele></trkpt>\n      <trkpt lat=\"41.73732\" lon=\"12.716474\"><ele>672.0</ele></trkpt>\n      <trkpt lat=\"41.737272\" lon=\"12.71657\"><ele>672.0</ele></trkpt>\n      <trkpt lat=\"41.737164\" lon=\"12.7168\"><ele>673.6</ele></trkpt>\n      <trkpt lat=\"41.737064\" lon=\"12.716946\"><ele>673.8</ele></trkpt>\n      <trkpt lat=\"41.736954\" lon=\"12.717071\"><ele>674.0</ele></trkpt>\n      <trkpt lat=\"41.736679\" lon=\"12.717216\"><ele>674.8</ele></trkpt>\n      <trkpt lat=\"41.736618\" lon=\"12.71722\"><ele>674.4</ele></trkpt>\n      <trkpt lat=\"41.736496\" lon=\"12.717376\"><ele>673.6</ele></trkpt>\n      <trkpt lat=\"41.73645\" lon=\"12.717411\"><ele>673.3</ele></trkpt>\n      <trkpt lat=\"41.736309\" lon=\"12.717465\"><ele>668.0</ele></trkpt>\n      <trkpt lat=\"41.73624\" lon=\"12.717525\"><ele>669.4</ele></trkpt>\n      <trkpt lat=\"41.735962\" lon=\"12.717547\"><ele>670.0</ele></trkpt>\n      <trkpt lat=\"41.735071\" lon=\"12.71651\"><ele>659.0</ele></trkpt>\n      <trkpt lat=\"41.734681\" lon=\"12.716026\"><ele>650.9</ele></trkpt>\n      <trkpt lat=\"41.734373\" lon=\"12.715449\"><ele>645.0</ele></trkpt>\n      <trkpt lat=\"41.733791\" lon=\"12.714744\"><ele>639.4</ele></trkpt>\n      <trkpt lat=\"41.733381\" lon=\"12.714152\"><ele>629.0</ele></trkpt>\n      <trkpt lat=\"41.733243\" lon=\"12.714392\"><ele>634.3</ele></trkpt>\n      <trkpt lat=\"41.733067\" lon=\"12.714569\"><ele>634.4</ele></trkpt>\n      <trkpt lat=\"41.733138\" lon=\"12.714934\"><ele>634.5</ele></trkpt>\n      <trkpt lat=\"41.733121\" lon=\"12.715566\"><ele>635.0</ele></trkpt>\n      <trkpt lat=\"41.733087\" lon=\"12.715627\"><ele>638.0</ele></trkpt>\n      <trkpt lat=\"41.732659\" lon=\"12.716249\"><ele>647.3</ele></trkpt>\n      <trkpt lat=\"41.732292\" lon=\"12.716599\"><ele>648.6</ele></trkpt>\n      <trkpt lat=\"41.732206\" lon=\"12.716757\"><ele>648.8</ele></trkpt>\n      <trkpt lat=\"41.731781\" lon=\"12.717326\"><ele>649.9</ele></trkpt>\n      <trkpt lat=\"41.731646\" lon=\"12.717553\"><ele>650.1</ele></trkpt>\n      <trkpt lat=\"41.731551\" lon=\"12.717645\"><ele>650.1</ele></trkpt>\n      <trkpt lat=\"41.731541\" lon=\"12.717649\"><ele>650.2</ele></trkpt>\n      <trkpt lat=\"41.731379\" lon=\"12.717718\"><ele>650.2</ele></trkpt>\n      <trkpt lat=\"41.731064\" lon=\"12.71789\"><ele>652.0</ele></trkpt>\n      <trkpt lat=\"41.731241\" lon=\"12.71739\"><ele>647.0</ele></trkpt>\n      <trkpt lat=\"41.73179\" lon=\"12.716452\"><ele>642.9</ele></trkpt>\n      <trkpt lat=\"41.731843\" lon=\"12.716243\"><ele>641.3</ele></trkpt>\n      <trkpt lat=\"41.731984\" lon=\"12.715879\"><ele>640.5</ele></trkpt>\n      <trkpt lat=\"41.732014\" lon=\"12.715662\"><ele>640.1</ele></trkpt>\n      <trkpt lat=\"41.732059\" lon=\"12.715544\"><ele>640.1</ele></trkpt>\n      <trkpt lat=\"41.732099\" lon=\"12.715485\"><ele>640.2</ele></trkpt>\n      <trkpt lat=\"41.73215\" lon=\"12.715447\"><ele>640.3</ele></trkpt>\n      <trkpt lat=\"41.732362\" lon=\"12.71547\"><ele>640.1</ele></trkpt>\n      <trkpt lat=\"41.733014\" lon=\"12.71563\"><ele>639.9</ele></trkpt>\n      <trkpt lat=\"41.733087\" lon=\"12.715627\"><ele>638.0</ele></trkpt>\n      <trkpt lat=\"41.733231\" lon=\"12.715695\"><ele>647.4</ele></trkpt>\n      <trkpt lat=\"41.733456\" lon=\"12.715895\"><ele>649.4</ele></trkpt>\n      <trkpt lat=\"41.733669\" lon=\"12.71599\"><ele>649.2</ele></trkpt>\n      <trkpt lat=\"41.733986\" lon=\"12.716331\"><ele>649.0</ele></trkpt>\n      <trkpt lat=\"41.734249\" lon=\"12.716698\"><ele>660.0</ele></trkpt>\n      <trkpt lat=\"41.734467\" lon=\"12.716984\"><ele>661.2</ele></trkpt>\n      <trkpt lat=\"41.734581\" lon=\"12.717182\"><ele>661.3</ele></trkpt>\n      <trkpt lat=\"41.734806\" lon=\"12.717349\"><ele>662.3</ele></trkpt>\n      <trkpt lat=\"41.73505\" lon=\"12.717395\"><ele>662.7</ele></trkpt>\n      <trkpt lat=\"41.735466\" lon=\"12.717344\"><ele>662.6</ele></trkpt>\n      <trkpt lat=\"41.735962\" lon=\"12.717547\"><ele>670.0</ele></trkpt>\n      <trkpt lat=\"41.736191\" lon=\"12.717742\"><ele>672.4</ele></trkpt>\n      <trkpt lat=\"41.736573\" lon=\"12.71812\"><ele>671.8</ele></trkpt>\n      <trkpt lat=\"41.736755\" lon=\"12.718478\"><ele>672.7</ele></trkpt>\n      <trkpt lat=\"41.737144\" lon=\"12.718781\"><ele>678.0</ele></trkpt>\n      <trkpt lat=\"41.737328\" lon=\"12.718969\"><ele>692.5</ele></trkpt>\n      <trkpt lat=\"41.737521\" lon=\"12.719066\"><ele>694.6</ele></trkpt>\n      <trkpt lat=\"41.737945\" lon=\"12.719388\"><ele>696.5</ele></trkpt>\n      <trkpt lat=\"41.738153\" lon=\"12.719516\"><ele>697.9</ele></trkpt>\n      <trkpt lat=\"41.738457\" lon=\"12.719667\"><ele>700.4</ele></trkpt>\n      <trkpt lat=\"41.738553\" lon=\"12.719817\"><ele>702.6</ele></trkpt>\n      <trkpt lat=\"41.738585\" lon=\"12.720096\"><ele>704.3</ele></trkpt>\n      <trkpt lat=\"41.738634\" lon=\"12.720268\"><ele>705.6</ele></trkpt>\n      <trkpt lat=\"41.738706\" lon=\"12.720439\"><ele>706.3</ele></trkpt>\n      <trkpt lat=\"41.738818\" lon=\"12.720568\"><ele>709.0</ele></trkpt>\n      <trkpt lat=\"41.73889\" lon=\"12.720718\"><ele>710.5</ele></trkpt>\n      <trkpt lat=\"41.739058\" lon=\"12.720933\"><ele>712.2</ele></trkpt>\n      <trkpt lat=\"41.739154\" lon=\"12.721083\"><ele>714.5</ele></trkpt>\n      <trkpt lat=\"41.73929\" lon=\"12.721437\"><ele>718.5</ele></trkpt>\n      <trkpt lat=\"41.739354\" lon=\"12.721512\"><ele>720.2</ele></trkpt>\n      <trkpt lat=\"41.73961\" lon=\"12.722027\"><ele>729.5</ele></trkpt>\n      <trkpt lat=\"41.739722\" lon=\"12.722081\"><ele>731.2</ele></trkpt>\n      <trkpt lat=\"41.739762\" lon=\"12.722252\"><ele>734.4</ele></trkpt>\n      <trkpt lat=\"41.740051\" lon=\"12.722746\"><ele>745.1</ele></trkpt>\n      <trkpt lat=\"41.740162\" lon=\"12.722918\"><ele>746.9</ele></trkpt>\n      <trkpt lat=\"41.740251\" lon=\"12.722982\"><ele>750.8</ele></trkpt>\n      <trkpt lat=\"41.740371\" lon=\"12.723111\"><ele>753.7</ele></trkpt>\n      <trkpt lat=\"41.740587\" lon=\"12.723636\"><ele>760.4</ele></trkpt>\n      <trkpt lat=\"41.740643\" lon=\"12.723712\"><ele>763.4</ele></trkpt>\n      <trkpt lat=\"41.741019\" lon=\"12.723883\"><ele>768.6</ele></trkpt>\n      <trkpt lat=\"41.741253\" lon=\"12.724031\"><ele>785.0</ele></trkpt>\n      <trkpt lat=\"41.741545\" lon=\"12.72389\"><ele>791.0</ele></trkpt>\n      <trkpt lat=\"41.741713\" lon=\"12.72361\"><ele>794.2</ele></trkpt>\n      <trkpt lat=\"41.742009\" lon=\"12.723266\"><ele>795.9</ele></trkpt>\n      <trkpt lat=\"41.742127\" lon=\"12.722962\"><ele>796.3</ele></trkpt>\n      <trkpt lat=\"41.742531\" lon=\"12.722517\"><ele>803.6</ele></trkpt>\n      <trkpt lat=\"41.742665\" lon=\"12.722105\"><ele>803.4</ele></trkpt>\n      <trkpt lat=\"41.742923\" lon=\"12.721792\"><ele>805.4</ele></trkpt>\n      <trkpt lat=\"41.742935\" lon=\"12.721113\"><ele>806.8</ele></trkpt>\n      <trkpt lat=\"41.743262\" lon=\"12.720283\"><ele>805.0</ele></trkpt>\n      <trkpt lat=\"41.743323\" lon=\"12.720096\"><ele>804.3</ele></trkpt>\n      <trkpt lat=\"41.743508\" lon=\"12.719661\"><ele>807.2</ele></trkpt>\n      <trkpt lat=\"41.743493\" lon=\"12.719539\"><ele>808.5</ele></trkpt>\n      <trkpt lat=\"41.743431\" lon=\"12.71936\"><ele>822.0</ele></trkpt>\n      <trkpt lat=\"41.743484\" lon=\"12.719344\"><ele>820.8</ele></trkpt>\n      <trkpt lat=\"41.743593\" lon=\"12.719244\"><ele>821.0</ele></trkpt>\n      <trkpt lat=\"41.743735\" lon=\"12.719028\"><ele>820.7</ele></trkpt>\n      <trkpt lat=\"41.743859\" lon=\"12.718879\"><ele>820.4</ele></trkpt>\n      <trkpt lat=\"41.744222\" lon=\"12.718584\"><ele>821.2</ele></trkpt>\n      <trkpt lat=\"41.744699\" lon=\"12.718045\"><ele>821.7</ele></trkpt>\n      <trkpt lat=\"41.745017\" lon=\"12.717654\"><ele>822.7</ele></trkpt>\n      <trkpt lat=\"41.745127\" lon=\"12.717457\"><ele>824.6</ele></trkpt>\n      <trkpt lat=\"41.74529\" lon=\"12.717035\"><ele>824.1</ele></trkpt>\n      <trkpt lat=\"41.745429\" lon=\"12.71683\"><ele>823.7</ele></trkpt>\n      <trkpt lat=\"41.745539\" lon=\"12.716748\"><ele>824.0</ele></trkpt>\n      <trkpt lat=\"41.745975\" lon=\"12.716579\"><ele>825.0</ele></trkpt>\n      <trkpt lat=\"41.746272\" lon=\"12.716437\"><ele>824.2</ele></trkpt>\n      <trkpt lat=\"41.746403\" lon=\"12.7163\"><ele>825.2</ele></trkpt>\n      <trkpt lat=\"41.746703\" lon=\"12.715865\"><ele>850.0</ele></trkpt>\n      <trkpt lat=\"41.746792\" lon=\"12.715759\"><ele>837.2</ele></trkpt>\n      <trkpt lat=\"41.746884\" lon=\"12.715685\"><ele>836.1</ele></trkpt>\n      <trkpt lat=\"41.747329\" lon=\"12.71547\"><ele>837.1</ele></trkpt>\n      <trkpt lat=\"41.747722\" lon=\"12.71534\"><ele>838.0</ele></trkpt>\n      <trkpt lat=\"41.74834\" lon=\"12.715218\"><ele>843.6</ele></trkpt>\n      <trkpt lat=\"41.748646\" lon=\"12.715071\"><ele>856.0</ele></trkpt>\n      <trkpt lat=\"41.74872\" lon=\"12.71501\"><ele>849.2</ele></trkpt>\n      <trkpt lat=\"41.748776\" lon=\"12.714932\"><ele>847.8</ele></trkpt>\n      <trkpt lat=\"41.748884\" lon=\"12.714624\"><ele>843.0</ele></trkpt>\n      <trkpt lat=\"41.748978\" lon=\"12.714328\"><ele>841.5</ele></trkpt>\n      <trkpt lat=\"41.749114\" lon=\"12.71409\"><ele>833.0</ele></trkpt>\n      <trkpt lat=\"41.749355\" lon=\"12.713807\"><ele>862.0</ele></trkpt>\n      <trkpt lat=\"41.749442\" lon=\"12.713634\"><ele>862.0</ele></trkpt>\n      <trkpt lat=\"41.749484\" lon=\"12.713446\"><ele>862.0</ele></trkpt>\n      <trkpt lat=\"41.749495\" lon=\"12.713292\"><ele>873.0</ele></trkpt>\n      <trkpt lat=\"41.749504\" lon=\"12.712981\"><ele>862.3</ele></trkpt>\n      <trkpt lat=\"41.749466\" lon=\"12.712772\"><ele>861.9</ele></trkpt>\n      <trkpt lat=\"41.748995\" lon=\"12.711427\"><ele>853.8</ele></trkpt>\n      <trkpt lat=\"41.748964\" lon=\"12.711288\"><ele>851.3</ele></trkpt>\n      <trkpt lat=\"41.748946\" lon=\"12.711107\"><ele>848.9</ele></trkpt>\n      <trkpt lat=\"41.748963\" lon=\"12.710808\"><ele>846.7</ele></trkpt>\n      <trkpt lat=\"41.749126\" lon=\"12.709987\"><ele>845.9</ele></trkpt>\n      <trkpt lat=\"41.749234\" lon=\"12.709747\"><ele>849.2</ele></trkpt>\n      <trkpt lat=\"41.749404\" lon=\"12.709522\"><ele>879.0</ele></trkpt>\n      <trkpt lat=\"41.749481\" lon=\"12.709441\"><ele>879.0</ele></trkpt>\n      <trkpt lat=\"41.749614\" lon=\"12.709299\"><ele>871.9</ele></trkpt>\n      <trkpt lat=\"41.749665\" lon=\"12.70918\"><ele>873.2</ele></trkpt>\n      <trkpt lat=\"41.749694\" lon=\"12.708977\"><ele>871.5</ele></trkpt>\n      <trkpt lat=\"41.749683\" lon=\"12.708609\"><ele>869.7</ele></trkpt>\n      <trkpt lat=\"41.749722\" lon=\"12.70853\"><ele>864.0</ele></trkpt>\n      <trkpt lat=\"41.749736\" lon=\"12.708399\"><ele>859.0</ele></trkpt>\n      <trkpt lat=\"41.749806\" lon=\"12.708299\"><ele>857.8</ele></trkpt>\n      <trkpt lat=\"41.749825\" lon=\"12.708244\"><ele>854.0</ele></trkpt>\n      <trkpt lat=\"41.749818\" lon=\"12.708169\"><ele>854.0</ele></trkpt>\n      <trkpt lat=\"41.749943\" lon=\"12.707935\"><ele>854.0</ele></trkpt>\n      <trkpt lat=\"41.750163\" lon=\"12.70773\"><ele>879.8</ele></trkpt>\n      <trkpt lat=\"41.750376\" lon=\"12.707572\"><ele>888.0</ele></trkpt>\n      <trkpt lat=\"41.750713\" lon=\"12.707457\"><ele>876.2</ele></trkpt>\n      <trkpt lat=\"41.75081\" lon=\"12.707481\"><ele>875.7</ele></trkpt>\n      <trkpt lat=\"41.751247\" lon=\"12.707442\"><ele>875.8</ele></trkpt>\n      <trkpt lat=\"41.751319\" lon=\"12.707477\"><ele>875.5</ele></trkpt>\n      <trkpt lat=\"41.751554\" lon=\"12.707493\"><ele>875.0</ele></trkpt>\n      <trkpt lat=\"41.751643\" lon=\"12.70753\"><ele>876.2</ele></trkpt>\n      <trkpt lat=\"41.751906\" lon=\"12.707686\"><ele>877.0</ele></trkpt>\n      <trkpt lat=\"41.751926\" lon=\"12.707723\"><ele>877.8</ele></trkpt>\n      <trkpt lat=\"41.752155\" lon=\"12.707825\"><ele>888.0</ele></trkpt>\n      <trkpt lat=\"41.752849\" lon=\"12.708615\"><ele>895.7</ele></trkpt>\n      <trkpt lat=\"41.753254\" lon=\"12.709244\"><ele>881.2</ele></trkpt>\n      <trkpt lat=\"41.753974\" lon=\"12.709903\"><ele>866.4</ele></trkpt>\n      <trkpt lat=\"41.754386\" lon=\"12.710161\"><ele>850.0</ele></trkpt>\n      <trkpt lat=\"41.75452\" lon=\"12.710219\"><ele>839.3</ele></trkpt>\n      <trkpt lat=\"41.754669\" lon=\"12.710229\"><ele>832.5</ele></trkpt>\n      <trkpt lat=\"41.755578\" lon=\"12.710131\"><ele>820.5</ele></trkpt>\n      <trkpt lat=\"41.755795\" lon=\"12.710092\"><ele>817.6</ele></trkpt>\n      <trkpt lat=\"41.756011\" lon=\"12.710009\"><ele>809.2</ele></trkpt>\n      <trkpt lat=\"41.756302\" lon=\"12.70996\"><ele>808.3</ele></trkpt>\n      <trkpt lat=\"41.756951\" lon=\"12.709938\"><ele>776.0</ele></trkpt>\n      <trkpt lat=\"41.757008\" lon=\"12.709957\"><ele>788.7</ele></trkpt>\n      <trkpt lat=\"41.757039\" lon=\"12.710023\"><ele>790.1</ele></trkpt>\n      <trkpt lat=\"41.757016\" lon=\"12.710369\"><ele>788.4</ele></trkpt>\n      <trkpt lat=\"41.757044\" lon=\"12.710442\"><ele>786.3</ele></trkpt>\n      <trkpt lat=\"41.757501\" lon=\"12.710573\"><ele>782.6</ele></trkpt>\n      <trkpt lat=\"41.757753\" lon=\"12.710664\"><ele>782.5</ele></trkpt>\n      <trkpt lat=\"41.757994\" lon=\"12.71081\"><ele>782.2</ele></trkpt>\n      <trkpt lat=\"41.758308\" lon=\"12.711072\"><ele>778.8</ele></trkpt>\n      <trkpt lat=\"41.758379\" lon=\"12.711075\"><ele>778.7</ele></trkpt>\n      <trkpt lat=\"41.75844\" lon=\"12.71105\"><ele>765.0</ele></trkpt>\n      <trkpt lat=\"41.759054\" lon=\"12.71113\"><ele>765.0</ele></trkpt>\n      <trkpt lat=\"41.759017\" lon=\"12.711192\"><ele>765.0</ele></trkpt>\n      <trkpt lat=\"41.758978\" lon=\"12.711392\"><ele>765.0</ele></trkpt>\n      <trkpt lat=\"41.758957\" lon=\"12.711517\"><ele>765.0</ele></trkpt>\n      <trkpt lat=\"41.758929\" lon=\"12.711532\"><ele>764.0</ele></trkpt>\n      <trkpt lat=\"41.758892\" lon=\"12.711592\"><ele>763.6</ele></trkpt>\n      <trkpt lat=\"41.75889\" lon=\"12.711671\"><ele>759.0</ele></trkpt>\n      <trkpt lat=\"41.75892\" lon=\"12.71173\"><ele>759.0</ele></trkpt>\n      <trkpt lat=\"41.75897\" lon=\"12.711756\"><ele>759.0</ele></trkpt>\n      <trkpt lat=\"41.759019\" lon=\"12.711742\"><ele>759.0</ele></trkpt>\n      <trkpt lat=\"41.759054\" lon=\"12.711695\"><ele>759.0</ele></trkpt>\n      <trkpt lat=\"41.759175\" lon=\"12.711859\"><ele>757.1</ele></trkpt>\n      <trkpt lat=\"41.759328\" lon=\"12.71212\"><ele>756.0</ele></trkpt>\n      <trkpt lat=\"41.75971\" lon=\"12.712778\"><ele>748.0</ele></trkpt>\n      <trkpt lat=\"41.760483\" lon=\"12.714051\"><ele>740.0</ele></trkpt>\n      <trkpt lat=\"41.760647\" lon=\"12.71424\"><ele>736.7</ele></trkpt>\n      <trkpt lat=\"41.760751\" lon=\"12.714322\"><ele>736.2</ele></trkpt>\n      <trkpt lat=\"41.760925\" lon=\"12.714409\"><ele>735.7</ele></trkpt>\n      <trkpt lat=\"41.761118\" lon=\"12.714471\"><ele>731.0</ele></trkpt>\n      <trkpt lat=\"41.761609\" lon=\"12.713519\"><ele>734.0</ele></trkpt>\n      <trkpt lat=\"41.761942\" lon=\"12.71287\"><ele>722.6</ele></trkpt>\n      <trkpt lat=\"41.761954\" lon=\"12.712776\"><ele>724.8</ele></trkpt>\n      <trkpt lat=\"41.761928\" lon=\"12.712723\"><ele>725.7</ele></trkpt>\n      <trkpt lat=\"41.761879\" lon=\"12.712678\"><ele>727.2</ele></trkpt>\n      <trkpt lat=\"41.761528\" lon=\"12.712515\"><ele>728.3</ele></trkpt>\n      <trkpt lat=\"41.761472\" lon=\"12.712462\"><ele>728.2</ele></trkpt>\n      <trkpt lat=\"41.761367\" lon=\"12.712292\"><ele>727.9</ele></trkpt>\n      <trkpt lat=\"41.761296\" lon=\"12.712119\"><ele>727.6</ele></trkpt>\n      <trkpt lat=\"41.761267\" lon=\"12.711997\"><ele>727.4</ele></trkpt>\n      <trkpt lat=\"41.761257\" lon=\"12.711858\"><ele>730.0</ele></trkpt>\n      <trkpt lat=\"41.761282\" lon=\"12.711681\"><ele>735.5</ele></trkpt>\n      <trkpt lat=\"41.761349\" lon=\"12.71151\"><ele>739.0</ele></trkpt>\n      <trkpt lat=\"41.761413\" lon=\"12.711403\"><ele>739.0</ele></trkpt>\n      <trkpt lat=\"41.761415\" lon=\"12.711547\"><ele>739.0</ele></trkpt>\n      <trkpt lat=\"41.761426\" lon=\"12.711786\"><ele>706.4</ele></trkpt>\n      <trkpt lat=\"41.761455\" lon=\"12.711841\"><ele>705.2</ele></trkpt>\n    </trkseg>\n  </trk>\n</gpx>"
+  "gpx_content": "\" xmlns=\"http://www.topografix.com/GPX/1/1\">\n  <wpt lat=\"41.761793\" ....",
+  "elevation_profile_url": "data:image/png;base64, iV..."
 }
 ```
 
@@ -598,6 +612,7 @@ This tool goes beyond simple mapping by cross-referencing terrain data with the 
 * **Tactical Tire Intelligence:** Calculates optimal tire recommendations and pressure baseline by cross-referencing **Rider Weight**, bike type, and dominant surface composition.
 * **Mud Risk Score:** Provides a localized risk rating (Low/Medium/High) to help cyclists prevent drivetrain damage and avoid unrideable sections.
 * **TAEL (Terrain-Aware Evaporation Lag):** A tactical model that cross-references 72h rainfall and geological drainage with real-time solar altitude to predict trail saturation and "Shadow-Lock" mud persistence.
+* **E-MTB Power Predictor:** A physics-based energy model ($W = m \cdot g \cdot h$) that predicts battery drain by cross-referencing Total System Weight, Assist Mode, Surface Drag, and Mud Suction effects.
 
 #### **Parameters:**
 
@@ -605,22 +620,10 @@ This tool goes beyond simple mapping by cross-referencing terrain data with the 
 | :--- | :--- | :--- | :--- |
 | `lat` | `float` | Required | Latitude of the starting point. |
 | `lon` | `float` | Required | Longitude of the starting point. |
-| `radius_km` | `int` | `10` | The total target distance of the loop (Round Trip). |
-| `profile` | `str` | `cycling-mountain` | ORS routing profile (e.g., `cycling-road`, `cycling-mountain`). |
-| `bike_type` | `str` | `MTB` | User's bike (Options: `Road`, `Gravel`, `MTB`, `E-MTB`, `Enduro`). |
-| `tire_size_option` | `str` | `29` | Standard wheel sizes (MTB: `26`, `27.5`, `29` | Road/Gravel: `700c`, `650b`). |
-| `rider_weight_kg` | `float` | `80.0` | **Total rider weight.** Used to calculate technical compatibility and tire setup recommendations. |
-| `points` | `int` | `3` | Complexity of the loop shape (3 = triangle, 10 = circular). |
-| `seed` | `int` | `42` | Random seed. Change it to discover a different route variation in the same area. |
-| `surface_pref`| `str` | `neutral` | Routing preference (Options: `neutral`, `avoid_unpaved`, `prefer_trails`). |
+| **`rider`** | `object` | Required | [Rider Profile](#rider-profile-rider).                  |
+| **`bike`** | `object` | Required | [Bike Setup](#bike-setup-bike).                         |
+| **`mission`** | `object` | Required | [Mission Constraints](#mission-constraints-mission).    |
 
-#### **Technical Insights:**
-
-> **Reality Filter:** This tool automatically reduces raw satellite elevation data by up to 40% on steep terrain to correct for SRTM sensor noise, ensuring the "Elevation Gain" matches real-world barometric sensors.
->
-> **Effort Multiplier:** Climb categories are calculated with a **1.4x intensity factor** for MTB profiles to account for the increased rolling resistance and technical effort of off-road ascending.
->
-> **MTB-Scale Integration:** Routes are analyzed for technical obstacles. An "S3" rating will trigger warnings for Gravel/Road setups, indicating sections with rock gardens or high steps.
 
 **Example Output (JSON) for MTB:**
 ```json
@@ -635,7 +638,8 @@ This tool goes beyond simple mapping by cross-referencing terrain data with the 
     "technical_difficulty": {
       "mtb_scale": "Standard / Unclassified",
       "trail_visibility": "Excellent",
-      "technical_notes": "Technical grading based on OSM mountain standards."
+      "technical_notes": "Technical grading based on OSM mountain standards.",
+      "fitness_context": "Evaluated for intermediate level"
     },
     "mud_risk": {
       "score": 10.26,
@@ -704,7 +708,8 @@ This tool goes beyond simple mapping by cross-referencing terrain data with the 
     "technical_difficulty": {
       "mtb_scale": "Standard / Unclassified",
       "trail_visibility": "Excellent",
-      "technical_notes": "Technical grading based on OSM mountain standards."
+      "technical_notes": "Technical grading based on OSM mountain standards.",
+      "fitness_context": "Evaluated for intermediate level"
     },
     "mud_risk": {
       "score": 10.26,
@@ -763,7 +768,8 @@ This tool goes beyond simple mapping by cross-referencing terrain data with the 
     "technical_difficulty": {
       "mtb_scale": "Standard / Unclassified",
       "trail_visibility": "Excellent",
-      "technical_notes": "Technical grading based on OSM mountain standards."
+      "technical_notes": "Technical grading based on OSM mountain standards.",
+      "fitness_context": "Evaluated for intermediate level"
     },
     "mud_risk": {
       "score": 10.26,
@@ -807,6 +813,90 @@ This tool goes beyond simple mapping by cross-referencing terrain data with the 
   ]
 }
 ```
+
+**Example Output (JSON) for E-Bike:**
+```json
+{
+  "payload_version": "1.0",
+  "status": "Success",
+  "profile_used": "cycling-mountain",
+  "tactical_briefing": {
+    "distance_km": 10.12,
+    "elevation_gain_m": 586,
+    "climb_category": "Hors Catégorie (HC) - Legendary Challenge",
+    "avg_gradient_est": "19.3%",
+    "technical_difficulty": {
+      "mtb_scale": "Standard / Unclassified",
+      "trail_visibility": "Excellent",
+      "technical_notes": "Technical grading based on OSM mountain standards.",
+      "fitness_context": "Evaluated for intermediate level"
+    },
+    "mud_risk": {
+      "score": 24.19,
+      "label": "High",
+      "details": "Significant saturation. High risk of sliding in technical sectors.",
+      "environmental_factors": {
+        "raw_rain_72h": "25.6mm",
+        "avg_temp": "17.4°C",
+        "drying_efficiency": "1.06x",
+        "shadow_penalty_active": "No",
+        "solar_altitude": "52.5°"
+      }
+    }
+  },
+  "mechanical_setup": {
+    "compatible": true,
+    "bike_category": "MTB",
+    "setup_details": "29 wheels | 19.6 PSI (1.35 Bar) [Mud Flotation Setup]",
+    "rider_weight_baseline": "80.0kg"
+  },
+  "surface_breakdown": [
+    {
+      "type": "Unknown",
+      "percentage": "40.9%"
+    },
+    {
+      "type": "Paved",
+      "percentage": "27.0%"
+    },
+    {
+      "type": "Asphalt",
+      "percentage": "9.5%"
+    },
+    {
+      "type": "Compact",
+      "percentage": "8.4%"
+    },
+    {
+      "type": "Grass",
+      "percentage": "8.0%"
+    },
+    {
+      "type": "Concrete",
+      "percentage": "3.4%"
+    },
+    {
+      "type": "Unpaved",
+      "percentage": "2.9%"
+    }
+  ],
+  "emtb_tactical": {
+    "estimated_drain_wh": 1518,
+    "remaining_battery_pct": 0,
+    "safety_buffer_status": "CRITICAL",
+    "breakdown_wh": {
+      "horizontal_base": 121.4,
+      "vertical_climb": 221.4,
+      "terrain_friction": 1175.1
+    }
+  },
+  "safety_warnings": [
+    "MUD ALERT: Significant saturation. High risk of sliding in technical sectors.",
+    "RANGE ANXIETY: SoC at finish is 0.0%. Drop to Eco!"
+  ]
+}
+```
+
 
 ### `poi_scout`
 A specialized safety and logistics tool designed to identify critical cycling amenities. It bypasses standard "commercial noise" by focusing strictly on professional cycling infrastructure and public utilities.
@@ -900,6 +990,40 @@ A predictive safety tool that cross-references geological surface data with hist
 }
 ```
 
+### `elevation_profile_image`
+Generates a high-resolution visual analysis of the route's elevation profile. Unlike simple line charts, this tool produces a tactical graphical representation that integrates color-coded slope data, allowing for an immediate assessment of vertical difficulties.
+
+#### **Functionality:**
+* **Visual Slope Gradient:** Applies a dynamic chromatic scale (Green → Yellow → Red → Black) to instantly highlight critical steepness (over 10-15%).
+* **SRTM Data Processing:** Processes 3D coordinates (Longitude, Latitude, Elevation) to reconstruct the terrain profile with high precision.
+* **Automated Scaling**: Automatically adjusts the chart axes based on total elevation gain to ensure maximum readability for both flat valley floors and alpine passes.
+* **Base64 Visual Delivery**: Returns the image as a Base64 string (Data URI), enabling immediate integration into chat interfaces, PDF reports, or web dashboards without external hosting.
+* **Terrain-Sync Validation**: Uses RouteGeometry logic to validate and sanitize elevation data, eliminating "spikes" common in raw satellite data.
+* **Tactical Overview**: Provides a crucial "at-a-glance" briefing for energy management (pacing) and gear selection before starting the ride.
+
+#### **Parameters:**
+
+| Parameter  | Type     | Default      | Description                                        |
+|:-----------|:---------|:-------------|:---------------------------------------------------|
+| `geometry` | `object` | **Required** | [Route Geometry](#route-geometry-geometry).         |
+| `width`    | `int`    | 8            | Width of the generated image (matplotlib inches).  |
+| `height`    | `int`    | 3            | Height of the generated image (matplotlib inches). |
+
+
+#### **Example Output (JSON):**
+
+```json
+{
+  "status": "Success",
+  "image_data_url": "data:image/png;base64,...",
+  "message": "Elevation profile generated successfully"
+}
+```
+
+Example image generated:
+
+![Example image generated:](site/md/elevation_profile.png)
+
 ### `analyze_strava_activity`
 A post-ride tactical diagnostic tool that fuses actual Strava GPS telemetry with historical environmental data to validate trail conditions and performance.
 
@@ -956,17 +1080,10 @@ Contributions are what make the open-source community such an amazing place to l
    - Push to the Branch (`git checkout origin feature/AmazingFeature`).
    - Open a Pull Request.
 
-### Development Roadmap
-We are currently looking for help with:
-- [ ] **POI Integration**: Adding water fountains, bike repair stations, and cafés to the route summary.
-- [ ] **Advanced Surface Analysis**: Better mapping of trail technicality grades (S0-S5).
-- [ ] **Frontend Mockups**: Visualizing how BikeScout looks in different MCP clients.
-
 ### Coding Standards
 - Please follow [PEP 8](https://peps.python.org/pep-0008/) for Python code.
 - Ensure all new tools are documented in the `README.md`.
 - Keep comments in English for international collaboration.
-
 
 *By contributing, you agree that your contributions will be licensed under the project's Apache-2.0 License.*
 

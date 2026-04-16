@@ -1,7 +1,36 @@
 from inspect import cleandoc
 
 class BikeScoutResources:
-    """Static technical resources for cyclists."""
+    """Static technical resources and safety protocols for cyclists."""
+
+    BASE_COMMANDS = [
+        "Verify helmet integrity",
+        "Check GPS battery levels",
+        "Sync offline maps"
+    ]
+
+    EXTRA_PROTOCOLS = {
+        "ebike": [
+            "Battery SoC check (>80% recommended)",
+            "Power mode functionality test",
+            "Speed sensor magnet alignment"
+        ],
+        "mtb": [
+            "Shock and Fork sag/pressure check",
+            "Dropper post operation",
+            "Inspect knee/elbow pads integrity"
+        ],
+        "gravel": [
+            "Tubeless sealant level check",
+            "Frame bag clearance",
+            "Flare bar alignment"
+        ],
+        "road": [
+            "Rim brake wear or Disc pad thickness",
+            "High-pressure tire integrity",
+            "Rear light battery check"
+        ]
+    }
 
     SAFETY_CHECKLIST = cleandoc("""
         ### 🛡️ BikeScout Safety Checklist
@@ -13,6 +42,12 @@ class BikeScoutResources:
         6. **Helmet**: Buckle it up!
     """)
 
+    PRESSURE_DATA = {
+        "road": {"range": "4.5 - 5.5 Bar", "psi": "65-80 PSI", "width": "28mm"},
+        "gravel": {"range": "2.0 - 3.0 Bar", "psi": "30-45 PSI", "width": "40mm"},
+        "mtb": {"range": "1.4 - 1.8 Bar", "psi": "20-26 PSI", "width": "2.3\""}
+    }
+
     TIRE_PRESSURE_GUIDE = cleandoc("""
         ### 🚲 Tire Pressure Recommendations (Tubeless)
         - **Road (28mm)**: 4.5 - 5.5 Bar (65-80 PSI)
@@ -21,3 +56,5 @@ class BikeScoutResources:
 
         *Note: Add 0.3 Bar if using inner tubes.*
     """)
+
+    MECHANICAL_NOTES = "Pressures are for Tubeless. Add 0.3 Bar if using inner tubes."
