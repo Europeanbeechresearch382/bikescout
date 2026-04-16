@@ -2,6 +2,7 @@ import os
 import sys
 from dotenv import load_dotenv
 from fastmcp import FastMCP
+from pathlib import Path
 from bikescout.schemas import RiderProfile, BikeSetup, MissionConstraints, RouteGeometry
 from bikescout.tools.scouting import get_complete_trail_scout
 from bikescout.tools.weather import get_weather_forecast
@@ -179,6 +180,112 @@ def elevation_profile_image(geometry: RouteGeometry, width: int = 8, height: int
     data = get_elevation_profile_image(geometry, width, height)
     return {"payload_version": BIKESCOUT_PROTOCOL_VERSION, **data}
 
+# --- SKILLS SECTION
+
+@mcp.tool()
+def get_local_knowledge(region: str):
+    """
+    Retrieves high-fidelity tactical intelligence for specific cycling meccas.
+    """
+
+    current_dir = Path(__file__).parent.absolute()
+    base_dir = current_dir / "prompts"
+
+    target_slug = region.lower().replace(" ", "").replace("_", "")
+
+    try:
+        if not base_dir.exists():
+            return {
+                "status": "Error",
+                "message": f"Critical Error: 'prompts' directory not found at {base_dir}",
+                "debug_current_working_dir": os.getcwd()
+            }
+
+        available_files = list(base_dir.glob("*.md"))
+
+        selected_file = None
+        for file in available_files:
+            # (eg: explore-moab-usa.md -> moab)
+            file_name_clean = file.name.lower().replace("-", "").replace("_", "")
+
+            if target_slug in file_name_clean:
+                selected_file = file
+                break
+
+        if not selected_file:
+            return {
+                "status": "Error",
+                "message": f"Region '{region}' not found in tactical database.",
+                "scanned_directory": str(base_dir),
+                "available_files": [f.name for f in available_files]
+            }
+
+        with open(selected_file, "r", encoding="utf-8") as f:
+            content = f.read()
+
+        return {
+            "payload_version": BIKESCOUT_PROTOCOL_VERSION,
+            "region": region,
+            "matched_file": selected_file.name,
+            "tactical_intelligence": content,
+            "status": "Success"
+        }
+
+    except Exception as e:
+        return {"status": "Error", "message": f"FileSystem Exception: {str(e)}"}
+
+@mcp.tool()
+def apply_safety_protocol(mission_type: str = "general"):
+    """
+    Executes the official BikeScout Safety Protocol.
+    Adapts recommendations based on mission_type: 'mtb', 'ebike', 'road', 'gravel'.
+    Mandatory skill to call before finalizing any 'Go' decision.
+    """
+
+    base = BikeScoutResources.BASE_COMMANDS
+    extra = BikeScoutResources.EXTRA_PROTOCOLS.get(mission_type.lower(), [])
+
+    final_commands = base + extra
+
+    return {
+        "payload_version": BIKESCOUT_PROTOCOL_VERSION,
+        "mission_type_applied": mission_type,
+        "standard_checklist": BikeScoutResources.SAFETY_CHECKLIST,
+        "tactical_pre_ride_commands": final_commands,
+        "status": "Success"
+    }
+
+@mcp.tool()
+def get_baseline_mechanics(bike_category: str):
+    """
+    Provides baseline tire pressure and mechanical settings from the BikeScout Registry.
+    Categories: 'road', 'gravel', 'mtb'.
+    Use this as a starting point before applying 'analyze_route_surfaces'.
+    """
+    category = bike_category.lower()
+
+    baseline = BikeScoutResources.PRESSURE_DATA.get(category)
+
+    if not baseline:
+        return {
+            "status": "Error",
+            "message": f"Category '{bike_category}' not recognized. Use 'road', 'gravel', or 'mtb'.",
+            "available_categories": list(BikeScoutResources.PRESSURE_DATA.keys())
+        }
+
+    return {
+        "payload_version": BIKESCOUT_PROTOCOL_VERSION,
+        "category": category,
+        "recommended_setup": {
+            "tire_width_ref": baseline["width"],
+            "pressure_bar": baseline["range"],
+            "pressure_psi": baseline["psi"]
+        },
+        "full_guide_reference": BikeScoutResources.TIRE_PRESSURE_GUIDE,
+        "setup_notes": BikeScoutResources.MECHANICAL_NOTES,
+        "status": "Success"
+    }
+
 # --- PROMPTS SECTION ---
 
 def register_dynamic_prompts(mcp_instance, manager):
@@ -198,19 +305,6 @@ def register_dynamic_prompts(mcp_instance, manager):
         )(create_handler(content))
 
 register_dynamic_prompts(mcp, prompts_manager)
-
-
-# --- RESOURCES SECTION ---
-
-@mcp.resource("bikescout://safety/checklist")
-def get_safety_checklist() -> str:
-    """Returns the essential pre-ride safety checklist."""
-    return BikeScoutResources.SAFETY_CHECKLIST
-
-@mcp.resource("bikescout://tech/tire-pressure")
-def get_tire_pressure_guide() -> str:
-    """Basic guide for tire pressures."""
-    return BikeScoutResources.TIRE_PRESSURE_GUIDE
 
 
 if __name__ == "__main__":

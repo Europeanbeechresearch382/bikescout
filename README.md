@@ -5,6 +5,8 @@
 ![Python](https://img.shields.io/badge/python-3.10-blue.svg)
 [![hifly81/bikescout](https://glama.ai/mcp/servers/hifly81/bikescout/badges/score.svg)](https://glama.ai/mcp/servers/hifly81/bikescout)
 [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg?style=flat-square)](http://makeapullrequest.com)
+[![Discord](https://img.shields.io/badge/Discord-7289DA?style=flat&logo=discord&logoColor=white)](https://discord.gg/TCetrnAM5b)
+[![Reddit](https://img.shields.io/badge/Reddit-FF4500?style=flat&logo=reddit&logoColor=white)](https://www.reddit.com/r/BikeScout/)
 
 BikeScout is a specialized MCP server for MTB, Road, E-Bike, and Gravel mission planning.
 It transforms raw map data into Tactical Intelligence, predicting terrain conditions and trail hazards.
@@ -226,42 +228,29 @@ What to check:
 
 ---
 
-## Pre-Configured Prompts
+## Specialized Tactical Skills (Local Intelligence)
 
-BikeScout includes pre-configured **AI Prompts**. These prompts provide local context, gear tips, and cultural insights.
+BikeScout features a suite of **Local Expert Skills** that function as specialized knowledge modules. Instead of providing generic advice, these skills inject high-fidelity "Tactical Intelligence" into the AI's reasoning.
+This allows the system to adapt tool outputs, such as tire pressure, battery management, and risk assessment to the specific soil, geology, and culture of world-class cycling destinations.
 
-| Prompt Name                    | Destination              | Specialization                                                               |
-|:-------------------------------|:-------------------------|:-----------------------------------------------------------------------------|
-| `explore-moab-usa`             | 🏜️ 🇺🇸 Moab, Utah      | Desert riding, technical sandstone, hydration & gear safety.                 |
-| `explore-castelliromani-italy` | 🇮🇹 🏔️ Castelli Romani | Volcanic terrain, steep climbs, Roman history, and local food stops.         |
-| `explore-dolomiti-italy`       | 🇮🇹 🏛️ Dolomites       | Expert guide for cycling in the Dolomites (UNESCO Heritage), Northern Italy. |
-| `explore-arenberg-france`	     | 🇫🇷 🚜 Arenberg Forest | Northern French Pavé, mud risk, tire pressure for cobbles, and "The Hell of the North."|
-| `explore-finale-ligure-italy`	 | 🌊 🇮🇹 Finale Ligure	 | World-class Enduro, limestone rock gardens, and "Sea-to-Summit" trails|
-| `explore-derby-australia`	     | 🌿 🇦🇺 Derby, Tasmania | Granite slabs, "Hero Dirt," and world-class MTB flow trails.|
-| `explore-shimanami-japan`	     | 🌉 🇯🇵 Shimanami Kaido | Island hopping, road/gravel touring, and bridge wind analysis.|
-
-### How to use them:
-
-1. Open your MCP-compatible client (e.g., Claude Desktop or Cline).
-2. Look for the **Prompts** library (usually a 📄 or ✨ icon).
-3. Select an explorer prompt to start a guided session.
-
----
-
-## Knowledge Resources
-
-BikeScout provides direct access to specialized cycling knowledge bases via the **MCP Resource** protocol. These resources can be read by the AI to provide accurate, data-driven advice.
-
-| Resource URI | Content | Use Case |
+| Skill / Knowledge Base | Destination | Tactical Specialization |
 | :--- | :--- | :--- |
-| `bikescout://safety/checklist` | Essential pre-ride safety steps. | Checking brakes, bolts, and emergency gear. |
-| `bikescout://tech/tire-pressure` | Recommended PSI/Bar by terrain. | Optimizing grip for Mud, Rock, or Asphalt. |
+| `get_moab_intel` | 🏜️ **Moab, Utah** | High-desert survival, slickrock traction mastery, and hydration/gear safety protocols. |
+| `get_castelli_intel` | 🌋 **Castelli Romani** | Volcanic soil (dust/mud) behavior, steep punchy climbs, and the "Fraschetta" cultural protocol. |
+| `get_dolomiti_intel` | 🏔️ **Dolomites, Italy** | High-altitude weather vigilance, UNESCO limestone grip analysis, and 1:1 gearing strategy. |
+| `get_arenberg_intel` | 🧱 **Arenberg Forest** | Northern French Pavé, "Hell of the North" vibration damping, and stone humidity risk (TAEL). |
+| `get_finale_intel` | 🌊 **Finale Ligure** | Enduro World Series standards, brake fade management, and limestone rock garden setup. |
+| `get_derby_intel` | 🌿 **Derby, Tasmania** | Granite slab traction, "Hero Dirt" saturation levels, and high-speed rebound optimization. |
+| `get_shimanami_intel` | 🌉 **Shimanami Kaido** | Bridge crosswind analysis, island-hopping logistics, and road/gravel touring efficiency. |
 
-### How to access:
+### **How These Skills Work**
 
-In your AI client, you can ask:
-* *"Read the safety checklist from BikeScout"* * *"What is the recommended tire pressure for wet gravel?"*
-  The AI will automatically fetch the data from the resource URI.
+These are **Actionable Knowledge Bases**. The AI utilizes a "Retrieve-and-Reason" logic to generate briefings:
+
+1.  **Context Detection**: When you query a location, the AI identifies the relevant region (e.g., *Finale Ligure*).
+2.  **Skill Invocation**: It automatically triggers the corresponding skill (e.g., `get_finale_intel`) to load the expert intelligence profile.
+3.  **Data Cross-Referencing**: It combines "Local Wisdom" (from the skill) with "Real-Time Data" (from `trail_scout` and `check_trail_soil_condition`).
+4.  **Synthesized Briefing**: The final response is a unique synthesis. For example, the `analyze_route_surfaces` tool might suggest a specific tire pressure *because* the local expert intelligence knows the limestone is currently in a high-humidity window.
 
 ---
 
