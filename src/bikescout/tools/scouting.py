@@ -8,6 +8,7 @@ from bikescout.tools.surface import get_surface_analyzer
 from bikescout.tools.poi import get_poi_scout
 from bikescout.tools.mud import get_mud_risk_analysis
 from bikescout.tools.altimetry import get_elevation_profile_image
+from bikescout.tools.nutrition import get_nutrition_plan
 from bikescout.schemas import RiderProfile, BikeSetup, MissionConstraints, RouteGeometry
 
 OVERPASS_URL = "https://overpass-api.de/api/interpreter"
@@ -42,18 +43,18 @@ def calculate_detailed_difficulty(dist_km: float, ascent_m: float) -> str:
 def generate_tactical_gpx(geojson_data, amenities=[]):
     """
     Generates a GPX file with tactical waypoints and optimized track segments.
+    Includes an Elevation Healing layer to fix SRTM data gaps (0.0 values).
     Output is saved to ~/.bikescout/gpx/ to avoid Context Window overflow.
 
     Features:
-    - Robust data extraction (handles objects and dicts)
-    - Climbing 'WALL' detection (>10% grade) with cooldown
-    - Automatic Summit detection
-    - Point Decimation (Max 1500 points for device compatibility)
-    - Automatic cleanup of files older than 14 days
+    - Data Integrity: Heals missing elevation points (prevents 0.0 altitude drops).
+    - Climbing 'WALL' detection: Identify segments >10% but <45% (filters out glitches).
+    - Automatic Summit detection.
+    - Point Decimation: Max 1500 points for GPS device compatibility.
+    - Automatic cleanup of files older than 14 days.
     """
     try:
         # 1. STORAGE CONFIGURATION & AUTO-CLEANUP
-        # Set path to user home directory: ~/.bikescout/gpx/
         home_dir = Path.home() / ".bikescout" / "gpx"
         home_dir.mkdir(parents=True, exist_ok=True)
 
@@ -64,34 +65,45 @@ def generate_tactical_gpx(geojson_data, amenities=[]):
                 try:
                     f.unlink()
                 except:
-                    pass # Ignore errors during deletion
+                    pass
 
-        # 2. ROBUST DATA EXTRACTION
-        # Handle both RouteGeometry objects (attribute access) and GeoJSON dicts (subscript access)
+                    # 2. ROBUST DATA EXTRACTION
         if hasattr(geojson_data, 'coordinates'):
-            # It's an object (e.g., Pydantic model)
             coords = geojson_data.coordinates
         elif isinstance(geojson_data, dict) and 'features' in geojson_data:
-            # It's a standard GeoJSON dictionary
             feature = geojson_data['features'][0]
             coords = feature['geometry']['coordinates']
         else:
-            # Fallback: assume the input is the coordinate list itself
             coords = geojson_data
 
-        # 3. OPTIMIZATION: POINT DECIMATION
-        # We target a max of 1500 points to ensure compatibility with GPS head units
+        # 3. ELEVATION HEALING LAYER
+        # Detects and fixes 0.0 elevation points or impossible jumps by carrying over
+        # the previous known altitude. This prevents "climbing walls" glitches.
+        healed_coords = []
+        for i in range(len(coords)):
+            lon, lat, ele = coords[i]
+
+            # If current elevation is 0 or shows an impossible jump (>200m), fix it
+            if (ele <= 0 or (i > 0 and abs(ele - coords[i-1][2]) > 200)) and i > 0:
+                ele = coords[i-1][2]
+
+            healed_coords.append([lon, lat, ele])
+
+        coords = healed_coords
+
+        # 4. OPTIMIZATION: POINT DECIMATION
+        # Targets max 1500 points to ensure compatibility with devices like Garmin/Wahoo
         MAX_TRACK_POINTS = 1500
         step = max(1, len(coords) // MAX_TRACK_POINTS)
         optimized_coords = coords[::step]
 
-        # 4. XML HEADER CONSTRUCTION
+        # 5. XML HEADER CONSTRUCTION
         gpx_xml = '<?xml version="1.0" encoding="UTF-8"?>\n'
         gpx_xml += '<gpx version="1.1" creator="BikeScout" xmlns="http://www.topografix.com/GPX/1/1">\n'
 
         waypoints = ""
 
-        # --- A. WAYPOINT: CYCLING AMENITIES (Water, etc.) ---
+        # --- A. WAYPOINT: CYCLING AMENITIES ---
         for poi in amenities:
             name = poi.get('name', 'Cycling POI')
             loc = poi.get('location', {})
@@ -104,7 +116,6 @@ def generate_tactical_gpx(geojson_data, amenities=[]):
                 waypoints += f'  </wpt>\n'
 
         # --- B. WAYPOINT: SUMMIT DETECTION ---
-        # coordinates format: [longitude, latitude, elevation]
         if coords and len(coords[0]) > 2:
             peak = max(coords, key=lambda x: x[2])
             waypoints += f'  <wpt lat="{peak[1]}" lon="{peak[0]}">\n'
@@ -112,24 +123,24 @@ def generate_tactical_gpx(geojson_data, amenities=[]):
             waypoints += f'    <sym>Summit</sym>\n'
             waypoints += f'  </wpt>\n'
 
-        # --- C. WAYPOINT: STEEP CLIMBS (COOLDOWN LOGIC) ---
-        # Detects sections over 10% grade. Uses cooldown to avoid waypoint clutter.
+        # --- C. WAYPOINT: STEEP CLIMBS (GRADE LIMITER) ---
+        # Detects sections over 10% grade. Filters out unrealistic jumps >45%.
         last_wall_index = -50
         for i in range(5, len(coords) - 10, 10):
-            # Cooldown check: Skip if a 'WALL' was placed in the last 40 points
             if i < last_wall_index + 40:
                 continue
 
             p1, p2 = coords[i], coords[i+10]
 
-            # Fast distance approximation in meters
+            # Fast distance approximation (Meters)
             d_lat = (p2[1] - p1[1]) * 111139
             d_lon = (p2[0] - p1[0]) * 111139 * 0.7
             dist = (d_lat**2 + d_lon**2)**0.5
 
             if dist > 60:
                 grade = ((p2[2] - p1[2]) / dist) * 100
-                if grade > 10:
+                # Only mark if the grade is between 10% and 45% (realistic climbing range)
+                if 10 < grade < 45:
                     waypoints += f'  <wpt lat="{p1[1]}" lon="{p1[0]}">\n'
                     waypoints += f'    <name>WALL: {int(grade)}%</name>\n'
                     waypoints += f'    <sym>Danger Area</sym>\n'
@@ -142,7 +153,7 @@ def generate_tactical_gpx(geojson_data, amenities=[]):
             track += f'      <trkpt lat="{lat}" lon="{lon}"><ele>{ele}</ele></trkpt>\n'
         track += '    </trkseg>\n  </trk>\n'
 
-        # 5. FILE PERSISTENCE
+        # 6. FILE PERSISTENCE
         full_content = gpx_xml + waypoints + track + '</gpx>'
         filename = f"tactical_route_{uuid.uuid4().hex[:6]}.gpx"
         file_path = home_dir / filename
@@ -150,18 +161,15 @@ def generate_tactical_gpx(geojson_data, amenities=[]):
         with open(file_path, "w", encoding="utf-8") as f:
             f.write(full_content)
 
-        # 6. RETURN LIGHTWEIGHT RESPONSE
-        # Returning the path instead of the full XML string prevents Context Window crashes
         return {
             "status": "Success",
-            "message": "Tactical GPX file successfully exported.",
+            "message": "Tactical GPX file successfully exported and cleaned.",
             "file_location": str(file_path),
             "tactical_stats": {
                 "total_points": len(coords),
-                "optimized_points": len(optimized_coords),
+                "healed_points": len(coords),
                 "waypoints_count": waypoints.count('<wpt')
-            },
-            "instructions": f"The file is safe in your home directory: {file_path}"
+            }
         }
 
     except Exception as e:
@@ -182,11 +190,11 @@ def get_complete_trail_scout(
         output_level: str = "standard"  # "summary" | "standard" | "full"
 ):
     """
-    The Master Orchestrator: Finds a specific trail and enriches it with
-    Surface Analysis, Weather, Cycling POIs, and Mud Risk.
-
+    The Master Orchestrator (v1.3): Synchronized Technical Briefing.
+    Integrates Surface Analysis, Weather-Driven Nutrition, Mud Risk,
+    and Artifact Generation (GPX/Altimetry) using SMA-Sanitized data.
     """
-    # --- 1. CONFIGURATION & HEADERS ---
+    # --- 1. CONFIGURATION ---
     headers = {
         'Accept': 'application/json, application/geo+json',
         'Authorization': api_key,
@@ -195,7 +203,7 @@ def get_complete_trail_scout(
 
     routing_payload = {
         "coordinates": [[lon, lat]],
-        "options": {"round_trip": {"length": mission.radius_km * 1000, "seed": 42}},
+        "options": {"round_trip": {"length": mission.radius_km * 1000, "seed": mission.seed}},
         "elevation": "true",
         "extra_info": ["surface", "steepness"]
     }
@@ -209,31 +217,56 @@ def get_complete_trail_scout(
 
         feature = data['features'][0]
         props = feature['properties']
-        summary = props.get('summary', {})
+
+        # Geometry baseline for all subsequent tools
         route_geo = RouteGeometry(coordinates=feature['geometry']['coordinates'])
 
-        dist_km = round(summary.get('distance', 0) / 1000, 2)
-        ascent_m = round(props.get('ascent', 0), 0)
-
-        # Extract dominant surface
-        raw_surface_extras = props.get('extras', {}).get('surface', {}).get('summary', [])
-        dominant_id = raw_surface_extras[0]['value'] if raw_surface_extras else 10
-        dominant_surface_name = _map_surface_id(dominant_id)
-
-        # --- 3. CALL: SURFACE ANALYZER ---
-        # Only perform deep surface analysis if level is not summary
+        # --- 3. CALL: SURFACE ANALYZER (The Source of Truth) ---
+        # Crucial: Cleans elevation and recalculates real geodesic distance
         surface_report = {}
         if output_level != "summary":
             try:
                 surface_report = get_surface_analyzer(api_key, lat, lon, rider, bike, mission)
             except Exception as e:
-                surface_report = {"status": "Error", "message": str(e)}
+                surface_report = {"status": "Error", "message": f"Surface Analysis failed: {str(e)}"}
 
-        # --- 4. CALL: WEATHER & MUD ---
+        # --- 4. DATA SYNCHRONIZATION ---
+        # Align all stats to the "Tactical" version (SMA filtered)
+        if surface_report.get("status") == "Success":
+            t_brief = surface_report.get("tactical_briefing", {})
+            dist_km = t_brief.get("distance_km")
+            ascent_m = t_brief.get("elevation_gain_m")
+            dominant_surface = surface_report.get("mechanical_setup", {}).get("surface_detected", "Unknown")
+        else:
+            summary = props.get('summary', {})
+            dist_km = round(summary.get('distance', 0) / 1000, 2)
+            ascent_m = round(props.get('ascent', 0), 0)
+            dominant_surface = "Unknown"
+
+        # --- 5. CALL: WEATHER & MUD ---
         weather_report = get_weather_forecast(lat, lon)
-        mud_analysis = get_mud_risk_analysis(lat, lon, dominant_surface_name)
+        mud_analysis = get_mud_risk_analysis(lat, lon, dominant_surface)
 
-        # --- 5. CALL: POI SCOUT (Logistics) ---
+        # --- 6. INTEGRATED NUTRITION LOGIC ---
+        # Extract max temperature for hydration scaling
+        max_temp = 20.0  # Tactical baseline
+        forecast = weather_report.get('next_4_hours', [])
+        if forecast:
+            try:
+                # Handle possible encoding issues in temperature strings
+                temps = [float(h["temp"].replace("°C", "").replace("C", "").strip()) for h in forecast]
+                max_temp = max(temps)
+            except (ValueError, KeyError, TypeError):
+                pass
+
+        # Calculate intensity and estimated duration using synchronized stats
+        # Formula: dist/speed + vertical_penalty
+        estimated_hours = (dist_km / 16.0) + (ascent_m / 700.0)
+        intensity_score = 3 if (ascent_m > 1200 or dist_km > 60) else 2
+
+        nutrition_plan = get_nutrition_plan(estimated_hours, max_temp, intensity_score)
+
+        # --- 7. CALL: POI SCOUT ---
         amenities = []
         if output_level == "full":
             try:
@@ -242,67 +275,49 @@ def get_complete_trail_scout(
             except:
                 amenities = []
 
-        # --- 6. FINAL CONSOLIDATED RESPONSE CONSTRUCTION ---
-
-        # Build Tactical Briefing (Shared across levels)
-        tactical_info = {
-            "distance_km": dist_km,
-            "ascent_m": ascent_m,
-            "difficulty": calculate_detailed_difficulty(dist_km, ascent_m),
-        }
-
-        # Add Surface Analysis if requested
-        if output_level != "summary":
-            tactical_info["surface_analysis"] = surface_report
-
+        # --- 8. FINAL PAYLOAD CONSTRUCTION ---
         response_payload = {
+            "payload_version": "1.3",
             "status": "Success",
-            "info": tactical_info,
+            "info": {
+                "distance_km": dist_km,
+                "ascent_m": ascent_m,
+                "difficulty": calculate_detailed_difficulty(dist_km, ascent_m),
+                "surface_analysis": surface_report if output_level != "summary" else "Skipped"
+            },
             "conditions": {
-                "weather": weather_report.get('next_4_hours', []) if isinstance(weather_report, dict) else [],
+                "weather": forecast,
                 "mud_risk": mud_analysis,
-                "safety_advice": weather_report.get('safety_advice', "") if isinstance(weather_report, dict) else ""
-            }
-        }
-
-        # Include logistics only in Full or Standard
-        if output_level != "summary":
-            response_payload["logistics"] = {
+                "max_temp_detected": f"{max_temp}°C",
+                "safety_advice": weather_report.get('safety_advice', "")
+            },
+            "logistics": {
+                "nutrition_plan": nutrition_plan,
                 "nearby_amenities": amenities[:5] if amenities else "Available in Full report"
             }
+        }
 
-        # Static Map: Generate only if requested to save header space / processing
+        # --- 9. ARTIFACTS: MAP, GPX, ALTIMETRY ---
         if include_map:
             response_payload["map_image_url"] = get_static_map_url(data)
 
-        # GPX Content: Generate only if requested (heaviest part)
         if include_gpx:
             try:
-                gpx_report = generate_tactical_gpx(
-                    geojson_data=route_geo,
-                    amenities=nearby_pois if 'nearby_pois' in locals() else []
-                )
+                gpx_report = generate_tactical_gpx(geojson_data=route_geo, amenities=amenities)
                 if gpx_report["status"] == "Success":
                     response_payload["gpx_export_path"] = gpx_report["file_location"]
                     response_payload["gpx_stats"] = gpx_report.get("tactical_stats")
-                else:
-                    response_payload["gpx_error"] = gpx_report.get("message")
-
             except Exception as e:
-                response_payload["gpx_error"] = f"GPX generation failed: {str(e)}"
+                response_payload["gpx_error"] = f"GPX failed: {str(e)}"
 
-        # Elevation Profile
         if output_level != "summary":
             try:
                 altimetry_report = get_elevation_profile_image(geometry=route_geo)
-
                 if altimetry_report["status"] == "Success":
                     response_payload["elevation_profile_path"] = altimetry_report["file_location"]
-
-                response_payload["elevation_summary"] = altimetry_report.get("summary", "")
-
+                    response_payload["elevation_summary"] = altimetry_report.get("summary")
             except Exception as e:
-                response_payload["elevation_profile_error"] = f"Main call failed: {str(e)}"
+                response_payload["elevation_error"] = f"Altimetry failed: {str(e)}"
 
         return response_payload
 

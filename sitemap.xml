@@ -49,6 +49,60 @@
         <priority>0.8</priority>
     </url>
     <url>
+        <loc>https://hifly81.github.io/bikescout/site/wallsense.html</loc>
+        <lastmod>2026-04-18</lastmod>
+        <changefreq>daily</changefreq>
+        <priority>0.8</priority>
+    </url>
+    <url>
+        <loc>https://hifly81.github.io/bikescout/site/asi_enc.html</loc>
+        <lastmod>2026-04-18</lastmod>
+        <changefreq>daily</changefreq>
+        <priority>0.8</priority>
+    </url>
+    <url>
+        <loc>https://hifly81.github.io/bikescout/site/cycling_encyclopedia.html</loc>
+        <lastmod>2026-04-18</lastmod>
+        <changefreq>daily</changefreq>
+        <priority>0.8</priority>
+    </url>
+    <url>
+        <loc>https://hifly81.github.io/bikescout/site/dst_enc.html</loc>
+        <lastmod>2026-04-18</lastmod>
+        <changefreq>daily</changefreq>
+        <priority>0.8</priority>
+    </url>
+    <url>
+        <loc>https://hifly81.github.io/bikescout/site/geodesic_accuracy_enc.html</loc>
+        <lastmod>2026-04-18</lastmod>
+        <changefreq>daily</changefreq>
+        <priority>0.8</priority>
+    </url>
+    <url>
+        <loc>https://hifly81.github.io/bikescout/site/proy_climb_enc.html</loc>
+        <lastmod>2026-04-18</lastmod>
+        <changefreq>daily</changefreq>
+        <priority>0.8</priority>
+    </url>
+    <url>
+        <loc>https://hifly81.github.io/bikescout/site/s_scale_enc.html</loc>
+        <lastmod>2026-04-13</lastmod>
+        <changefreq>daily</changefreq>
+        <priority>0.7</priority>
+    </url>
+    <url>
+        <loc>https://hifly81.github.io/bikescout/site/shadow_persistence_enc.html</loc>
+        <lastmod>2026-04-13</lastmod>
+        <changefreq>daily</changefreq>
+        <priority>0.7</priority>
+    </url>
+    <url>
+        <loc>https://hifly81.github.io/bikescout/site/tael_enc.html</loc>
+        <lastmod>2026-04-13</lastmod>
+        <changefreq>daily</changefreq>
+        <priority>0.7</priority>
+    </url>
+    <url>
         <loc>https://hifly81.github.io/bikescout/site/about.html</loc>
         <lastmod>2026-04-13</lastmod>
         <changefreq>monthly</changefreq>

@@ -1,7 +1,7 @@
 # BikeScout MCP Server
 
 [![License: Apache 2.0](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
-[![Version](https://img.shields.io/badge/Version-1.0.1-green.svg)](https://github.com/hifly81/bikescout/releases)
+[![Version](https://img.shields.io/badge/Version-1.0.2-green.svg)](https://github.com/hifly81/bikescout/releases)
 ![Python](https://img.shields.io/badge/python-3.10-blue.svg)
 [![hifly81/bikescout](https://glama.ai/mcp/servers/hifly81/bikescout/badges/score.svg)](https://glama.ai/mcp/servers/hifly81/bikescout)
 [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg?style=flat-square)](http://makeapullrequest.com)
@@ -70,6 +70,7 @@ You can ask **BikeScout** complex, multi-step requests. It combines real-time da
 - **Predictive Mud Risk**: Advanced rideability analysis based on geological soil composition (Clay vs. Sand) and 72-hour precipitation history.
 - **Tactical Ride Window**: A "Go/No-Go" decision engine that identifies the optimal start time by cross-referencing atmospheric hazards with terrain saturation.
 - **Smart Safety Weather**: Hyper-local 4-hour forecasts with expert-level gear and layering advice based on temperature, wind, and rain thresholds.
+- **Hydration Scout**: Calculates real-time liquid and electrolyte requirements based on the route's technical intensity and the maximum forecasted temperature for the next four hours.
 
 📈 High-Fidelity Navigation & Altimetry
 - **Wall-Sense Technology**: Automatically detects gradients >10% and injects active <wpt> alerts into your GPX file to warn you on your head unit before you hit the "wall."
