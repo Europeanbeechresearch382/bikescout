@@ -130,20 +130,20 @@ Unlike standard GPS files, BikeScout automatically injects active <wpt> (waypoin
 #### **Tool Output Example (JSON):**
 ```json
 {
-  "payload_version": "1.0",
+  "payload_version": "1.3",
   "status": "Success",
   "info": {
-    "distance_km": 10.67,
-    "ascent_m": 745,
-    "difficulty": "🟠 Advanced (Requires good fitness and stamina)",
+    "distance_km": 46.35,
+    "ascent_m": 1830,
+    "difficulty": "🔴 Expert (Challenging distance or very steep climbs)",
     "surface_analysis": {
       "status": "Success",
       "profile_used": "cycling-mountain",
       "tactical_briefing": {
-        "distance_km": 10.12,
-        "elevation_gain_m": 586,
+        "distance_km": 46.35,
+        "elevation_gain_m": 1830,
         "climb_category": "Hors Catégorie (HC) - Legendary Challenge",
-        "avg_gradient_est": "19.3%",
+        "avg_gradient_est": "13.2%",
         "technical_difficulty": {
           "mtb_scale": "Standard / Unclassified",
           "trail_visibility": "Excellent",
@@ -151,15 +151,15 @@ Unlike standard GPS files, BikeScout automatically injects active <wpt> (waypoin
           "fitness_context": "Evaluated for intermediate level"
         },
         "mud_risk": {
-          "score": 49.36,
+          "score": 43.94,
           "label": "Extreme",
           "details": "Total saturation. Trail damage likely. Recommend Go/No-Go re-evaluation.",
           "environmental_factors": {
-            "raw_rain_72h": "20.9mm",
-            "avg_temp": "17.4°C",
-            "drying_efficiency": "0.42x",
+            "raw_rain_72h": "12.1mm",
+            "avg_temp": "19.3°C",
+            "drying_efficiency": "0.28x",
             "shadow_penalty_active": "Yes",
-            "solar_altitude": "-19.5°"
+            "solar_altitude": "-30.0°"
           }
         }
       },
@@ -172,41 +172,37 @@ Unlike standard GPS files, BikeScout automatically injects active <wpt> (waypoin
       "surface_breakdown": [
         {
           "type": "Unknown",
-          "percentage": "40.9%"
+          "percentage": "53.1%"
         },
         {
           "type": "Paved",
-          "percentage": "27.0%"
-        },
-        {
-          "type": "Asphalt",
-          "percentage": "9.5%"
+          "percentage": "39.1%"
         },
         {
           "type": "Compact",
-          "percentage": "8.4%"
-        },
-        {
-          "type": "Grass",
-          "percentage": "8.0%"
+          "percentage": "6.1%"
         },
         {
           "type": "Concrete",
-          "percentage": "3.4%"
+          "percentage": "0.8%"
         },
         {
           "type": "Unpaved",
-          "percentage": "2.9%"
+          "percentage": "0.6%"
+        },
+        {
+          "type": "Asphalt",
+          "percentage": "0.3%"
         }
       ],
       "emtb_tactical": {
-        "estimated_drain_wh": 2740.8,
+        "estimated_drain_wh": 11024.5,
         "remaining_battery_pct": 0,
         "safety_buffer_status": "CRITICAL",
         "breakdown_wh": {
-          "horizontal_base": 121.4,
-          "vertical_climb": 221.4,
-          "terrain_friction": 2397.9
+          "horizontal_base": 556.3,
+          "vertical_climb": 691.5,
+          "terrain_friction": 9776.7
         }
       },
       "safety_warnings": [
@@ -218,43 +214,49 @@ Unlike standard GPS files, BikeScout automatically injects active <wpt> (waypoin
   "conditions": {
     "weather": [
       {
-        "time": "21:00",
-        "temp": "14.1°C",
-        "rain_prob": "0%",
-        "wind": "3.3 km/h"
-      },
-      {
-        "time": "22:00",
-        "temp": "13.4°C",
-        "rain_prob": "0%",
-        "wind": "4.0 km/h"
-      },
-      {
         "time": "23:00",
-        "temp": "13.1°C",
+        "temp": "12.7°C",
         "rain_prob": "0%",
-        "wind": "4.2 km/h"
+        "wind": "7.6 km/h"
       }
     ],
     "mud_risk": {
       "status": "Success",
       "environmental_context": {
-        "raw_rain_72h": "20.9mm",
-        "avg_temp": "17.4°C",
-        "drying_efficiency": "0.42x",
+        "raw_rain_72h": "12.1mm",
+        "avg_temp": "19.3°C",
+        "drying_efficiency": "0.28x",
         "shadow_penalty_active": "Yes",
-        "solar_altitude": "-19.5°"
+        "solar_altitude": "-30.0°"
       },
       "tactical_analysis": {
-        "adjusted_moisture_index": 49.36,
+        "adjusted_moisture_index": 43.94,
         "mud_risk_score": "Extreme",
-        "surface_detected": "dirt",
+        "surface_detected": "Unknown",
         "safety_advice": "Total saturation. Trail damage likely. Recommend Go/No-Go re-evaluation."
       }
     },
+    "max_temp_detected": "12.7°C",
     "safety_advice": "🌥️ CHILLY: Light jacket or arm warmers recommended."
   },
   "logistics": {
+    "nutrition_plan": {
+      "status": "Success",
+      "mission_nutrition_briefing": {
+        "fluids": {
+          "total_liters": 2.5,
+          "hourly_rate_ml": 458
+        },
+        "carbohydrates": {
+          "total_grams": 220,
+          "hourly_target_g": 40,
+          "intensity_context": "Low"
+        },
+        "tactical_advice": [
+          "ELECTROLYTE CRITICAL: High sweat rate or duration detected. Add sodium to bottles."
+        ]
+      }
+    },
     "nearby_amenities": [
       {
         "name": "Water Fountain 💧",
@@ -294,13 +296,14 @@ Unlike standard GPS files, BikeScout automatically injects active <wpt> (waypoin
       }
     ]
   },
-  "gpx_export_path": "/home/test/.bikescout/gpx/tactical_route_39382d.gpx",
+  "map_image_url": "https://tiles.stadiamaps.com/static/outdoors?center=41.702988000000005%2C12.718914&zoom=11&size=600x400%402x&api_key=e65e91ac-c17e-485e-a54b-89d7d4d95c20&path=color:0xff0000ff|weight:4|enc:cp{}F_xqlAnGfNhYfIdJx]`WdXbZ~Hr]uFpu@j`Apm@rOv`@ye@hi@jFxb@xEvb@uLxd@ql@nd@{~@`pBotBll@kP`w@_e@t~@m\\mt@wXc}@cEssA~JqU_v@se@yM{WfGaKnf@o[rNol@g@uG~`@s_@pQyShU{`@vm@m~@zq@qLfn@sJ}KsPtRiPzHq\\{e@gWgIg\\rB}g@xSaMLEI",
+  "gpx_export_path": "/home/test/.bikescout/gpx/tactical_route_3c3c37.gpx",
   "gpx_stats": {
-    "total_points": 396,
-    "optimized_points": 396,
-    "waypoints_count": 4
+    "total_points": 945,
+    "healed_points": 945,
+    "waypoints_count": 11
   },
-  "elevation_profile_path": "/home/test/.bikescout/altimetry/bs_altimetry_01c3ec.png",
+  "elevation_profile_path": "/home/test/.bikescout/altimetry/bs_altimetry_763449.png",
   "elevation_summary": "Visual sparkline generated and cached."
 }
 ```
@@ -867,4 +870,44 @@ A post-ride tactical diagnostic tool that fuses actual Strava GPS telemetry with
 }
 ```
 
+### `hydration_scout`
+The **Physiological Intelligence Engine** of BikeScout. This tool translates environmental and mission data into a concrete fueling strategy, preventing dehydration and "bonking" (hypoglycemia) by bridging the gap between terrain data and human physiology.
+
+#### **Functionality:**
+* **Dynamic Hydration Modeling:** Calculates sweat rates by cross-referencing real-time peak temperatures from the `check_trail_weather` module with planned mission duration.
+* **Carbohydrate Strategy:** Predicts glycogen depletion and targets specific replenishment rates (**30g to 90g/hr**) based on the `intensity_score`.
+* **Environmental Fusion:** Automatically adjusts the "Base Rate" of 500ml/hr by adding **100ml for every 5°C** above the 20°C threshold.
+* **Safety Thresholds:** Triggers specific **Electrolyte & Sodium alerts** if temperatures exceed **28°C** or if the mission duration exceeds **3 hours**.
+
+#### **Parameters:**
+
+| Parameter | Type | Default | Description |
+| :--- | :--- | :--- | :--- |
+| `lat` | `float` | **Required** | Latitude of the mission area for weather correlation. |
+| `lon` | `float` | **Required** | Longitude of the mission area for weather correlation. |
+| `duration_hours` | `float` | **Required** | Total estimated time in the saddle. |
+| `intensity_score` | `int` | `50` | Physiological effort (0-100). Agent should scale this based on climb categories (e.g., HC climbs = 90). |
+
+#### **Tool Output Example (JSON):**
+```json
+{
+  "payload_version": "1.0",
+  "weather_context": {
+    "max_temp_detected": "13.2°C"
+  },
+  "status": "Success",
+  "mission_nutrition_briefing": {
+    "fluids": {
+      "total_liters": 1.7,
+      "hourly_rate_ml": 575
+    },
+    "carbohydrates": {
+      "total_grams": 180,
+      "hourly_target_g": 60,
+      "intensity_context": "Moderate"
+    },
+    "tactical_advice": []
+  }
+}
+```
 ---
