@@ -20,7 +20,6 @@ The system provides precise setup advice, tailoring your equipment to the demand
 ---
 
 ## Explore BikeScout
-*Master the tools of Tactical Cycling Intelligence. From deep-tech integration to field-ready insights, choose your path below:*
 
 * **[BikeScout Documentation](site/md/api_docs.md)** **The Technical Core.** Detailed API references and step-by-step guides to deploy the MCP server. Essential for developers integrating BikeScout into Claude, ChatGPT, or custom AI agents.
 
@@ -98,7 +97,6 @@ docker-compose up -d
 If you prefer a private and free experience without external API costs, use the `docker-compose-ollama.yml`
 file to run BikeScout with Ollama (Llama 3/Mistral) instead of OpenAI.
 Refer to this [guide](site/md/bikescout_ollama.md) to setup a complete local installation with Ollama and Open WebUI.
-Deploy BikeScout:
 
 ### Using the Source Code
 
