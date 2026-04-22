@@ -76,7 +76,7 @@ Pre Requirements:
 
 * **Docker Desktop:** [Download it here](https://www.docker.com/products/docker-desktop/).
 * **OpenRouteService Key:** [Sign up here](https://openrouteservice.org/) for trail and surface data.
-* **LLM Key:** An API key from OpenAI (GPT-4o) or Anthropic (Claude 3.5) to power the reasoning engine.
+* **LLM Key:** An API key from OpenAI or Anthropic to power the reasoning engine.
 
 1. **Download the repository:** Download this repository as a ZIP and extract it to a folder (e.g., `C:\BikeScout` or `/Users/YourName/BikeScout`).
 2. Rename `.env.example` to `.env` and paste your API keys:
@@ -125,10 +125,9 @@ To integrate **BikeScout** with your preferred MCP client (Claude Desktop, Cline
    pip install bikescout
    ```
 
-Add the server to your `claude_desktop_config.json`:
-
-- Windows: `%APPDATA%\Claude\claude_desktop_config.json` 
-- macOS: `~/Library/Application Support/Claude/claude_desktop_config.json`
+- Add the server to your `claude_desktop_config.json`:
+  - Windows: `%APPDATA%\Claude\claude_desktop_config.json`
+  - macOS: `~/Library/Application Support/Claude/claude_desktop_config.json`
 
 You must replace the placeholders in the JSON configuration with your local absolute paths to the Python script file.
 `PATH/TO/YOUR/BIKESCOUT_FOLDER/src/bikescout/mcp_server.py`
