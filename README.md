@@ -159,6 +159,11 @@ Example:
 }
 ```
 
+To teardown the environment, execute:
+```bash
+docker compose down -v
+```
+
 ## Debugging and Testing
 
 You can test **BikeScout** using the [MCP Inspector](https://github.com/modelcontextprotocol/inspector), a web-based tool for testing MCP servers.

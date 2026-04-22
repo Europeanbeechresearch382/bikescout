@@ -21,7 +21,12 @@ OPENAI_API_KEY=your_llm_key_here
 ```bash
 docker compose -f docker-compose-ollama.yml up -d
 ```
-4. Launch Open WebUI: connect to http://localhost:3000 and follow the instructions to create a first user.
+4. Download a LLM model for Ollama, example `llama3.1:8b` (or `gemma2:27b`):
+```bash
+   docker exec -it ollama ollama pull llama3.1:8b
+```
+5. Launch Open WebUI: connect to http://localhost:3000 and follow the instructions to create a first user.
+
 
 ## Enable BikeScout using Open WebUI
 
@@ -41,3 +46,11 @@ To enable the tools within the Open WebUI interface, follow these steps:
 
 Once saved, you can enable this tool for your specific models in the New Chat, Workspace or Model settings, allowing the LLM to access real-time data through your MCP server.
 
+Try a query, e.g. *"Use the **Dolomiti local guide** to plan a road cycling route starting from **Cortina**. I need at least **800m of elevation gain**. Also, recommend the correct tire pressure for high-altitude descents and a mountain hut for a strudel stop."*
+
+## Teardown
+
+Execute:
+```bash
+docker compose -f docker-compose-ollama.yml down -v
+```
