@@ -93,7 +93,7 @@ def _generate_altimetry_plot(geometry: list, width: int = 8, height: int = 3):
 
     return img_base64
 
-def get_elevation_profile_image(geometry: RouteGeometry, width: int, height: int, style: Literal["sparkline", "filled", "bars"] = "sparkline"):
+def get_elevation_profile_image(geometry: RouteGeometry, width: int = 8, height: int = 3, style: Literal["sparkline", "filled", "bars"] = "sparkline"):
     """
     Generates an elevation profile, saves it to ~/.bikescout/altimetry/
     and performs auto-cleaning of old files.

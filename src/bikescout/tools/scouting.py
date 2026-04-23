@@ -188,7 +188,8 @@ def get_complete_trail_scout(
         mission: MissionConstraints,
         include_gpx: bool = True,
         include_map: bool = False,
-        output_level: Literal["summary", "standard", "full"] = "standard"
+        output_level: Literal["summary", "standard", "full"] = "standard",
+        target_date: str = None
 ):
     """
     The Master Orchestrator (v1.3): Synchronized Technical Briefing.
@@ -227,7 +228,7 @@ def get_complete_trail_scout(
         surface_report = {}
         if output_level != "summary":
             try:
-                surface_report = get_surface_analyzer(api_key, lat, lon, rider, bike, mission)
+                surface_report = get_surface_analyzer(api_key, lat, lon, rider, bike, mission, target_date)
             except Exception as e:
                 surface_report = {"status": "Error", "message": f"Surface Analysis failed: {str(e)}"}
 
@@ -245,8 +246,8 @@ def get_complete_trail_scout(
             dominant_surface = "Unknown"
 
         # --- 5. CALL: WEATHER & MUD ---
-        weather_report = get_weather_forecast(lat, lon)
-        mud_analysis = get_mud_risk_analysis(lat, lon, dominant_surface)
+        weather_report = get_weather_forecast(lat, lon, target_date)
+        mud_analysis = get_mud_risk_analysis(lat, lon, dominant_surface, target_date)
 
         # --- 6. INTEGRATED NUTRITION LOGIC ---
         # Extract max temperature for hydration scaling

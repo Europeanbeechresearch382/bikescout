@@ -60,13 +60,14 @@ def get_strava_activity(activity_date, client_id, client_secret, refresh_token):
         mud_report = get_mud_risk_analysis(lat, lon, surface_type)
 
         # Pull Weather Context
-        weather_report = get_weather_forecast(lat, lon)
+        weather_report = get_weather_forecast(lat, lon, target_date=activity_date)
 
         # 5. Final Report Construction
         return {
             "status": "Success",
             "mission_briefing": {
                 "name": target_activity.get('name'),
+                "date": activity_date,
                 "distance_km": round(target_activity.get('distance', 0) / 1000, 2),
                 "elevation_gain_m": target_activity.get('total_elevation_gain', 0),
                 "avg_speed_kmh": round(target_activity.get('average_speed', 0) * 3.6, 1)

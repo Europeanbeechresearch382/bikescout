@@ -60,7 +60,7 @@ class MissionConstraints(BaseModel):
         ...,
         description="The desired search radius or loop length in kilometers."
     )
-    profile: Literal["cycling-mountain", "cycling-road", "cycling-regular"] = Field(
+    profile: Literal["cycling-mountain", "cycling-road", "cycling-regular", "cycling-electric"] = Field(
         "cycling-mountain",
         description="The OpenRouteService routing profile."
     )

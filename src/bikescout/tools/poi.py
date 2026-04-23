@@ -14,8 +14,8 @@ def get_poi_scout(api_key: str, lat: float, lon: float, radius_km: float):
         'Content-Type': 'application/json'
     }
 
-    # API Limit: 2000m
-    safe_buffer = min(int(radius_km * 1000), 2000)
+    # API Limit: 5000m
+    safe_buffer = min(int(radius_km * 1000), 5000)
 
     # Expanded category list to be more inclusive
     # 162: Water

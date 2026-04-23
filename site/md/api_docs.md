@@ -208,6 +208,8 @@ Unlike standard GPS files, BikeScout automatically injects active <wpt> (waypoin
 | `include_gpx` | `bool` | `True` | Whether to include the raw XML GPX content.             |
 | `include_map` | `bool` | `False` | Whether to generate the Static Map URL via Stadia Maps. |
 | `output_level` | `string` | `standard` | Verbosity level: `summary`, `standard`, or `full`.      |
+| `target_date` | `string` |  | target_date: Optional string in 'YYYY-MM-DD' format |
+
 
 #### **Tool Output Example (JSON):**
 ```json
@@ -399,51 +401,74 @@ A real-time safety tool designed specifically for outdoor activities. It provide
 * **Smart Advice:** Automatically evaluates conditions and provides a "Go/No-Go" suggestion.
 
 #### **Parameters:**
-| Parameter | Type | Default | Description |
-| :--- | :--- | :--- | :--- |
-| `lat` | `float` | Required | Latitude of the trail or starting point. |
-| `lon` | `float` | Required | Longitude of the trail or starting point. |
+| Parameter | Type     | Default | Description                                         |
+| :--- |:---------| :--- |:----------------------------------------------------|
+| `lat` | `float`  | Required | Latitude of the trail or starting point.            |
+| `lon` | `float`  | Required | Longitude of the trail or starting point.           |
+| `target_date` | `string` |  | target_date: Optional string in 'YYYY-MM-DD' format |
 
 **Example Output (JSON):**
 ```json
 {
+  "payload_version": "1.0",
   "status": "Success",
-  "location": {
-    "lat": 41.7615,
-    "lon": 12.7118
+  "metadata": {
+    "date_analyzed": "2026-07-14",
+    "is_future_planning": true,
+    "location": {
+      "lat": 45.9237,
+      "lon": 6.8694
+    }
   },
-  "next_4_hours": [
+  "tactical_forecast": [
     {
-      "time": "12:00",
-      "temp": "16.0°C",
+      "time": "08:00",
+      "temp": "14.2°C",
       "rain_prob": "0%",
-      "wind": "8.3 km/h"
+      "wind": "5.4 km/h"
     },
     {
-      "time": "13:00",
-      "temp": "16.7°C",
-      "rain_prob": "0%",
-      "wind": "9.4 km/h"
+      "time": "10:00",
+      "temp": "18.5°C",
+      "rain_prob": "5%",
+      "wind": "8.2 km/h"
+    },
+    {
+      "time": "12:00",
+      "temp": "22.1°C",
+      "rain_prob": "15%",
+      "wind": "12.5 km/h"
     },
     {
       "time": "14:00",
-      "temp": "17.3°C",
-      "rain_prob": "0%",
-      "wind": "10.4 km/h"
+      "temp": "24.8°C",
+      "rain_prob": "40%",
+      "wind": "18.1 km/h"
     },
     {
-      "time": "15:00",
-      "temp": "17.5°C",
-      "rain_prob": "0%",
-      "wind": "10.8 km/h"
+      "time": "16:00",
+      "temp": "21.3°C",
+      "rain_prob": "65%",
+      "wind": "15.3 km/h"
     }
   ],
-  "current_conditions": {
-    "temp": 16,
+  "reference_conditions": {
+    "temp": 14.2,
     "rain_prob": 0,
-    "wind_speed": 8.3
+    "wind_speed": 5.4,
+    "reference_hour": "8:00"
   },
-  "safety_advice": "✅ IDEAL: Perfect conditions for a great ride!"
+  "safety_advice": {
+    "risk_level": "Moderate",
+    "recommendations": {
+      "clothing": "Start with a light gilet; temperatures will rise rapidly.",
+      "tires": "Standard pressure, but be wary of wet tarmac after 14:00.",
+      "hydration": "High sweat rate expected midday. 750ml/hour recommended."
+    },
+    "alerts": [
+      "Thunderstorm risk in the afternoon (65% probability after 15:00)."
+    ]
+  }
 }
 ```
 
@@ -463,6 +488,8 @@ The ultimate **Decision Intelligence** tool for the modern rider. It goes beyond
 | `lon` | `float` | Required | Longitude of the deployment area. |
 | `ride_duration_hours` | `float` | `2.0` | Target length of the mission (defines the sliding window size). |
 | `surface_type` | `str` | `"dirt"` | Used to calculate specific soil drainage coefficients for the TAEL index. |
+| `target_date` | `string` |  | target_date: Optional string in 'YYYY-MM-DD' format |
+
 
 #### **Example Output (JSON)**
 ```json
@@ -512,6 +539,7 @@ This tool goes beyond simple mapping by cross-referencing terrain data with the 
 | **`rider`** | `object` | Required | [Rider Profile](#rider-profile-rider).                  |
 | **`bike`** | `object` | Required | [Bike Setup](#bike-setup-bike).                         |
 | **`mission`** | `object` | Required | [Mission Constraints](#mission-constraints-mission).    |
+| `target_date` | `string` |  | target_date: Optional string in 'YYYY-MM-DD' format |
 
 
 **Example Output (JSON) for MTB:**
@@ -858,23 +886,29 @@ A predictive safety tool that cross-references geological surface data with hist
 | `lat` | `float` | Required | Latitude of the trail section. |
 | `lon` | `float` | Required | Longitude of the trail section. |
 | `surface_type` | `string` | `dirt` | The OSM surface tag (e.g., `clay`, `sand`, `gravel`, `asphalt`). |
+| `target_date` | `string` |  | target_date: Optional string in 'YYYY-MM-DD' format |
 
 #### **Example Output (JSON):**
 ```json
 {
   "status": "Success",
+  "metadata": {
+    "target_date": "2026-05-10",
+    "is_predictive": true
+  },
   "environmental_context": {
-    "raw_rain_72h": "10.0mm",
-    "avg_temp": "17.9°C",
-    "drying_efficiency": "0.43x",
+    "cumulative_rain_72h": "18.5mm",
+    "avg_temp": "14.2°C",
+    "drying_efficiency": "0.65x",
     "shadow_penalty_active": "Yes",
-    "solar_altitude": "-18.2°"
+    "solar_altitude": "58.4°"
   },
   "tactical_analysis": {
-    "adjusted_moisture_index": 23.44,
-    "mud_risk_score": "Extreme",
-    "surface_detected": "dirt",
-    "safety_advice": "Total saturation. Trail damage likely. Recommend Go/No-Go re-evaluation."
+    "adjusted_moisture_index": 28.46,
+    "mud_risk_score": "High",
+    "mud_risk_numeric": 34.2,
+    "surface_type": "clay",
+    "safety_advice": "Significant saturation. High risk of sliding in technical sectors. Heavy clay sticking likely to affect drivetrain and tire clearance."
   }
 }
 ```
@@ -938,6 +972,7 @@ A post-ride tactical diagnostic tool that fuses actual Strava GPS telemetry with
   "status": "Success",
   "mission_briefing": {
     "name": "Afternoon Mountain Bike Session",
+    "date": "2026-03-11",
     "distance_km": 41.26,
     "elevation_gain_m": 709.3,
     "avg_speed_kmh": 15.0
@@ -973,22 +1008,25 @@ The **Physiological Intelligence Engine** of BikeScout. This tool translates env
 | `lon` | `float` | **Required** | Longitude of the mission area for weather correlation. |
 | `duration_hours` | `float` | **Required** | Total estimated time in the saddle. |
 | `intensity_score` | `int` | `50` | Physiological effort (0-100). Agent should scale this based on climb categories (e.g., HC climbs = 90). |
+| `target_date` | `string` |  | target_date: Optional string in 'YYYY-MM-DD' format |
 
 #### **Tool Output Example (JSON):**
 ```json
 {
   "payload_version": "1.0",
   "weather_context": {
-    "max_temp_detected": "13.2°C"
+    "date_referenced": "2026-04-23",
+    "max_temp_detected": "19.2°C",
+    "is_future_event": false
   },
   "status": "Success",
   "mission_nutrition_briefing": {
     "fluids": {
-      "total_liters": 1.7,
+      "total_liters": 1.1,
       "hourly_rate_ml": 575
     },
     "carbohydrates": {
-      "total_grams": 180,
+      "total_grams": 120,
       "hourly_target_g": 60,
       "intensity_context": "Moderate"
     },
