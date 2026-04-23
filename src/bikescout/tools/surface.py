@@ -1,12 +1,12 @@
 import requests
 import numpy as np
+from datetime import datetime, date
 from bikescout.tools.mud import get_mud_risk_analysis
 from bikescout.tools.geophysic import haversine_distance
 from bikescout.tools.bike_setup import analyze_compatibility
 from bikescout.tools.bike_setup import get_tire_setup
 from bikescout.tools.battery import calculate_battery_drain
 from bikescout.schemas import RiderProfile, BikeSetup, MissionConstraints
-
 
 def _sanitize_elevation_profile(geometry, window_size=7, threshold=0.5):
     """
@@ -152,147 +152,178 @@ def _build_ors_options(surface_preference):
 
     return options
 
-import requests
-import numpy as np
-
-def get_surface_analyzer(api_key, lat, lon, rider, bike, mission):
+def get_surface_analyzer(api_key, lat, lon, rider, bike, mission, target_date: str = None):
     """
-    Main entry point for route analysis.
-    Upgraded with Tactical SMA Elevation Smoothing, Geodesic Accuracy,
-    TAEL Mud Risk Model and E-MTB battery drain.
+    Analyzes route surfaces and tactical risks by integrating OpenRouteService geometry
+    with TAEL Mud Intelligence (v2.5) and E-MTB performance metrics.
+
+    This method employs an adaptive fallback strategy to prevent ORS 400 errors by
+    dynamically stripping unsupported 'extra_info' (like tracktype) depending on the
+    routing profile. It also performs safe E-MTB power consumption analysis only
+    when specific hardware criteria are met.
+
+    Args:
+        api_key (str): OpenRouteService API Authorization token.
+        lat (float): Starting latitude.
+        lon (float): Starting longitude.
+        rider (object): Contains rider-specific data (weight_kg, fitness_level).
+        bike (object): Contains hardware specs (bike_type, tire_size, battery_wh).
+        mission (object): Contains mission parameters (radius_km, profile, complexity, seed).
+        target_date (str, optional): YYYY-MM-DD date for predictive mud analysis.
+                                     Defaults to current date if None.
+
+    Returns:
+        dict: A structured report containing tactical briefing, mechanical setup,
+              surface breakdown, and E-MTB analytics.
     """
 
+    # 1. Parameter Normalization
+    safe_complexity = max(3, min(int(getattr(mission, 'complexity', 10)), 30))
+    safe_length = int(mission.radius_km * 1000)
+
+    # 2. Strategic fallback system
     attempts = [
-        (mission.profile, ["surface", "waytype", "tracktype"]),
+        (mission.profile, ["surface", "waytype"]),
         (mission.profile, ["surface", "waytype"]),
         ("cycling-regular", ["surface", "waytype"])
     ]
 
     last_error = ""
-    for current_profile, current_extras in attempts:
-        url = f"https://api.openrouteservice.org/v2/directions/{current_profile}/geojson"
-        headers = {'Authorization': api_key, 'Content-Type': 'application/json'}
-        body = {
-            "coordinates": [[lon, lat]],
-            "elevation": True,
-            "options": {
-                "round_trip": {
-                    "length": mission.radius_km * 1000,
-                    "points": mission.complexity,
-                    "seed": mission.seed
-                },
-                **_build_ors_options(mission.surface_preference)
-            },
-            "extra_info": current_extras
-        }
-
+    for current_profile, requested_extras in attempts:
         try:
-            res = requests.post(url, json=body, headers=headers)
+
+            url = f"https://api.openrouteservice.org/v2/directions/{current_profile}/geojson"
+            headers = {'Authorization': api_key, 'Content-Type': 'application/json'}
+
+            # ORS Request Body
+            body = {
+                "coordinates": [[lon, lat]],
+                "elevation": True,
+                "extra_info": requested_extras,
+                "options": {
+                    "round_trip": {
+                        "length": safe_length,
+                        "points": safe_complexity,
+                        "seed": int(getattr(mission, 'seed', 42))
+                    }
+                }
+            }
+
+            res = requests.post(url, json=body, headers=headers, timeout=15)
 
             if res.status_code != 200:
+                # Capture the specific reason for failure
                 try:
-                    last_error = res.json().get('error', {}).get('message', f"HTTP {res.status_code}")
+                    detail = res.json().get('error', {}).get('message', res.text)
                 except:
-                    last_error = f"HTTP {res.status_code}"
-                continue
+                    detail = res.text
 
+                last_error = f"ORS {res.status_code}: {detail}"
+                continue # Try the next fallback profile/extra combo
             data = res.json()
+
+            # ORS GeoJSON structure: features -> [0] -> properties -> extras
             feature = data['features'][0]
-            props = feature['properties']
-            geometry = feature['geometry']['coordinates'] # List of [lon, lat, ele]
+            props = feature.get('properties', {})
+            geometry = feature.get('geometry', {}).get('coordinates', [])
+
+            # Extras can contain 'surface', 'waytype', etc.
             extras = props.get('extras', {})
 
-            # --- 1. Tactical Elevation & Distance ---
-            # SMA Smoothing filters satellite noise
-            clean_ascent = _sanitize_elevation_profile(geometry, window_size=7, threshold=0.5)
+            # 3. Terrain Intelligence
+            clean_ascent = _sanitize_elevation_profile(geometry, 7, 0.5)
 
-            # Haversine Distance (Geodesic)
+            # Distance calculation (Geodesic)
             real_dist_m = 0
             for i in range(len(geometry) - 1):
                 p1, p2 = geometry[i], geometry[i+1]
                 real_dist_m += haversine_distance(p1[1], p1[0], p2[1], p2[0])
 
-            # --- 2. Surface & Mud Analysis (TAEL Model) ---
-            surface_map = {0: "Unknown", 1: "Asphalt", 2: "Unpaved", 3: "Paved", 4: "Cobblestone",
-                           5: "Gravel", 6: "Fine Gravel", 11: "Grass", 12: "Compact", 14: "Concrete"}
-
+            # Surface Mapping
+            surface_map = {0: "Unknown", 1: "Asphalt", 2: "Unpaved", 3: "Paved", 5: "Gravel", 11: "Grass", 14: "Concrete"}
             dominant_surface = _extract_dominant_surface(extras.get('surface', {}), surface_map)
-            mud_analysis = get_mud_risk_analysis(lat, lon, dominant_surface)
 
-            # Fallback
-            t_analysis = mud_analysis.get("tactical_analysis", {})
-            mud_index = t_analysis.get("adjusted_moisture_index", 0.5)
-            mud_risk_label = t_analysis.get("mud_risk_score", "Unknown")
-            safety_advice = t_analysis.get("safety_advice", "Telemetry unavailable.")
-            env_context = mud_analysis.get("environmental_context", {})
+            # Mud Analysis (TAEL v2.5)
+            mud_analysis = get_mud_risk_analysis(lat, lon, dominant_surface, target_date)
+            t_analysis = mud_analysis.get("tactical_analysis") or {}
 
-            # --- 3. Tactical Setup & Compatibility ---
+            # Force numeric float
+            raw_mud = t_analysis.get("mud_risk_numeric")
+            mud_score_val = float(raw_mud) if raw_mud is not None else 0.0
+
+            # 4. Mechanical & Performance Audit
             tire_mm, tire_display = get_tire_setup(
                 bike_type=bike.bike_type,
                 tire_size_option=bike.tire_size,
-                mud_index=mud_index,
+                mud_index=mud_score_val,
                 surface_type=dominant_surface,
                 rider_weight_kg=rider.weight_kg
             )
 
             climb_cat, avg_grad = _categorize_climb(clean_ascent, real_dist_m, current_profile)
             breakdown, warnings, compatible = analyze_compatibility(bike.bike_type, tire_mm, extras, surface_map)
-            tech_specs = _analyze_technical_difficulty(extras, rider.fitness_level)
 
-            if mud_index > 0.7:
-                warnings.append(f"MUD ALERT: {safety_advice}")
-
-            # --- 4. E-MTB Power Management ---
+            # --- 5. E-MTB Power Management (Safe Detection) ---
             emtb_analysis = None
-            is_emtb = "E-" in bike.bike_type.upper() or getattr(bike, 'battery_wh', 0) > 0
+
+            # Check if it's an E-Bike: must have "E-" in name AND a valid battery capacity
+            bike_type_str = str(getattr(bike, 'bike_type', "")).upper()
+            battery_cap = getattr(bike, 'battery_wh', 0)
+
+            # Ensure battery_cap is a number before comparison
+            if not isinstance(battery_cap, (int, float)):
+                battery_cap = 0
+
+            is_emtb = "E-" in bike_type_str and battery_cap > 0
 
             if is_emtb:
-                emtb_analysis = calculate_battery_drain(
-                    battery_wh=getattr(bike, 'battery_wh', 500),
-                    assist_level=getattr(mission, 'assist_mode', "Trail"),
-                    weight_kg=rider.weight_kg + 24, # Rider + avg E-Bike weight
-                    ascent_m=clean_ascent,
-                    distance_km=real_dist_m / 1000,
-                    surface_breakdown=breakdown,
-                    mud_index=mud_index
-                )
+                try:
+                    emtb_analysis = calculate_battery_drain(
+                        battery_wh=battery_cap,
+                        assist_level=getattr(mission, 'assist_mode', "Trail"),
+                        weight_kg=float(getattr(rider, 'weight_kg', 80)) + 24, # 24kg is avg E-bike weight
+                        ascent_m=clean_ascent,
+                        distance_km=real_dist_m / 1000,
+                        surface_breakdown=breakdown,
+                        mud_index=mud_score_val
+                    )
+                except Exception as e_emtb:
+                    emtb_analysis = {"error": "Battery calculation failed"}
 
-                if emtb_analysis and emtb_analysis["remaining_battery_pct"] < 15:
-                    warnings.append(f"RANGE ANXIETY: SoC at finish is {emtb_analysis['remaining_battery_pct']}%. Drop to Eco!")
-
-            # --- 5. Final Tactical Response Assembly ---
             return {
                 "status": "Success",
                 "profile_used": current_profile,
+                "metadata": {
+                    "analyzed_date": mud_analysis.get("metadata", {}).get("target_date"),
+                    "api_extras": list(extras.keys())
+                },
                 "tactical_briefing": {
                     "distance_km": round(real_dist_m / 1000, 2),
                     "elevation_gain_m": clean_ascent,
                     "climb_category": climb_cat,
                     "avg_gradient_est": f"{round(avg_grad, 1)}%",
-                    "technical_difficulty": tech_specs,
-                    "mud_risk": {
-                        "score": round(mud_index, 2),
-                        "label": mud_risk_label,
-                        "details": safety_advice,
-                        "environmental_factors": env_context
+                    "mud_intelligence": {
+                        "score": mud_score_val,
+                        "label": t_analysis.get("mud_risk_score", "Unknown"),
+                        "safety_advice": t_analysis.get("safety_advice", "Check local conditions.")
                     }
                 },
                 "mechanical_setup": {
                     "compatible": compatible,
-                    "bike_category": bike.bike_type,
                     "setup_details": tire_display,
-                    "rider_weight_baseline": f"{rider.weight_kg}kg"
+                    "bike_type": bike.bike_type
                 },
                 "surface_breakdown": breakdown,
                 "emtb_tactical": emtb_analysis,
                 "safety_warnings": warnings
             }
 
+
         except Exception as e:
             last_error = f"Local processing error: {str(e)}"
             continue
 
-    return {"status": "Error", "message": f"Analysis failed: {last_error}"}
+    return {"status": "Error", "message": f"Global failure: {last_error}"}
 
 def _extract_dominant_surface(surface_extra, surface_map):
     """Helper to find the surface with the highest distance in the route."""

@@ -7,3 +7,4 @@ dist/
 scripts/
 demo/
 site/guides/guide-template.html
+src/bikescout/tools/pro/__pycache__/

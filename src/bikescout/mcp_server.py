@@ -3,6 +3,7 @@ import sys
 from dotenv import load_dotenv
 from fastmcp import FastMCP
 from pathlib import Path
+from typing import Literal
 from bikescout.schemas import RiderProfile, BikeSetup, MissionConstraints, RouteGeometry
 from bikescout.tools.scouting import get_complete_trail_scout
 from bikescout.tools.weather import get_weather_forecast
@@ -16,6 +17,7 @@ from bikescout.tools.altimetry import get_elevation_profile_image
 from bikescout.tools.nutrition import get_nutrition_plan
 from bikescout.prompts import BikeScoutPrompts
 from bikescout.resources import BikeScoutResources
+from bikescout.tools.pro.ProCyclingEngine import ProCyclingEngine
 
 
 mcp = FastMCP("BikeScout")
@@ -56,16 +58,18 @@ def trail_scout(
         rider: RiderProfile,
         bike: BikeSetup,
         mission: MissionConstraints,
-        lat: float = 41.7615,
-        lon: float = 12.7118,
+        lat: float,
+        lon: float,
         include_gpx: bool = True,
         include_map: bool = False,
-        output_level: str = "standard"  # "summary" | "standard" | "full"
+        output_level: Literal["summary", "standard", "full"] = "standard",
+        target_date: str = None
 ):
     """
     Advanced trail discovery.
     Returns route data, difficulty, a GPX file, and a STATIC MAP IMAGE
     that can be displayed directly in the chat.
+    If target_date is None, it defaults to the current date.
 
     Args:
         rider: Profile including weight and fitness level.
@@ -76,45 +80,58 @@ def trail_scout(
         include_gpx: If True, generates a downloadable GPX file for navigation.
         include_map: If True, generates a visual static map image.
         output_level: Detail level of the report ("summary", "standard", "full").
+        target_date: Optional. The date of the event in YYYY-MM-DD format.
     """
     data = get_complete_trail_scout(
-        ORS_API_KEY, lat, lon, rider, bike, mission, include_gpx, include_map, output_level)
+        ORS_API_KEY, lat, lon, rider, bike, mission, include_gpx, include_map, output_level, target_date)
     return {"payload_version": BIKESCOUT_PROTOCOL_VERSION, **data}
 
 @mcp.tool()
-def check_trail_weather(lat: float = 41.7615, lon: float = 12.7118):
+def check_trail_weather(lat: float, lon: float, target_date: str = None):
     """
-    Detailed cycling-specific weather assistant.
-    Provides temperature, rain risk, and wind speed analysis for the next 4 hours,
-    including technical safety advice on gear and riding conditions.
+    Advanced cycling-specific weather assistant for real-time and future planning.
+    Provides temperature, rain risk, and wind speed analysis.
+
+    If target_date is provided, it analyzes the forecast for that specific day
+    (ideal for race planning like Tour de France stages or MTB World Cup).
+    If target_date is None, it defaults to the current 4-hour window.
 
     Args:
         lat: Latitude of the trail area.
         lon: Longitude of the trail area.
+        target_date: Optional. The date of the event in YYYY-MM-DD format.
     """
-    data = get_weather_forecast(lat, lon)
-    return {"payload_version": BIKESCOUT_PROTOCOL_VERSION, **data}
+    # Now passing the optional target_date to the underlying weather engine
+    data = get_weather_forecast(lat, lon, target_date)
+
+    return {
+        "payload_version": BIKESCOUT_PROTOCOL_VERSION,
+        **data
+    }
 
 @mcp.tool()
 def ride_window_planner(
-        lat: float = 41.7615,
-        lon: float = 12.7118,
+        lat: float,
+        lon: float,
         ride_duration_hours: float = 2.0,
-        surface_type: str = "dirt"
+        surface_type: Literal["dirt", "gravel", "asphalt", "sand", "clay"] = "dirt",
+        target_date: str = None
 ):
     """
     Tactical Go/No-Go Planner.
     Predicts the best riding window by cross-referencing weather stability
     and TAEL soil drainage efficiency for the next 12-24 hours.
+    If target_date is None, it defaults to the current date.
 
     Args:
         lat: Latitude of the location.
         lon: Longitude of the location.
         ride_duration_hours: Planned time for the cycling session.
         surface_type: Type of ground (e.g., "dirt", "gravel", "asphalt") to calculate drying lag.
+        target_date: Optional. The date of the event in YYYY-MM-DD format.
     """
 
-    data = calculate_ride_windows(lat, lon, ride_duration_hours, surface_type)
+    data = calculate_ride_windows(lat, lon, ride_duration_hours, surface_type, target_date)
     return {"payload_version": BIKESCOUT_PROTOCOL_VERSION, **data}
 
 @mcp.tool()
@@ -122,12 +139,14 @@ def analyze_route_surfaces(
     rider: RiderProfile,
     bike: BikeSetup,
     mission: MissionConstraints,
-    lat: float = 41.7615,
-    lon: float = 12.7118
+    lat: float,
+    lon: float,
+    target_date: str = None
 ):
     """
     Analyzes the route surface, technical difficulty, categorize climbs,
     and provides dynamic mechanical setup (PSI/Bar) based on terrain and weight.
+    If target_date is None, it defaults to the current date.
 
     Args:
         rider: Profile of the cyclist.
@@ -135,6 +154,7 @@ def analyze_route_surfaces(
         mission: Route requirements and radius.
         lat: Latitude of the center point.
         lon: Longitude of the center point.
+        target_date: Optional. The date of the event in YYYY-MM-DD format.
     """
     data = get_surface_analyzer(
         ORS_API_KEY,
@@ -142,13 +162,14 @@ def analyze_route_surfaces(
         lon,
         rider,
         bike,
-        mission
+        mission,
+        target_date
     )
     return {"payload_version": BIKESCOUT_PROTOCOL_VERSION, **data}
 
 
 @mcp.tool()
-def poi_scout(lat: float = 41.7615, lon: float = 12.7118, radius_km: int = 5):
+def poi_scout(lat: float, lon: float, radius_km: int = 2):
     """
     Identifies bike-specific points of interest (POIs) around a location.
     Focuses on water fountains, bike shops, repair stations, and shelters.
@@ -156,25 +177,41 @@ def poi_scout(lat: float = 41.7615, lon: float = 12.7118, radius_km: int = 5):
     Args:
         lat: Latitude of the center point (usually start/end or a climb peak).
         lon: Longitude of the center point.
-        radius_km: Search radius in kilometers (max 5km recommended for precision).
+        radius_km: Search radius in kilometers. Recommended: 2-5km. Max: 5km.
     """
     data = get_poi_scout(ORS_API_KEY, lat, lon, radius_km)
     return {"payload_version": BIKESCOUT_PROTOCOL_VERSION, **data}
 
 @mcp.tool()
-def check_trail_soil_condition(lat: float = 41.7615, lon: float = 12.7118, surface_type: str = "dirt"):
+def check_trail_soil_condition(
+        lat: float,
+        lon: float,
+        surface_type: Literal["dirt", "gravel", "asphalt", "sand", "clay"] = "dirt",
+        target_date: str = None
+):
     """
-    Advanced predictive model for ground saturation and mud risk.
+    Advanced predictive and historical model for ground saturation and mud risk.
     Uses the TAEL (Terrain-Aware Evaporation Lag) algorithm to cross-reference
-    72h precipitation data with real-time solar altitude and atmospheric drying efficiency.
+    cumulative 72h precipitation with drying efficiency factors.
+
+    This tool is essential for:
+    1. Pre-ride planning: Assessing trail conditions for today.
+    2. Race strategy: Predicting mud risk for future dates (e.g., upcoming GPX tracks).
 
     Args:
-        lat: Latitude of the trail.
-        lon: Longitude of the trail.
-        surface_type: Ground material to evaluate drying efficiency (e.g., "dirt", "clay").
+        lat: Latitude of the target trail or sector.
+        lon: Longitude of the target trail or sector.
+        surface_type: Ground material (e.g., "clay", "gravel") to calculate specific drainage lag.
+        target_date: Optional. The specific date to analyze (YYYY-MM-DD).
+                     Defaults to today's date if not provided.
     """
-    data = get_mud_risk_analysis(lat, lon, surface_type)
-    return {"payload_version": BIKESCOUT_PROTOCOL_VERSION, **data}
+    # Executes the core TAEL logic with dynamic date windowing
+    data = get_mud_risk_analysis(lat, lon, surface_type, target_date)
+
+    return {
+        "payload_version": BIKESCOUT_PROTOCOL_VERSION,
+        **data
+    }
 
 @mcp.tool()
 def analyze_strava_activity(activity_date: str):
@@ -201,71 +238,144 @@ def analyze_strava_activity(activity_date: str):
     return {"payload_version": BIKESCOUT_PROTOCOL_VERSION, **data}
 
 @mcp.tool()
-def elevation_profile_image(geometry: RouteGeometry, width: int = 8, height: int = 3):
+def elevation_profile_image(geometry: RouteGeometry, width: int = 8, height: int = 3, style: Literal["sparkline", "filled", "bars"] = "sparkline"):
     """
-    Generates a visual 'sparkline' image (base64 encoded PNG) of the route's elevation profile.
+    Generates a visual elevation profile image (base64 encoded PNG).
 
-    The plot colors segments based on gradient steepness:
+    This tool transforms raw elevation data into a color-coded graph:
     - Green: Flat/Easy (<3%)
     - Yellow: Moderate (4-7%)
-    - Red: Steep Wall (>8%)
+    - Red: Steep/HC climbs (>8%)
 
     Args:
-        geometry: The coordinates and elevation data of the route.
-        width: Visual width of the sparkline in inches.
-        height: Visual height of the sparkline in inches.
+        geometry: The coordinates and elevation data (typically from trail_scout).
+        width: Visual width in inches (default 8).
+        height: Visual height in inches (default 3).
+        style: Visual style of the profile "sparkline", "filled", "bars".
     """
-    if not all([STRAVA_CLIENT_ID, STRAVA_CLIENT_SECRET, STRAVA_REFRESH_TOKEN]):
-        return {
-            "status": "Error",
-            "message": "Strava credentials missing. Please set STRAVA_CLIENT_ID, CLIENT_SECRET and REFRESH_TOKEN."
-        }
 
-    data = get_elevation_profile_image(geometry, width, height)
+    data = get_elevation_profile_image(geometry, width, height, style)
     return {"payload_version": BIKESCOUT_PROTOCOL_VERSION, **data}
 
 @mcp.tool()
 def hydration_scout(
-        lat: float = 41.7615,
-        lon: float = 12.7118,
-        duration_hours: float = 3,
-        intensity_score: int = 50
+        lat: float,
+        lon: float,
+        duration_hours: float = 2,
+        intensity_score: int = 50,
+        target_date: str = None
 ):
     """
     Physiological Intelligence Engine.
     Calculates a specific nutrition and hydration plan by cross-referencing
-    real-time weather (heat/humidity) with predicted mission intensity.
+    weather data (heat/humidity) with predicted mission intensity.
+
+    If target_date is None, it defaults to the current window.
+    For future dates, it analyzes the predicted race-day thermal peak.
 
     Args:
         lat: Latitude of the mission area.
         lon: Longitude of the mission area.
         duration_hours: Estimated time in the saddle.
-        intensity_score: Physiological effort (0-100).
-                         Use <30 for recovery, 50 for standard training,
-                         >80 for races or HC climbs.
+        intensity_score: Physiological effort (0 to 100).
+                         0: Rest, 50: Standard, 100: Max Effort/Race.
+        target_date: Optional. The date of the event in YYYY-MM-DD format.
     """
-    # 1. Fetch real-time weather context for the location
-    weather_data = get_weather_forecast(lat, lon)
+    # 1. Fetch weather context using the updated forecast engine
+    # This now supports both real-time and future dates
+    weather_data = get_weather_forecast(lat, lon, target_date)
 
-    # 2. Extract peak temperature for the next 4 hours
+    # 2. Extract peak temperature from the tactical forecast window
     # Default to 20°C if weather data is unavailable
-    forecast = weather_data.get("next_4_hours", [])
     max_temp = 20.0
+
+    # We now look for 'tactical_forecast' (the new key in our updated weather tool)
+    forecast = weather_data.get("tactical_forecast", [])
+
     if forecast:
         try:
+            # We parse the temperature strings (e.g., "24.5°C" -> 24.5)
+            # and find the maximum expected during the ride window
             temps = [float(h["temp"].replace("°C", "")) for h in forecast]
             max_temp = max(temps)
-        except (ValueError, KeyError):
-            pass
+        except (ValueError, KeyError, TypeError):
+            # Fallback to the reference condition if list parsing fails
+            ref_cond = weather_data.get("reference_conditions", {})
+            max_temp = float(ref_cond.get("temp", 20.0))
 
     # 3. Execute the Nutrition Logic
+    # The engine calculates carbs/hour and ml/hour based on heat and intensity
     data = get_nutrition_plan(duration_hours, max_temp, intensity_score)
 
     return {
         "payload_version": BIKESCOUT_PROTOCOL_VERSION,
-        "weather_context": {"max_temp_detected": f"{max_temp}°C"},
+        "weather_context": {
+            "date_referenced": weather_data.get("metadata", {}).get("date_analyzed", target_date),
+            "max_temp_detected": f"{max_temp}°C",
+            "is_future_event": weather_data.get("metadata", {}).get("is_future_planning", False)
+        },
         **data
     }
+
+@mcp.tool()
+def analyze_gpx_track(
+        gpx_url: str,
+        rider_weight_kg: float,
+        bike_weight_kg: float = 7.5,
+        pro_intensity: float = 1.6,
+        surface_type: str = "road"
+):
+    """
+    Performs a high-fidelity professional audit of a GPX race track.
+    Calculates UCI climb categories, VAM, W/kg requirements, and crosswind (echelon) risks.
+    Adaptive filtering handles both smooth road races and technical MTB tracks.
+
+    Args:
+        gpx_url: Remote URL or local path of the GPX file to analyze.
+        rider_weight_kg: Body mass of the rider for Power-to-Weight calculations.
+        bike_weight_kg: Mass of the bike (default 7.5kg for pro road bikes).
+        pro_intensity: Effort multiplier (1.0 = amateur, 1.6 = pro pace, 2.0 = world-class attack).
+        surface_type: Type of terrain ('road' or 'mtb'). Adjusts jitter filtering and grade caps.
+    """
+    try:
+        # Initialize the Pro Engine
+        # Ensure ORS_API_KEY is defined in your environment/config
+        engine = ProCyclingEngine(ors_key=ORS_API_KEY)
+
+        sys.stderr.write(f"DEBUG: Starting Pro Analysis [{surface_type.upper()}] for {gpx_url}\n")
+
+        # Execute the heavy-duty analysis with the new surface_type switch
+        data = engine.analyze_gpx_track(
+            gpx_url=gpx_url,
+            rider_weight=rider_weight_kg,
+            bike_weight=bike_weight_kg,
+            pro_intensity=pro_intensity,
+            surface_type=surface_type
+        )
+
+        # Check if the engine returned an internal error (e.g., file not found or empty GPX)
+        if data.get("status") == "Error":
+            return {
+                "payload_version": BIKESCOUT_PROTOCOL_VERSION,
+                "status": "Error",
+                "message": data.get("message")
+            }
+
+        # Return the full tactical report (Metrics, Climbs, Power, Echelons)
+        return {
+            "payload_version": BIKESCOUT_PROTOCOL_VERSION,
+            **data
+        }
+
+    except Exception as e:
+        import traceback
+        # Logging to stderr ensures we don't break the MCP JSON-RPC response
+        sys.stderr.write(f"CRITICAL: GPX Tool Failure\n{traceback.format_exc()}\n")
+        return {
+            "payload_version": BIKESCOUT_PROTOCOL_VERSION,
+            "status": "Error",
+            "message": f"GPX Analysis Engine failed: {str(e)}"
+        }
 
 # --- SKILLS SECTION
 
@@ -325,14 +435,18 @@ def get_local_knowledge(region: str):
         return {"status": "Error", "message": f"FileSystem Exception: {str(e)}"}
 
 @mcp.tool()
-def apply_safety_protocol(mission_type: str = "general"):
+def apply_safety_protocol(
+        mission_type: Literal["mtb", "ebike", "road", "gravel", "general"]
+):
     """
     Executes the official BikeScout Safety Protocol.
-    Adapts recommendations based on mission_type: 'mtb', 'ebike', 'road', 'gravel'.
-    Mandatory skill to call before finalizing any 'Go' decision.
+
+    This tool provides a mandatory safety checklist and risk assessment.
+    It MUST be called before finalizing any 'Go' decision.
+    The protocol adapts based on the terrain and bike mechanics.
 
     Args:
-        mission_type: Category of ride ("mtb", "ebike", "road", "gravel", or "general").
+        mission_type: Category of ride to tailor the safety checklist.
     """
 
     base = BikeScoutResources.BASE_COMMANDS

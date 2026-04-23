@@ -1,5 +1,6 @@
-from datetime import datetime, timedelta, timezone
+from datetime import datetime, timedelta, timezone, date
 from pysolar.solar import get_altitude
+from typing import Literal
 import requests
 
 
@@ -24,95 +25,118 @@ def get_shadow_penalty(lat, lon):
     except Exception:
         return 1.0      # Neutral fallback
 
-def get_mud_risk_analysis(lat, lon, surface_type):
-    """
-    Tactical Mud Risk Analysis v2.1: TAEL (Terrain-Aware Evaporation Lag) Model.
-    Accounts for cumulative rainfall, atmospheric drying efficiency, and solar persistence.
-    """
-    end_date = datetime.now().date()
-    start_date = end_date - timedelta(days=3)
+from datetime import datetime, timedelta, timezone
+import requests
 
-    # Open-Meteo Archive API - Fetching historical weather for ground saturation analysis
-    url = "https://archive-api.open-meteo.com/v1/archive"
-    params = {
-        "latitude": lat,
-        "longitude": lon,
-        "start_date": start_date.isoformat(),
-        "end_date": end_date.isoformat(),
-        "daily": ["precipitation_sum", "temperature_2m_max", "wind_speed_10m_max"],
-        "timezone": "auto"
-    }
+def get_mud_risk_analysis(
+        lat: float,
+        lon: float,
+        surface_type: str = "dirt",
+        target_date: str = None):
+    """
+    Tactical Mud Risk Analysis v2.5: Dynamic TAEL (Terrain-Aware Evaporation Lag) Model.
+    Now supports historical analysis, real-time scouting, and future race-day predictions.
 
+    If target_date is provided, the model analyzes the 72h window preceding that specific date
+    to determine ground saturation at the start of the event.
+    """
     try:
+        # 1. Temporal Window Logic
+        # If target_date is provided, we center the 72h window on it.
+        # Otherwise, we use 'now' as the reference point.
+        if target_date:
+            reference_date = datetime.strptime(target_date, "%Y-%m-%d").date()
+        else:
+            reference_date = datetime.now().date()
+
+        # The 72h look-back window is critical to calculate cumulative ground saturation
+        end_date = reference_date
+        start_date = end_date - timedelta(days=3)
+
+        # 2. Data Acquisition (Open-Meteo Archive or Forecast)
+        # Note: Archive API is used for past/current dates.
+        # For future dates, the regular Forecast API should be used.
+        # For simplicity in this logic, we use the archive/forecast logic:
+        url = "https://archive-api.open-meteo.com/v1/archive"
+        if reference_date > datetime.now().date():
+            # Switch to forecast API if the date is in the future
+            url = "https://api.open-meteo.com/v1/forecast"
+
+        params = {
+            "latitude": lat,
+            "longitude": lon,
+            "start_date": start_date.isoformat(),
+            "end_date": end_date.isoformat(),
+            "daily": ["precipitation_sum", "temperature_2m_max", "wind_speed_10m_max"],
+            "timezone": "auto"
+        }
+
         r = requests.get(url, params=params, timeout=10)
         r.raise_for_status()
         data = r.json().get('daily', {})
 
-        # 1. Environmental Data Extraction (72h window)
+        # 3. Environmental Data Extraction
         precip_list = data.get('precipitation_sum', [0, 0, 0])
         temp_list = data.get('temperature_2m_max', [15, 15, 15])
         wind_list = data.get('wind_speed_10m_max', [10, 10, 10])
 
         total_raw_rain = sum(precip_list)
-        avg_temp = sum(temp_list) / len(temp_list)
-        avg_wind = sum(wind_list) / len(wind_list)
+        avg_temp = sum(temp_list) / max(len(temp_list), 1)
+        avg_wind = sum(wind_list) / max(len(wind_list), 1)
 
-        # 2. Advanced Drying Efficiency Heuristic
-        # Merges Thermal (Temp), Kinetic (Wind), and Photonic (Solar Angle) factors
-        temp_factor = max(0.5, (avg_temp / 20))  # Baseline drying at 20°C
-        wind_factor = max(0.5, (avg_wind / 15))  # Baseline drying at 15km/h
+        # 4. Drying Efficiency Heuristic
+        # Thermal & Kinetic factors affect how fast the trail "heals"
+        temp_factor = max(0.5, (avg_temp / 20))
+        wind_factor = max(0.5, (avg_wind / 15))
 
-        # Integration of the Killer Feature: Shadow Persistence
+        # Integration of Shadow Persistence (Solar Angle based on coordinates)
         shadow_penalty = get_shadow_penalty(lat, lon)
-
-        # Final Drying Efficiency Coefficient
         drying_efficiency = min(2.0, temp_factor * wind_factor * shadow_penalty)
 
-        # 3. Adjusted Precipitation Index (API)
-        # Calculates 'effective' moisture remaining on the surface
-        adjusted_rain = total_raw_rain / drying_efficiency
+        # 5. Adjusted Moisture Index
+        # Effective moisture is raw rain dampened by drying efficiency
+        adjusted_rain = total_raw_rain / max(0.1, drying_efficiency)
 
-        # 4. Terrain Sensitivity Coefficients
-        # Non-linear drainage behavior based on soil texture
+        # 6. Terrain Sensitivity
         soil_sensitivity = {
-            "clay": 1.2,    # High saturation, extreme persistence
-            "dirt": 0.9,
-            "earth": 0.9,
-            "grass": 0.7,
-            "gravel": 0.3,  # High permeability
-            "sand": 0.1,    # Fast drainage
-            "asphalt": 0.05 # Negligible mud risk
+            "clay": 1.2, "dirt": 0.9, "earth": 0.9, "grass": 0.7,
+            "gravel": 0.3, "sand": 0.1, "asphalt": 0.05
         }
         sensitivity = soil_sensitivity.get(surface_type.lower(), 0.7)
 
-        # 5. Mud Risk Score Matrix
-        mud_score = adjusted_rain * sensitivity
+        # 7. Final Score & Categorization
+        mud_score_numeric = adjusted_rain * sensitivity
 
-        # Tactical Categorization & Advice
-        if mud_score < 3:
+        if mud_score_numeric < 3:
             risk, advice = "Low", "Optimal grip. Surface is stable and fast."
-        elif mud_score < 10:
-            risk, advice = "Medium", "Damp sections. Expect reduced traction on off-camber roots."
-        elif mud_score < 20:
+        elif mud_score_numeric < 10:
+            risk, advice = "Medium", "Damp sections. Expect reduced traction on technical off-cambers."
+        elif mud_score_numeric < 20:
             risk, advice = "High", "Significant saturation. High risk of sliding in technical sectors."
         else:
-            risk, advice = "Extreme", "Total saturation. Trail damage likely. Recommend Go/No-Go re-evaluation."
+            risk, advice = "Extreme", "Total saturation. Trail damage likely. Race conditions will be brutal."
 
-        # 6. Tactical Intel Output
-        now = datetime.now(timezone.utc)
+        # 8. Output Intel
+        # For the solar altitude, we use the reference_date at noon
+        noon_ref = datetime.combine(reference_date, datetime.min.time()).replace(tzinfo=timezone.utc) + timedelta(hours=12)
+
         return {
             "status": "Success",
+            "metadata": {
+                "target_date": reference_date.isoformat(),
+                "is_predictive": reference_date > datetime.now().date()
+            },
             "environmental_context": {
-                "raw_rain_72h": f"{total_raw_rain:.1f}mm",
+                "cumulative_rain_72h": f"{total_raw_rain:.1f}mm",
                 "avg_temp": f"{avg_temp:.1f}°C",
                 "drying_efficiency": f"{drying_efficiency:.2f}x",
-                "shadow_penalty_active": "Yes" if shadow_penalty < 1.0 else "No",
-                "solar_altitude": f"{get_altitude(lat, lon, now):.1f}°"
+                "solar_altitude": f"{get_altitude(lat, lon, noon_ref):.1f}°"
             },
             "tactical_analysis": {
                 "adjusted_moisture_index": round(adjusted_rain, 2),
                 "mud_risk_score": risk,
-                "surface_detected": surface_type,
+                "mud_risk_numeric": round(mud_score_numeric, 1),
+                "surface_type": surface_type,
                 "safety_advice": advice
             }
         }

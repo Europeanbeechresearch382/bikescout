@@ -2,37 +2,42 @@
 
 Tactical Cycling Intelligence | MCP Server for AI-Powered Mission Planning.
 
-_Version: 1.0.3 - April 2026_
+_Version: 1.1.0 - April 2026_
 
 ---
 
 ## Key Features
 
-🗺️ Terrain & Surface Intelligence
+### 🏔️ Terrain & Surface Intelligence
 - **Real Trail Discovery**: Fetches actual trail names and surface data directly from OpenStreetMap (via Overpass API).
 - **Surface Breakdown**: Generates a detailed percentage breakdown of the entire route (asphalt, gravel, dirt, etc.).
 - **Technical Grading**: Analyzes OSM Tracktypes (Grade 1-5) to distinguish between smooth fire roads and rugged, technical MTB paths.
 - **Bike Compatibility Check**: A first-of-its-kind feature that validates if a route suits your specific bike (Road, Gravel, MTB) and tire width, issuing instant safety warnings.
 
-🌡️ Predictive Environmental Modeling
-- **TAEL Algorithm**: Our flagship Terrain-Aware Evaporation Lag model that predicts "Shadow-Lock" mud on north-facing slopes by analyzing real-time solar altitude and soil memory.
+### ⛈️ Predictive Environmental Modeling
+- **TAEL Algorithm**: Our flagship **Terrain-Aware Evaporation Lag** model that predicts "Shadow-Lock" mud on north-facing slopes by analyzing real-time solar altitude and soil memory.
 - **Predictive Mud Risk**: Advanced rideability analysis based on geological soil composition (Clay vs. Sand) and 72-hour precipitation history.
 - **Tactical Ride Window**: A "Go/No-Go" decision engine that identifies the optimal start time by cross-referencing atmospheric hazards with terrain saturation.
 - **Smart Safety Weather**: Hyper-local 4-hour forecasts with expert-level gear and layering advice based on temperature, wind, and rain thresholds.
-- **Hydration Scout**: Calculates real-time liquid and electrolyte requirements based on the route's technical intensity and the maximum forecasted temperature for the next four hours.
+- **Hydration Scout**: Calculates real-time liquid and electrolyte requirements based on the route's technical intensity and the maximum forecasted temperature.
 
-📈 High-Fidelity Navigation & Altimetry
-- **Wall-Sense Technology**: Automatically detects gradients >10% and injects active <wpt> alerts into your GPX file to warn you on your head unit before you hit the "wall."
+### 📈 High-Fidelity Navigation & Altimetry
+- **Wall-Sense Technology**: Automatically detects gradients >10% and injects active `<wpt>` alerts into your GPX file to warn you on your head unit before you hit the "wall."
 - **Tactical GPX Export**: Produces optimized GPX files (max 1,500 points) to eliminate GPS signal noise while strictly preserving critical elevation spikes.
 - **Visual Elevation Profiling**: Generates high-resolution graphical sparklines with chromatic difficulty scaling, cached locally to save AI context window.
-- **Pro Climb Categorization**: Automatically identifies and ranks climbs using professional UCI standards (from Category 4 to Hors Catégorie).
+- **Pro Climb Categorization**: Automatically identifies and ranks climbs using professional **UCI standards** (from Category 4 to Hors Catégorie).
 
-🧠 Mission Logistics & Intelligence
-- **Smart POI Scouting**: Scans a 2km radius along the route for drinking water, bicycle repair stations, and mountain shelters.
-- **E-MTB Energy Management**: Calculates estimated battery consumption (Wh) based on rider weight, assist mode (Eco/Boost), and terrain-specific rolling resistance.
+### 🤖 Mission Logistics & Intelligence
+- **Smart POI Scouting**: Scans a 5km radius along the route for drinking water, bicycle repair stations, and mountain shelters.
+- **E-MTB Energy Management**: Calculates estimated battery consumption (**Wh**) based on rider weight, assist mode (Eco/Boost), and terrain-specific rolling resistance.
 - **Local Expert Skills**: Specialized "Local Wisdom" knowledge bases for world-class destinations like The Dolomites, Moab, and Finale Ligure.
 - **Post-Ride Analysis**: Fuses Strava activity logs with environmental intelligence to analyze how mud and weather conditions impacted your actual performance.
 
+### 🏁 Pro-Racing & Tactical Engine
+- **VAM & Power Modeling**: Precise **$W/kg$** requirements based on professional VAM targets and UCI climb categorization.
+- **Echelon Alert**: Predictive crosswind analysis that flags "Danger Zones" for peloton splits based on real-time wind vectors.
+- **Tactical GPX Injection**: Injects "Climb Start," "Crux," and "Crosswind" markers as active Waypoints for on-device race management.
+- **The "Crux" Identifier**: Detects the steepest gradient transitions within a climb to signal the optimal point for a decisive attack.
 ---
 
 ## Why BikeScout? (The Intelligence Gap)
@@ -128,25 +133,25 @@ The AI goes beyond simple data reading, performing a dynamic synthesis in four p
 Used for tire pressure and difficulty scaling.
 
 | Field | Type | Default | Description |
-| :--- | :--- | :--- | :--- |
-| `weight_kg` | `float` | `80.0` | Total weight (rider + gear) for PSI and energy calculations. |
-| `fitness_level` | `string` | `intermediate` | Affects difficulty grading. Options: `beginner`, `intermediate`, `advanced`, `pro`. |
+| :--- | :--- |:--------| :--- |
+| `weight_kg` | `float` |         | Total weight (rider + gear) for PSI and energy calculations. |
+| `fitness_level` | `string` |         | Affects difficulty grading. Options: `beginner`, `intermediate`, `advanced`, `pro`. |
 
 #### **Bike Setup (`bike`)**
 | Field | Type | Default | Description |
 | :--- | :--- |:--------| :--- |
-| `bike_type` | `string` | `MTB`   | Geometry profile. Options: `Road`, `Gravel`, `MTB`, `Enduro`. |
-| `tire_size` | `string` | `29`    | Diameter/Standard. Options: `26`, `27.5`, `29`, `700c`, `650b`. |
+| `bike_type` | `string` |         | Geometry profile. Options: `Road`, `Gravel`, `MTB`, `Enduro`. |
+| `tire_size` | `string` |         | Diameter/Standard. Options: `26`, `27.5`, `29`, `700c`, `650b`. |
 | `is_ebike` | `bool` | `false` | If true, triggers battery consumption and motor-assist logic. |
-| `battery_wh` | `int` | `625`   | Battery capacity in Watt-hours (required if `is_ebike` is true). |
+| `battery_wh` | `int` |         | Battery capacity in Watt-hours (required if `is_ebike` is true). |
 
 #### **Mission Constraints (`mission`)**
 | Field                | Type     | Default            | Description                                                                                                                                                                                                                                                                                            |
 |:---------------------|:---------|:-------------------|:-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| `radius_km`          | `int`    | `10`               | Total target distance for the loop.                                                                                                                                                                                                                                                                    |
+| `radius_km`          | `int`    |                    | Total target distance for the loop.                                                                                                                                                                                                                                                                    |
 | `profile`            | `string` | `cycling-mountain` | ORS Routing profile.                                                                                                                                                                                                                                                                                   |
 | `surface_preference` | `string` | `neutral`          | Options: `neutral`, `avoid_unpaved`, `prefer_trails`.                                                                                                                                                                                                                                                  |
-| `points`             | `int`    | `3`                | Complexity of the loop (higher = more circular).                                                                                                                                                                                                                                                       |
+| `complexity`         | `int`    | `3`                | Complexity of the loop (higher = more circular).                                                                                                                                                                                                                                                       |
 | `seed`               | `int`    | `42`               | Randomizer seed to reproduce specific route variations.                                                                                                                                                                                                                                                |
 | `assist_mode`        | `string` | `Eco`              | Defines the motor's power output profile (Eco, Trail, Boost). This tactical parameter scales the energy consumption model by adjusting the motor-to-rider assistance ratio, directly impacting predicted battery range and "Safety Buffer" alerts based on terrain resistance. 'Eco', 'Trail', 'Boost' |
 
@@ -154,6 +159,8 @@ Used for tire pressure and difficulty scaling.
 | Field                | Type     | Default | Description                                                                                                                                                                                                                                                                                            |
 |:---------------------|:---------|:--------|:-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
 | `coordinates`          | `list[list[float]]`    | `...`   | A list of GPS points in GeoJSON format. Each sub-list represents a coordinate triplet: [longitude, latitude, elevation]. This sequence is used by the SMA Filter to sanitize elevation and by the Haversine formula for geodesic accuracy.                                                                                                                                                                                                                                                                   |
+
+---
 
 ### `geocode_location`
 This tool acts as the intelligent "entry point" for all natural language queries. It translates place names into geographical coordinates, enabling a seamless experience where users don't need to provide raw GPS data.
@@ -177,6 +184,8 @@ This tool acts as the intelligent "entry point" for all natural language queries
    "display_name": "Frascati, Roma, Lazio, 00044, Italia"
 }
 ```
+
+---
 
 ### `trail_scout`
 The flagship tool of the server. It acts as a **Master Orchestrator**, merging geographic routing with real-time environmental data and technical bike-setup analysis to provide a comprehensive **"Cycling Dossier"**.
@@ -208,6 +217,8 @@ Unlike standard GPS files, BikeScout automatically injects active <wpt> (waypoin
 | `include_gpx` | `bool` | `True` | Whether to include the raw XML GPX content.             |
 | `include_map` | `bool` | `False` | Whether to generate the Static Map URL via Stadia Maps. |
 | `output_level` | `string` | `standard` | Verbosity level: `summary`, `standard`, or `full`.      |
+| `target_date` | `string` |  | target_date: Optional string in 'YYYY-MM-DD' format |
+
 
 #### **Tool Output Example (JSON):**
 ```json
@@ -390,6 +401,8 @@ Unlike standard GPS files, BikeScout automatically injects active <wpt> (waypoin
 }
 ```
 
+---
+
 ### `check_trail_weather`
 A real-time safety tool designed specifically for outdoor activities. It provides a localized 4-hour window forecast.
 
@@ -399,53 +412,78 @@ A real-time safety tool designed specifically for outdoor activities. It provide
 * **Smart Advice:** Automatically evaluates conditions and provides a "Go/No-Go" suggestion.
 
 #### **Parameters:**
-| Parameter | Type | Default | Description |
-| :--- | :--- | :--- | :--- |
-| `lat` | `float` | Required | Latitude of the trail or starting point. |
-| `lon` | `float` | Required | Longitude of the trail or starting point. |
+| Parameter | Type     | Default | Description                                         |
+| :--- |:---------| :--- |:----------------------------------------------------|
+| `lat` | `float`  | Required | Latitude of the trail or starting point.            |
+| `lon` | `float`  | Required | Longitude of the trail or starting point.           |
+| `target_date` | `string` |  | target_date: Optional string in 'YYYY-MM-DD' format |
 
 **Example Output (JSON):**
 ```json
 {
+  "payload_version": "1.0",
   "status": "Success",
-  "location": {
-    "lat": 41.7615,
-    "lon": 12.7118
+  "metadata": {
+    "date_analyzed": "2026-07-14",
+    "is_future_planning": true,
+    "location": {
+      "lat": 45.9237,
+      "lon": 6.8694
+    }
   },
-  "next_4_hours": [
+  "tactical_forecast": [
     {
-      "time": "12:00",
-      "temp": "16.0°C",
+      "time": "08:00",
+      "temp": "14.2°C",
       "rain_prob": "0%",
-      "wind": "8.3 km/h"
+      "wind": "5.4 km/h"
     },
     {
-      "time": "13:00",
-      "temp": "16.7°C",
-      "rain_prob": "0%",
-      "wind": "9.4 km/h"
+      "time": "10:00",
+      "temp": "18.5°C",
+      "rain_prob": "5%",
+      "wind": "8.2 km/h"
+    },
+    {
+      "time": "12:00",
+      "temp": "22.1°C",
+      "rain_prob": "15%",
+      "wind": "12.5 km/h"
     },
     {
       "time": "14:00",
-      "temp": "17.3°C",
-      "rain_prob": "0%",
-      "wind": "10.4 km/h"
+      "temp": "24.8°C",
+      "rain_prob": "40%",
+      "wind": "18.1 km/h"
     },
     {
-      "time": "15:00",
-      "temp": "17.5°C",
-      "rain_prob": "0%",
-      "wind": "10.8 km/h"
+      "time": "16:00",
+      "temp": "21.3°C",
+      "rain_prob": "65%",
+      "wind": "15.3 km/h"
     }
   ],
-  "current_conditions": {
-    "temp": 16,
+  "reference_conditions": {
+    "temp": 14.2,
     "rain_prob": 0,
-    "wind_speed": 8.3
+    "wind_speed": 5.4,
+    "reference_hour": "8:00"
   },
-  "safety_advice": "✅ IDEAL: Perfect conditions for a great ride!"
+  "safety_advice": {
+    "risk_level": "Moderate",
+    "recommendations": {
+      "clothing": "Start with a light gilet; temperatures will rise rapidly.",
+      "tires": "Standard pressure, but be wary of wet tarmac after 14:00.",
+      "hydration": "High sweat rate expected midday. 750ml/hour recommended."
+    },
+    "alerts": [
+      "Thunderstorm risk in the afternoon (65% probability after 15:00)."
+    ]
+  }
 }
 ```
+
+---
 
 ### `ride_window_planner`
 The ultimate **Decision Intelligence** tool for the modern rider. It goes beyond simple weather reporting by calculating the optimal "Strategic Window" to deploy. It cross-references atmospheric stability with the **TAEL (Terrain-Aware Evaporation Lag)** index to determine exactly when the terrain will be at its peak performance.
@@ -463,6 +501,8 @@ The ultimate **Decision Intelligence** tool for the modern rider. It goes beyond
 | `lon` | `float` | Required | Longitude of the deployment area. |
 | `ride_duration_hours` | `float` | `2.0` | Target length of the mission (defines the sliding window size). |
 | `surface_type` | `str` | `"dirt"` | Used to calculate specific soil drainage coefficients for the TAEL index. |
+| `target_date` | `string` |  | target_date: Optional string in 'YYYY-MM-DD' format |
+
 
 #### **Example Output (JSON)**
 ```json
@@ -483,6 +523,8 @@ The ultimate **Decision Intelligence** tool for the modern rider. It goes beyond
   }
 }
 ```
+
+---
 
 ### `analyze_route_surfaces`
 
@@ -512,6 +554,7 @@ This tool goes beyond simple mapping by cross-referencing terrain data with the 
 | **`rider`** | `object` | Required | [Rider Profile](#rider-profile-rider).                  |
 | **`bike`** | `object` | Required | [Bike Setup](#bike-setup-bike).                         |
 | **`mission`** | `object` | Required | [Mission Constraints](#mission-constraints-mission).    |
+| `target_date` | `string` |  | target_date: Optional string in 'YYYY-MM-DD' format |
 
 
 **Example Output (JSON) for MTB:**
@@ -786,6 +829,7 @@ This tool goes beyond simple mapping by cross-referencing terrain data with the 
 }
 ```
 
+---
 
 ### `poi_scout`
 A specialized safety and logistics tool designed to identify critical cycling amenities. It bypasses standard "commercial noise" by focusing strictly on professional cycling infrastructure and public utilities.
@@ -843,6 +887,8 @@ A specialized safety and logistics tool designed to identify critical cycling am
 }
 ```
 
+---
+
 ### `check_trail_soil_condition`
 A predictive safety tool that cross-references geological surface data with historical precipitation to estimate trail rideability and mud levels.
 
@@ -858,26 +904,34 @@ A predictive safety tool that cross-references geological surface data with hist
 | `lat` | `float` | Required | Latitude of the trail section. |
 | `lon` | `float` | Required | Longitude of the trail section. |
 | `surface_type` | `string` | `dirt` | The OSM surface tag (e.g., `clay`, `sand`, `gravel`, `asphalt`). |
+| `target_date` | `string` |  | target_date: Optional string in 'YYYY-MM-DD' format |
 
 #### **Example Output (JSON):**
 ```json
 {
   "status": "Success",
+  "metadata": {
+    "target_date": "2026-05-10",
+    "is_predictive": true
+  },
   "environmental_context": {
-    "raw_rain_72h": "10.0mm",
-    "avg_temp": "17.9°C",
-    "drying_efficiency": "0.43x",
+    "cumulative_rain_72h": "18.5mm",
+    "avg_temp": "14.2°C",
+    "drying_efficiency": "0.65x",
     "shadow_penalty_active": "Yes",
-    "solar_altitude": "-18.2°"
+    "solar_altitude": "58.4°"
   },
   "tactical_analysis": {
-    "adjusted_moisture_index": 23.44,
-    "mud_risk_score": "Extreme",
-    "surface_detected": "dirt",
-    "safety_advice": "Total saturation. Trail damage likely. Recommend Go/No-Go re-evaluation."
+    "adjusted_moisture_index": 28.46,
+    "mud_risk_score": "High",
+    "mud_risk_numeric": 34.2,
+    "surface_type": "clay",
+    "safety_advice": "Significant saturation. High risk of sliding in technical sectors. Heavy clay sticking likely to affect drivetrain and tire clearance."
   }
 }
 ```
+
+---
 
 ### `elevation_profile_image`
 Generates a high-resolution visual analysis of the route's elevation profile. Unlike simple line charts, this tool produces a tactical graphical representation that integrates color-coded slope data, allowing for an immediate assessment of vertical difficulties.
@@ -892,11 +946,12 @@ Generates a high-resolution visual analysis of the route's elevation profile. Un
 
 #### **Parameters:**
 
-| Parameter  | Type     | Default      | Description                                        |
-|:-----------|:---------|:-------------|:---------------------------------------------------|
-| `geometry` | `object` | **Required** | [Route Geometry](#route-geometry-geometry).         |
-| `width`    | `int`    | 8            | Width of the generated image (matplotlib inches).  |
-| `height`    | `int`    | 3            | Height of the generated image (matplotlib inches). |
+| Parameter  | Type     | Default            | Description                                        |
+|:-----------|:---------|:-------------------|:---------------------------------------------------|
+| `geometry` | `object` | **Required**       | [Route Geometry](#route-geometry-geometry).        |
+| `width`    | `int`    | 8                  | Width of the generated image (matplotlib inches).  |
+| `height`   | `int`    | 3                  | Height of the generated image (matplotlib inches). |
+| `style`    | `string` | sparkline          | Visual style of the profile, "sparkline", "filled", "bars"|                     |
 
 
 #### **Example Output (JSON):**
@@ -904,14 +959,160 @@ Generates a high-resolution visual analysis of the route's elevation profile. Un
 ```json
 {
   "status": "Success",
-  "image_data_url": "data:image/png;base64,...",
-  "message": "Elevation profile generated successfully"
+  "message": "Elevation profile stored in BikeScout home directory.",
+  "file_location": "/home/.test/bikescout/altimetry/climb.png",
+  "style_applied": "sparkline",
+  "dimensions": "8x3 in",
+  "instructions": "The file is safe in your home directory: /home/.test/bikescout/altimetry/climb.png"
 }
 ```
 
 Example image generated:
 
 ![Example image generated:](site/md/elevation_profile.png)
+
+---
+
+### `analyze_gpx_track`
+A professional-grade performance engine for high-fidelity race track auditing. It simulates World Tour conditions by cross-referencing topographic data with professional physical constraints and real-time environmental factors.
+
+#### **Functionality:**
+* **UCI Categorization:** Automatically identifies and grades climbs from Category 4 up to **HC (Hors Catégorie)** based on length, gain, and average gradient.
+* **Adaptive Surface Filtering:** Features a specialized "Road vs MTB" switch that adjusts jitter filtering and gradient caps to eliminate GPS artifacts and sensor noise.
+* **Performance Simulation:** Calculates required Power (Watts), Power-to-Weight ratio (**$W/kg$**), and **VAM** (Vertical Ascent Meters/hour) for every major climb.
+* **Tactical Insights:** Detects "Muros" (steep road walls) and identifies potential echelon risks by analyzing wind vectors relative to the track heading.
+
+#### **Parameters:**
+
+| Parameter | Type | Default | Description |
+| :--- | :--- | :--- | :--- |
+| `gpx_url` | `string` | Required | Remote URL or local path of the GPX file to analyze. |
+| `rider_weight_kg` | `float` | Required | Body mass of the rider for Power-to-Weight calculations. |
+| `bike_weight_kg` | `float` | `7.5` | Mass of the bike (default is for pro road bikes). |
+| `pro_intensity` | `float` | `1.6` | Effort multiplier (**1.0** = amateur, **1.6** = pro pace, **2.0** = attack). |
+| `surface_type` | `string` | `"road"` | Terrain mode: `"road"` or `"mtb"` (affects noise filtering). |
+
+**Example Output (JSON):**
+```json
+{
+  "payload_version": "1.0",
+  "status": "Success",
+  "mode": "ROAD",
+  "track_metrics": {
+    "distance_km": 155.29,
+    "total_ascent": 2245.6,
+    "max_altitude": 1136
+  },
+  "climb_analysis": [
+    {
+      "km_start": 79.8,
+      "dist_km": 1.6,
+      "gain_m": 112,
+      "avg_grade": 7,
+      "category": "Cat 3"
+    },
+    {
+      "km_start": 83.1,
+      "dist_km": 2.27,
+      "gain_m": 161,
+      "avg_grade": 7.1,
+      "category": "Cat 3"
+    },
+    {
+      "km_start": 92.9,
+      "dist_km": 3.58,
+      "gain_m": 296.8,
+      "avg_grade": 8.3,
+      "category": "Cat 2"
+    },
+    {
+      "km_start": 102,
+      "dist_km": 1.42,
+      "gain_m": 221.2,
+      "avg_grade": 15.6,
+      "category": "Cat 2"
+    },
+    {
+      "km_start": 112.2,
+      "dist_km": 1.61,
+      "gain_m": 118,
+      "avg_grade": 7.3,
+      "category": "Cat 3"
+    },
+    {
+      "km_start": 114.1,
+      "dist_km": 3.53,
+      "gain_m": 535.4,
+      "avg_grade": 15.2,
+      "category": "HC"
+    }
+  ],
+  "performance_simulation": [
+    {
+      "climb": "Climb @ km 79.8",
+      "category": "Cat 3",
+      "target_vam": 1100,
+      "power_required_watts": 381.2,
+      "watts_per_kg": 5.29
+    },
+    {
+      "climb": "Climb @ km 83.1",
+      "category": "Cat 3",
+      "target_vam": 1100,
+      "power_required_watts": 381.2,
+      "watts_per_kg": 5.29
+    },
+    {
+      "climb": "Climb @ km 92.9",
+      "category": "Cat 2",
+      "target_vam": 1100,
+      "power_required_watts": 381.2,
+      "watts_per_kg": 5.29
+    },
+    {
+      "climb": "Climb @ km 102.0",
+      "category": "Cat 2",
+      "target_vam": 1100,
+      "power_required_watts": 381.2,
+      "watts_per_kg": 5.29
+    },
+    {
+      "climb": "Climb @ km 112.2",
+      "category": "Cat 3",
+      "target_vam": 1100,
+      "power_required_watts": 381.2,
+      "watts_per_kg": 5.29
+    },
+    {
+      "climb": "Climb @ km 114.1",
+      "category": "HC",
+      "target_vam": 1550,
+      "power_required_watts": 537.1,
+      "watts_per_kg": 7.46
+    }
+  ],
+  "tactical_alerts": [],
+  "explosivity_zones": [
+    {
+      "km": 0,
+      "grade": 28,
+      "type": "Steep Road Wall"
+    },
+    {
+      "km": 0.07,
+      "grade": 28,
+      "type": "Steep Road Wall"
+    },
+    {
+      "km": 117.08,
+      "grade": 18.9,
+      "type": "Steep Road Wall"
+    }
+  ]
+}
+```
+
+---
 
 ### `analyze_strava_activity`
 A post-ride tactical diagnostic tool that fuses actual Strava GPS telemetry with historical environmental data to validate trail conditions and performance.
@@ -934,6 +1135,7 @@ A post-ride tactical diagnostic tool that fuses actual Strava GPS telemetry with
   "status": "Success",
   "mission_briefing": {
     "name": "Afternoon Mountain Bike Session",
+    "date": "2026-03-11",
     "distance_km": 41.26,
     "elevation_gain_m": 709.3,
     "avg_speed_kmh": 15.0
@@ -952,6 +1154,8 @@ A post-ride tactical diagnostic tool that fuses actual Strava GPS telemetry with
 }
 ```
 
+---
+
 ### `hydration_scout`
 The **Physiological Intelligence Engine** of BikeScout. This tool translates environmental and mission data into a concrete fueling strategy, preventing dehydration and "bonking" (hypoglycemia) by bridging the gap between terrain data and human physiology.
 
@@ -969,22 +1173,25 @@ The **Physiological Intelligence Engine** of BikeScout. This tool translates env
 | `lon` | `float` | **Required** | Longitude of the mission area for weather correlation. |
 | `duration_hours` | `float` | **Required** | Total estimated time in the saddle. |
 | `intensity_score` | `int` | `50` | Physiological effort (0-100). Agent should scale this based on climb categories (e.g., HC climbs = 90). |
+| `target_date` | `string` |  | target_date: Optional string in 'YYYY-MM-DD' format |
 
 #### **Tool Output Example (JSON):**
 ```json
 {
   "payload_version": "1.0",
   "weather_context": {
-    "max_temp_detected": "13.2°C"
+    "date_referenced": "2026-04-23",
+    "max_temp_detected": "19.2°C",
+    "is_future_event": false
   },
   "status": "Success",
   "mission_nutrition_briefing": {
     "fluids": {
-      "total_liters": 1.7,
+      "total_liters": 1.1,
       "hourly_rate_ml": 575
     },
     "carbohydrates": {
-      "total_grams": 180,
+      "total_grams": 120,
       "hourly_target_g": 60,
       "intensity_context": "Moderate"
     },
