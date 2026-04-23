@@ -17,6 +17,7 @@ from bikescout.tools.altimetry import get_elevation_profile_image
 from bikescout.tools.nutrition import get_nutrition_plan
 from bikescout.prompts import BikeScoutPrompts
 from bikescout.resources import BikeScoutResources
+from bikescout.tools.pro.ProCyclingEngine import ProCyclingEngine
 
 
 mcp = FastMCP("BikeScout")
@@ -315,6 +316,66 @@ def hydration_scout(
         },
         **data
     }
+
+@mcp.tool()
+def analyze_gpx_track(
+        gpx_url: str,
+        rider_weight_kg: float,
+        bike_weight_kg: float = 7.5,
+        pro_intensity: float = 1.6,
+        surface_type: str = "road"
+):
+    """
+    Performs a high-fidelity professional audit of a GPX race track.
+    Calculates UCI climb categories, VAM, W/kg requirements, and crosswind (echelon) risks.
+    Adaptive filtering handles both smooth road races and technical MTB tracks.
+
+    Args:
+        gpx_url: Remote URL or local path of the GPX file to analyze.
+        rider_weight_kg: Body mass of the rider for Power-to-Weight calculations.
+        bike_weight_kg: Mass of the bike (default 7.5kg for pro road bikes).
+        pro_intensity: Effort multiplier (1.0 = amateur, 1.6 = pro pace, 2.0 = world-class attack).
+        surface_type: Type of terrain ('road' or 'mtb'). Adjusts jitter filtering and grade caps.
+    """
+    try:
+        # Initialize the Pro Engine
+        # Ensure ORS_API_KEY is defined in your environment/config
+        engine = ProCyclingEngine(ors_key=ORS_API_KEY)
+
+        sys.stderr.write(f"DEBUG: Starting Pro Analysis [{surface_type.upper()}] for {gpx_url}\n")
+
+        # Execute the heavy-duty analysis with the new surface_type switch
+        data = engine.analyze_gpx_track(
+            gpx_url=gpx_url,
+            rider_weight=rider_weight_kg,
+            bike_weight=bike_weight_kg,
+            pro_intensity=pro_intensity,
+            surface_type=surface_type
+        )
+
+        # Check if the engine returned an internal error (e.g., file not found or empty GPX)
+        if data.get("status") == "Error":
+            return {
+                "payload_version": BIKESCOUT_PROTOCOL_VERSION,
+                "status": "Error",
+                "message": data.get("message")
+            }
+
+        # Return the full tactical report (Metrics, Climbs, Power, Echelons)
+        return {
+            "payload_version": BIKESCOUT_PROTOCOL_VERSION,
+            **data
+        }
+
+    except Exception as e:
+        import traceback
+        # Logging to stderr ensures we don't break the MCP JSON-RPC response
+        sys.stderr.write(f"CRITICAL: GPX Tool Failure\n{traceback.format_exc()}\n")
+        return {
+            "payload_version": BIKESCOUT_PROTOCOL_VERSION,
+            "status": "Error",
+            "message": f"GPX Analysis Engine failed: {str(e)}"
+        }
 
 # --- SKILLS SECTION
 
