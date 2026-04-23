@@ -2,6 +2,7 @@ import requests
 import uuid
 import time
 from pathlib import Path
+from typing import Literal
 from bikescout.tools.maps import get_static_map_url
 from bikescout.tools.weather import get_weather_forecast
 from bikescout.tools.surface import get_surface_analyzer
@@ -187,7 +188,7 @@ def get_complete_trail_scout(
         mission: MissionConstraints,
         include_gpx: bool = True,
         include_map: bool = False,
-        output_level: str = "standard"  # "summary" | "standard" | "full"
+        output_level: Literal["summary", "standard", "full"] = "standard"
 ):
     """
     The Master Orchestrator (v1.3): Synchronized Technical Briefing.

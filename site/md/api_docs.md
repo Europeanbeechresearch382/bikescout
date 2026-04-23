@@ -128,25 +128,25 @@ The AI goes beyond simple data reading, performing a dynamic synthesis in four p
 Used for tire pressure and difficulty scaling.
 
 | Field | Type | Default | Description |
-| :--- | :--- | :--- | :--- |
-| `weight_kg` | `float` | `80.0` | Total weight (rider + gear) for PSI and energy calculations. |
-| `fitness_level` | `string` | `intermediate` | Affects difficulty grading. Options: `beginner`, `intermediate`, `advanced`, `pro`. |
+| :--- | :--- |:--------| :--- |
+| `weight_kg` | `float` |         | Total weight (rider + gear) for PSI and energy calculations. |
+| `fitness_level` | `string` |         | Affects difficulty grading. Options: `beginner`, `intermediate`, `advanced`, `pro`. |
 
 #### **Bike Setup (`bike`)**
 | Field | Type | Default | Description |
 | :--- | :--- |:--------| :--- |
-| `bike_type` | `string` | `MTB`   | Geometry profile. Options: `Road`, `Gravel`, `MTB`, `Enduro`. |
-| `tire_size` | `string` | `29`    | Diameter/Standard. Options: `26`, `27.5`, `29`, `700c`, `650b`. |
+| `bike_type` | `string` |         | Geometry profile. Options: `Road`, `Gravel`, `MTB`, `Enduro`. |
+| `tire_size` | `string` |         | Diameter/Standard. Options: `26`, `27.5`, `29`, `700c`, `650b`. |
 | `is_ebike` | `bool` | `false` | If true, triggers battery consumption and motor-assist logic. |
-| `battery_wh` | `int` | `625`   | Battery capacity in Watt-hours (required if `is_ebike` is true). |
+| `battery_wh` | `int` |         | Battery capacity in Watt-hours (required if `is_ebike` is true). |
 
 #### **Mission Constraints (`mission`)**
 | Field                | Type     | Default            | Description                                                                                                                                                                                                                                                                                            |
 |:---------------------|:---------|:-------------------|:-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| `radius_km`          | `int`    | `10`               | Total target distance for the loop.                                                                                                                                                                                                                                                                    |
+| `radius_km`          | `int`    |                    | Total target distance for the loop.                                                                                                                                                                                                                                                                    |
 | `profile`            | `string` | `cycling-mountain` | ORS Routing profile.                                                                                                                                                                                                                                                                                   |
 | `surface_preference` | `string` | `neutral`          | Options: `neutral`, `avoid_unpaved`, `prefer_trails`.                                                                                                                                                                                                                                                  |
-| `points`             | `int`    | `3`                | Complexity of the loop (higher = more circular).                                                                                                                                                                                                                                                       |
+| `complexity`         | `int`    | `3`                | Complexity of the loop (higher = more circular).                                                                                                                                                                                                                                                       |
 | `seed`               | `int`    | `42`               | Randomizer seed to reproduce specific route variations.                                                                                                                                                                                                                                                |
 | `assist_mode`        | `string` | `Eco`              | Defines the motor's power output profile (Eco, Trail, Boost). This tactical parameter scales the energy consumption model by adjusting the motor-to-rider assistance ratio, directly impacting predicted battery range and "Safety Buffer" alerts based on terrain resistance. 'Eco', 'Trail', 'Boost' |
 
@@ -892,11 +892,12 @@ Generates a high-resolution visual analysis of the route's elevation profile. Un
 
 #### **Parameters:**
 
-| Parameter  | Type     | Default      | Description                                        |
-|:-----------|:---------|:-------------|:---------------------------------------------------|
-| `geometry` | `object` | **Required** | [Route Geometry](#route-geometry-geometry).         |
-| `width`    | `int`    | 8            | Width of the generated image (matplotlib inches).  |
-| `height`    | `int`    | 3            | Height of the generated image (matplotlib inches). |
+| Parameter  | Type     | Default            | Description                                        |
+|:-----------|:---------|:-------------------|:---------------------------------------------------|
+| `geometry` | `object` | **Required**       | [Route Geometry](#route-geometry-geometry).        |
+| `width`    | `int`    | 8                  | Width of the generated image (matplotlib inches).  |
+| `height`   | `int`    | 3                  | Height of the generated image (matplotlib inches). |
+| `style`    | `string` | sparkline          | Visual style of the profile, "sparkline", "filled", "bars"|                     |
 
 
 #### **Example Output (JSON):**
@@ -904,8 +905,11 @@ Generates a high-resolution visual analysis of the route's elevation profile. Un
 ```json
 {
   "status": "Success",
-  "image_data_url": "data:image/png;base64,...",
-  "message": "Elevation profile generated successfully"
+  "message": "Elevation profile stored in BikeScout home directory.",
+  "file_location": "/home/.test/bikescout/altimetry/climb.png",
+  "style_applied": "sparkline",
+  "dimensions": "8x3 in",
+  "instructions": "The file is safe in your home directory: /home/.test/bikescout/altimetry/climb.png"
 }
 ```
 

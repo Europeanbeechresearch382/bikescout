@@ -3,6 +3,7 @@ import sys
 from dotenv import load_dotenv
 from fastmcp import FastMCP
 from pathlib import Path
+from typing import Literal
 from bikescout.schemas import RiderProfile, BikeSetup, MissionConstraints, RouteGeometry
 from bikescout.tools.scouting import get_complete_trail_scout
 from bikescout.tools.weather import get_weather_forecast
@@ -56,11 +57,11 @@ def trail_scout(
         rider: RiderProfile,
         bike: BikeSetup,
         mission: MissionConstraints,
-        lat: float = 41.7615,
-        lon: float = 12.7118,
+        lat: float,
+        lon: float,
         include_gpx: bool = True,
         include_map: bool = False,
-        output_level: str = "standard"  # "summary" | "standard" | "full"
+        output_level: Literal["summary", "standard", "full"] = "standard"
 ):
     """
     Advanced trail discovery.
@@ -82,7 +83,7 @@ def trail_scout(
     return {"payload_version": BIKESCOUT_PROTOCOL_VERSION, **data}
 
 @mcp.tool()
-def check_trail_weather(lat: float = 41.7615, lon: float = 12.7118):
+def check_trail_weather(lat: float, lon: float):
     """
     Detailed cycling-specific weather assistant.
     Provides temperature, rain risk, and wind speed analysis for the next 4 hours,
@@ -97,10 +98,10 @@ def check_trail_weather(lat: float = 41.7615, lon: float = 12.7118):
 
 @mcp.tool()
 def ride_window_planner(
-        lat: float = 41.7615,
-        lon: float = 12.7118,
+        lat: float,
+        lon: float,
         ride_duration_hours: float = 2.0,
-        surface_type: str = "dirt"
+        surface_type: Literal["dirt", "gravel", "asphalt", "sand", "clay"] = "dirt"
 ):
     """
     Tactical Go/No-Go Planner.
@@ -122,8 +123,8 @@ def analyze_route_surfaces(
     rider: RiderProfile,
     bike: BikeSetup,
     mission: MissionConstraints,
-    lat: float = 41.7615,
-    lon: float = 12.7118
+    lat: float,
+    lon: float
 ):
     """
     Analyzes the route surface, technical difficulty, categorize climbs,
@@ -148,7 +149,7 @@ def analyze_route_surfaces(
 
 
 @mcp.tool()
-def poi_scout(lat: float = 41.7615, lon: float = 12.7118, radius_km: int = 5):
+def poi_scout(lat: float, lon: float, radius_km: int = 2):
     """
     Identifies bike-specific points of interest (POIs) around a location.
     Focuses on water fountains, bike shops, repair stations, and shelters.
@@ -156,13 +157,13 @@ def poi_scout(lat: float = 41.7615, lon: float = 12.7118, radius_km: int = 5):
     Args:
         lat: Latitude of the center point (usually start/end or a climb peak).
         lon: Longitude of the center point.
-        radius_km: Search radius in kilometers (max 5km recommended for precision).
+        radius_km: Search radius in kilometers. Recommended: 2-10km. Max: 20km.
     """
     data = get_poi_scout(ORS_API_KEY, lat, lon, radius_km)
     return {"payload_version": BIKESCOUT_PROTOCOL_VERSION, **data}
 
 @mcp.tool()
-def check_trail_soil_condition(lat: float = 41.7615, lon: float = 12.7118, surface_type: str = "dirt"):
+def check_trail_soil_condition(lat: float, lon: float, surface_type: Literal["dirt", "gravel", "asphalt", "sand", "clay"] = "dirt"):
     """
     Advanced predictive model for ground saturation and mud risk.
     Uses the TAEL (Terrain-Aware Evaporation Lag) algorithm to cross-reference
@@ -201,34 +202,30 @@ def analyze_strava_activity(activity_date: str):
     return {"payload_version": BIKESCOUT_PROTOCOL_VERSION, **data}
 
 @mcp.tool()
-def elevation_profile_image(geometry: RouteGeometry, width: int = 8, height: int = 3):
+def elevation_profile_image(geometry: RouteGeometry, width: int = 8, height: int = 3, style: Literal["sparkline", "filled", "bars"] = "sparkline"):
     """
-    Generates a visual 'sparkline' image (base64 encoded PNG) of the route's elevation profile.
+    Generates a visual elevation profile image (base64 encoded PNG).
 
-    The plot colors segments based on gradient steepness:
+    This tool transforms raw elevation data into a color-coded graph:
     - Green: Flat/Easy (<3%)
     - Yellow: Moderate (4-7%)
-    - Red: Steep Wall (>8%)
+    - Red: Steep/HC climbs (>8%)
 
     Args:
-        geometry: The coordinates and elevation data of the route.
-        width: Visual width of the sparkline in inches.
-        height: Visual height of the sparkline in inches.
+        geometry: The coordinates and elevation data (typically from trail_scout).
+        width: Visual width in inches (default 8).
+        height: Visual height in inches (default 3).
+        style: Visual style of the profile "sparkline", "filled", "bars".
     """
-    if not all([STRAVA_CLIENT_ID, STRAVA_CLIENT_SECRET, STRAVA_REFRESH_TOKEN]):
-        return {
-            "status": "Error",
-            "message": "Strava credentials missing. Please set STRAVA_CLIENT_ID, CLIENT_SECRET and REFRESH_TOKEN."
-        }
 
-    data = get_elevation_profile_image(geometry, width, height)
+    data = get_elevation_profile_image(geometry, width, height, style)
     return {"payload_version": BIKESCOUT_PROTOCOL_VERSION, **data}
 
 @mcp.tool()
 def hydration_scout(
-        lat: float = 41.7615,
-        lon: float = 12.7118,
-        duration_hours: float = 3,
+        lat: float,
+        lon: float,
+        duration_hours: float = 2,
         intensity_score: int = 50
 ):
     """
@@ -240,9 +237,11 @@ def hydration_scout(
         lat: Latitude of the mission area.
         lon: Longitude of the mission area.
         duration_hours: Estimated time in the saddle.
-        intensity_score: Physiological effort (0-100).
-                         Use <30 for recovery, 50 for standard training,
-                         >80 for races or HC climbs.
+        intensity_score: Physiological effort (0 to 100).
+                         0: Rest/Very Light
+                         50: Standard Training
+                         100: Max Effort/Race.
+                         Values outside 0-100 will be clamped.
     """
     # 1. Fetch real-time weather context for the location
     weather_data = get_weather_forecast(lat, lon)
@@ -325,14 +324,18 @@ def get_local_knowledge(region: str):
         return {"status": "Error", "message": f"FileSystem Exception: {str(e)}"}
 
 @mcp.tool()
-def apply_safety_protocol(mission_type: str = "general"):
+def apply_safety_protocol(
+        mission_type: Literal["mtb", "ebike", "road", "gravel", "general"]
+):
     """
     Executes the official BikeScout Safety Protocol.
-    Adapts recommendations based on mission_type: 'mtb', 'ebike', 'road', 'gravel'.
-    Mandatory skill to call before finalizing any 'Go' decision.
+
+    This tool provides a mandatory safety checklist and risk assessment.
+    It MUST be called before finalizing any 'Go' decision.
+    The protocol adapts based on the terrain and bike mechanics.
 
     Args:
-        mission_type: Category of ride ("mtb", "ebike", "road", "gravel", or "general").
+        mission_type: Category of ride to tailor the safety checklist.
     """
 
     base = BikeScoutResources.BASE_COMMANDS

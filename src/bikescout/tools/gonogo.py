@@ -1,7 +1,8 @@
 from bikescout.tools.weather import get_weather_forecast
 from bikescout.tools.mud import get_mud_risk_analysis
+from typing import Literal
 
-def calculate_ride_windows(lat: float, lon: float, ride_duration_hours: float = 2.0, surface_type: str = "dirt"):
+def calculate_ride_windows(lat: float, lon: float, ride_duration_hours: float = 2.0, surface_type: Literal["dirt", "gravel", "asphalt", "sand", "clay"] = "dirt"):
     """
     Tactical Ride Planner: Specifically mapped for BikeScout JSON output.
     Cleans string values (e.g., '93%') and performs sliding window analysis.

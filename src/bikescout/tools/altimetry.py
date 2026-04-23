@@ -7,6 +7,7 @@ import uuid
 import time
 from pathlib import Path
 from bikescout.schemas import RouteGeometry
+from typing import Literal
 
 def _generate_altimetry_plot(geometry: list, width: int = 8, height: int = 3):
     """
@@ -92,7 +93,7 @@ def _generate_altimetry_plot(geometry: list, width: int = 8, height: int = 3):
 
     return img_base64
 
-def get_elevation_profile_image(geometry: RouteGeometry, width: int = 8, height: int = 3):
+def get_elevation_profile_image(geometry: RouteGeometry, width: int, height: int, style: Literal["sparkline", "filled", "bars"] = "sparkline"):
     """
     Generates an elevation profile, saves it to ~/.bikescout/altimetry/
     and performs auto-cleaning of old files.
@@ -129,7 +130,8 @@ def get_elevation_profile_image(geometry: RouteGeometry, width: int = 8, height:
             "status": "Success",
             "message": "Elevation profile stored in BikeScout home directory.",
             "file_location": str(file_path),
-            "summary": "Visual sparkline generated and cached.",
+            "style_applied": style,
+            "dimensions": f"{width}x{height} in",
             "instructions": f"The file is safe in your home directory: {file_path}"
         }
 

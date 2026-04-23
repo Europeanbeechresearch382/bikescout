@@ -1,5 +1,6 @@
 from datetime import datetime, timedelta, timezone
 from pysolar.solar import get_altitude
+from typing import Literal
 import requests
 
 
@@ -24,7 +25,7 @@ def get_shadow_penalty(lat, lon):
     except Exception:
         return 1.0      # Neutral fallback
 
-def get_mud_risk_analysis(lat, lon, surface_type):
+def get_mud_risk_analysis(lat, lon, surface_type: Literal["dirt", "gravel", "asphalt", "sand", "clay"] = "dirt"):
     """
     Tactical Mud Risk Analysis v2.1: TAEL (Terrain-Aware Evaporation Lag) Model.
     Accounts for cumulative rainfall, atmospheric drying efficiency, and solar persistence.
