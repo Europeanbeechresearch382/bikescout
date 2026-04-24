@@ -207,17 +207,17 @@ Unlike standard GPS files, BikeScout automatically injects active <wpt> (waypoin
       - Hydration & Service: Precisely locates water fountains and repair shops found during the POI scouting.
 
 #### **Parameters:**
-| Parameter | Type | Default | Description                                             |
-| :--- | :--- | :--- |:--------------------------------------------------------|
-| `lat` | `float` | Required | Latitude of the starting point (e.g., `45.81`).         |
-| `lon` | `float` | Required | Longitude of the starting point (e.g., `9.08`).         |
-| **`rider`** | `object` | Required | [Rider Profile](#rider-profile-rider).                  |
-| **`bike`** | `object` | Required | [Bike Setup](#bike-setup-bike).                         |
-| **`mission`** | `object` | Required | [Mission Constraints](#mission-constraints-mission).    |
-| `include_gpx` | `bool` | `True` | Whether to include the raw XML GPX content.             |
-| `include_map` | `bool` | `False` | Whether to generate the Static Map URL via Stadia Maps. |
-| `output_level` | `string` | `standard` | Verbosity level: `summary`, `standard`, or `full`.      |
-| `target_date` | `string` |  | target_date: Optional string in 'YYYY-MM-DD' format |
+| Parameter | Type | Default | Description                                          |
+| :--- | :--- | :--- |:-----------------------------------------------------|
+| `lat` | `float` | Required | Latitude of the starting point (e.g., `45.81`).      |
+| `lon` | `float` | Required | Longitude of the starting point (e.g., `9.08`).      |
+| **`rider`** | `object` | Required | [Rider Profile](#rider-profile-rider).               |
+| **`bike`** | `object` | Required | [Bike Setup](#bike-setup-bike).                      |
+| **`mission`** | `object` | Required | [Mission Constraints](#mission-constraints-mission). |
+| `include_gpx` | `bool` | `True` | Whether to include the raw XML GPX content.          |
+| `include_map` | `bool` | `False` | Whether to generate the Static Map URL.              |
+| `output_level` | `string` | `standard` | Verbosity level: `summary`, `standard`, or `full`.   |
+| `target_date` | `string` |  | target_date: Optional string in 'YYYY-MM-DD' format  |
 
 
 #### **Tool Output Example (JSON):**
@@ -389,14 +389,14 @@ Unlike standard GPS files, BikeScout automatically injects active <wpt> (waypoin
       }
     ]
   },
-  "map_image_url": "https://tiles.stadiamaps.com/static/outdoors?center=41.702988000000005%2C12.718914&zoom=11&size=600x400%402x&api_key=e65e91ac-c17e-485e-a54b-89d7d4d95c20&path=color:0xff0000ff|weight:4|enc:cp{}F_xqlAnGfNhYfIdJx]`WdXbZ~Hr]uFpu@j`Apm@rOv`@ye@hi@jFxb@xEvb@uLxd@ql@nd@{~@`pBotBll@kP`w@_e@t~@m\\mt@wXc}@cEssA~JqU_v@se@yM{WfGaKnf@o[rNol@g@uG~`@s_@pQyShU{`@vm@m~@zq@qLfn@sJ}KsPtRiPzHq\\{e@gWgIg\\rB}g@xSaMLEI",
+  "map_image_url": "/home/test/.bikescout/gpx/tactical_route_3c3c37.png",
   "gpx_export_path": "/home/test/.bikescout/gpx/tactical_route_3c3c37.gpx",
   "gpx_stats": {
     "total_points": 945,
     "healed_points": 945,
     "waypoints_count": 11
   },
-  "elevation_profile_path": "/home/test/.bikescout/altimetry/bs_altimetry_763449.png",
+  "elevation_profile_path": "/home/test/.bikescout/altimetry/bs_altimetry_3c3c37.png",
   "elevation_summary": "Visual sparkline generated and cached."
 }
 ```

@@ -31,7 +31,7 @@ import requests
 def get_mud_risk_analysis(
         lat: float,
         lon: float,
-        surface_type: str = "dirt",
+        surface_type: Literal["dirt", "gravel", "clay"] = "dirt",
         target_date: str = None):
     """
     Tactical Mud Risk Analysis v2.5: Dynamic TAEL (Terrain-Aware Evaporation Lag) Model.

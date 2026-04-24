@@ -1,81 +1,54 @@
-import math
+from staticmap import StaticMap, Line
+from pathlib import Path
 import os
-import polyline
-from urllib.parse import urlencode, quote
-from dotenv import load_dotenv
 
-load_dotenv()
-
-STADIA_API_KEY = os.getenv("STADIA_API_KEY", "")
-STADIA_OUTDOORS_URL = "https://tiles.stadiamaps.com/static/outdoors"
-
-def get_static_map_url(geojson_data: dict) -> str:
+def save_local_tactical_map(filename_part, geojson_data: dict) -> str:
     """
-    Generates a professional static map URL using Stadia Maps.
-    Uses Encoded Polylines and strict character formatting to ensure path visibility.
+    Generates and saves a tactical map image locally using OpenStreetMap tiles.
+
+    It automatically handles scaling,
+    path drawing, and map tile composition.
     """
-
-    if not STADIA_API_KEY:
-        return "Can't generate static map. Add Stadia API Key to the configuration"
-
     try:
-        # 2. Data Validation
-        if not geojson_data or 'features' not in geojson_data:
-            return None
 
-        # Extract [lon, lat] coordinates
+        home_dir = Path.home() / ".bikescout" / "gpx"
+        home_dir.mkdir(parents=True, exist_ok=True)
+
+        # 1. Data Validation
+        if not geojson_data or 'features' not in geojson_data:
+            return "Error: Invalid GeoJSON data provided."
+
+        # Extract [lon, lat] coordinates from the ORS response
+        # Note: OpenRouteService returns coordinates as [longitude, latitude]
         all_coords = geojson_data['features'][0]['geometry']['coordinates']
         if not all_coords:
-            return None
+            return "Error: No coordinates found in track."
 
-        # 3. Dynamic Bounding Box & Center Calculation
-        lons = [p[0] for p in all_coords]
-        lats = [p[1] for p in all_coords]
-        min_lon, max_lon = min(lons), max(lons)
-        min_lat, max_lat = min(lats), max(lats)
+        # 2. Initialize Local Renderer
+        # Size: 800x600 pixels.
+        # URL template: Uses public OSM tiles (no API key required).
+        m = StaticMap(800, 600, url_template='https://tile.openstreetmap.org/{z}/{x}/{y}.png')
 
-        center_lon = (min_lon + max_lon) / 2
-        center_lat = (min_lat + max_lat) / 2
+        # 3. Create the Path Overlay
+        # Line(coordinates, color, width)
+        # The library accepts [[lon, lat], ...] format which matches GeoJSON perfectly.
+        tactical_path = Line(all_coords, 'red', 4)
+        m.add_line(tactical_path)
 
-        # 4. Dynamic Zoom Calculation
-        delta = max(max_lon - min_lon, max_lat - min_lat)
-        if delta > 0:
-            # -1 padding ensures the route doesn't touch the image edges
-            zoom = max(1, min(14, round(math.log2(360 / delta) - 1)))
-        else:
-            zoom = 14
+        # 4. Render and Save to Disk
+        # The library calculates the bounding box and optimal zoom level automatically.
+        image = m.render()
 
-        # 5. Path Compression using Polyline
-        # Sampling points to keep the string short and clean
-        step = max(1, len(all_coords) // 40)
-        sampled_points = [(p[1], p[0]) for p in all_coords[::step]]
+        # Ensure output directory exists (optional safety)
 
-        # Ensure the path is closed/complete
-        if sampled_points[-1] != (all_coords[-1][1], all_coords[-1][0]):
-            sampled_points.append((all_coords[-1][1], all_coords[-1][0]))
+        filename = f"tactical_route_{filename_part}.png"
+        file_path = home_dir / filename
+        image.save(file_path)
 
-        encoded_polyline = polyline.encode(sampled_points)
+        return file_path
 
-        # 6. Final URL Construction (Manual string building for the path)
-        # We MUST keep | and : unencoded for the server to draw the line
-        base_url = STADIA_OUTDOORS_URL
-
-        # Standard parameters
-        params = {
-            "center": f"{center_lat},{center_lon}",
-            "zoom": zoom,
-            "size": "600x400@2x",
-            "api_key": STADIA_API_KEY
-        }
-
-        query_string = urlencode(params)
-
-        # We manually append the path.
-        # The polyline string itself IS encoded, but the delimiters | and : ARE NOT.
-        path_string = f"path=color:0xff0000ff|weight:4|enc:{encoded_polyline}"
-
-        return f"{base_url}?{query_string}&{path_string}"
-
+    except ImportError:
+        return "Error: Missing dependencies. Install 'staticmap' and 'pillow'."
     except Exception as e:
-        print(f"Stadia Generation Error: {e}")
-        return f"Stadia Generation Error: {str(e)}"
+        print(f"Local Map Generation Error: {e}")
+        return f"Local Map Generation Error: {str(e)}"

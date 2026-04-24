@@ -57,7 +57,9 @@ def get_strava_activity(activity_date, client_id, client_secret, refresh_token):
         surface_type = "dirt" if target_activity.get('type') in ['MountainBikeRide', 'GravelRide'] else "asphalt"
 
         # Pull Mud Intelligence
-        mud_report = get_mud_risk_analysis(lat, lon, surface_type)
+        mud_report = {}
+        if surface_type != "asphalt":
+            mud_report = get_mud_risk_analysis(lat, lon, surface_type)
 
         # Pull Weather Context
         weather_report = get_weather_forecast(lat, lon, target_date=activity_date)
@@ -73,8 +75,8 @@ def get_strava_activity(activity_date, client_id, client_secret, refresh_token):
                 "avg_speed_kmh": round(target_activity.get('average_speed', 0) * 3.6, 1)
             },
             "environmental_validation": {
-                "mud_risk": mud_report.get('tactical_analysis', {}).get('mud_risk_score'),
-                "moisture_index": mud_report.get('tactical_analysis', {}).get('adjusted_moisture_index'),
+                "mud_risk": mud_report.get('tactical_analysis', {}).get('mud_risk_score', "N/A"),
+                "moisture_index": mud_report.get('tactical_analysis', {}).get('adjusted_moisture_index', "N/A"),
                 "weather_advice": weather_report.get('safety_advice'),
                 "conditions_at_start": weather_report.get('current_conditions')
             },

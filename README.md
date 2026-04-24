@@ -111,7 +111,6 @@ Pre Requirements:
 - **OpenRouteService API Key**: Get a free key at [openrouteservice.org](https://openrouteservice.org/).
 - **MCP Client**: Such as Claude Desktop.
 - **Strava Account (Optional)**: Required only for the **Post-Ride Tactical Analysis** feature.
-- **Stadia Maps Account (Optional)**: Required only for generating Static Route Maps.
 
 To enable Strava integration, you need to create a developer application and generate a long-lived Refresh Token:
 
@@ -157,7 +156,6 @@ Example:
         "STRAVA_CLIENT_ID": "YOUR_STRAVA_CLIENT_ID",
         "STRAVA_CLIENT_SECRET": "YOUR_STRAVA_CLIENT_SECRET",
         "STRAVA_REFRESH_TOKEN": "YOUR_STRAVA_REFRESH_TOKEN",
-        "STADIA_API_KEY": "YOUR_STADIA_API_KEY"
       }
     }
   }
@@ -177,7 +175,6 @@ export ORS_API_KEY=YOUR_OPENROUTE_SERVICE_API_KEY
 export STRAVA_CLIENT_ID=YOUR_STRAVA_CLIENT_ID
 export STRAVA_CLIENT_SECRET=YOUR_STRAVA_CLIENT_SECRET
 export STRAVA_REFRESH_TOKEN=YOUR_STRAVA_REFRESH_TOKEN
-export STADIA_API_KEY=YOUR_STADIA_API_KEY
 
 PYTHONPATH=./src npx @modelcontextprotocol/inspector ./venv/bin/python3 -m bikescout.mcp_server
 ```
@@ -224,5 +221,4 @@ BikeScout aggregates data from several open providers. Users of this server must
 * **Geospatial & Geocoding Data:** © [OpenStreetMap](https://www.openstreetmap.org/copyright) contributors. Data is available under the [Open Database License (ODbL)](https://opendatacommons.org/licenses/odbl/). Geocoding service powered by [Nominatim](https://nominatim.org/).
 * **Weather Forecasts:** Powered by [Open-Meteo](https://open-meteo.com/). Data is licensed under [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/).
 * **Elevation Data:** SRTM (NASA) processed via OpenRouteService.
-* **Static Maps**: Map previews are generated using [Stadia Maps](https://docs.stadiamaps.com), utilizing OpenStreetMap data.
 * **Post-ride analysis**: Provided by Strava. Post-ride analysis and GPS telemetry are accessed via the [Strava API](https://developers.strava.com/docs/reference).
