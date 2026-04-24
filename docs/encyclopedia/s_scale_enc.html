@@ -3,12 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>BikeScout Encyclopedia | Pro-Climb Categorization & Effort Multipliers</title>
+    <title>BikeScout Encyclopedia | S-Scale: Technical Trail Grading</title>
     <meta name="description" content="Transform raw map data into Tactical Intelligence. BikeScout is the first MCP server for AI agents to predict mud risk, S-Scale terrain and E-MTB range. Optimize your mission.">
     <meta name="keywords" content="MCP Server, Model Context Protocol, MTB Intelligence, Gravel Scouting, Cycling Geodata, Mud Prediction, Trail Analysis, Strava Integration">
     <meta name="robots" content="index, follow">
     <link rel="canonical" href="https://hifly81.github.io/bikescout">
-    <link rel="icon" type="image/svg+xml" href="images/favicon.svg">
+    <link rel="icon" type="image/svg+xml" href="../images/favicon.svg">
     <meta property="og:title" content="BikeScout | Tactical Cycling Intelligence">
     <meta property="og:description" content="Stop guessing. Analyze soil drainage, technical grade and elevation with the first MCP-powered cycling scout.">
     <meta property="og:type" content="website">
@@ -70,8 +70,9 @@
         .article-content h2 { color: white; font-weight: 900; font-style: italic; text-transform: uppercase; margin-top: 3rem; margin-bottom: 1rem; font-size: 1.5rem; }
         .article-content p { margin-bottom: 1.5rem; color: #94a3b8; font-size: 1.125rem; }
         .article-content strong { color: #e2e8f0; }
-        .formula-card { background: #1a202c; border-left: 4px solid #bef264; padding: 1.5rem; margin: 2rem 0; font-family: 'JetBrains Mono', monospace; color: #bef264; font-size: 0.875rem; overflow-x: auto; }
-        .highlight-box { background: rgba(190, 242, 100, 0.05); border: 1px solid rgba(190, 242, 100, 0.2); padding: 1.5rem; border-radius: 0.5rem; margin: 2rem 0; }
+        .grading-table { width: 100%; border-collapse: collapse; margin: 2rem 0; background: #1a202c; border-radius: 0.5rem; overflow: hidden; }
+        .grading-table th, .grading-table td { padding: 1rem; text-align: left; border-bottom: 1px solid #334155; }
+        .grading-table th { background: #0b0f1a; color: #bef264; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.1em; }
     </style>
 </head>
 <body class="bg-[#0b0f1a] text-slate-200">
@@ -81,22 +82,22 @@
         <i class="fas fa-times"></i>
     </button>
     <div class="flex flex-col items-center gap-8 text-2xl font-black uppercase italic text-white">
-        <a href="index.html">Home</a>
-        <a href="blog.html">Blog</a>
-        <a href="cycling_encyclopedia.html">Encyclopedia</a>
-        <a href="about.html">About</a>
+        <a href="../index.html">Home</a>
+        <a href="../blog.html">Blog</a>
+        <a href="../cycling_encyclopedia.html">Encyclopedia</a>
+        <a href="../about.html">About</a>
     </div>
 </div>
 
 <nav class="fixed top-0 left-0 w-full z-50 bg-[#0b0f1a]/90 backdrop-blur-md border-b border-slate-800 px-6 py-4">
     <div class="max-w-6xl mx-auto flex justify-between items-center">
-        <a href="index.html" class="text-xl font-black italic uppercase tracking-tighter text-white">
+        <a href="../index.html" class="text-xl font-black italic uppercase tracking-tighter text-white">
             Bike<span class="neon-text">Scout</span>
         </a>
         <div class="hidden md:flex gap-8 font-bold text-xs uppercase tracking-widest text-slate-400">
-            <a href="blog.html" class="hover:text-neon-text transition-colors">Blog</a>
-            <a href="cycling_encyclopedia.html" class="hover:text-neon-text transition-colors">Encyclopedia</a>
-            <a href="about.html" class="hover:text-neon-text transition-colors">About</a>
+            <a href="../blog.html" class="hover:text-neon-text transition-colors">Blog</a>
+            <a href="../cycling_encyclopedia.html" class="hover:text-neon-text transition-colors">Encyclopedia</a>
+            <a href="../about.html" class="hover:text-neon-text transition-colors">About</a>
         </div>
         <button id="menu-btn" class="md:hidden text-white text-2xl"><i class="fas fa-bars"></i></button>
     </div>
@@ -104,51 +105,69 @@
 
 <article class="max-w-3xl mx-auto py-20 px-6">
     <header class="mb-12 border-b border-slate-800 pb-12">
-        <h1 class="text-4xl md:text-6xl font-black uppercase italic text-white leading-none tracking-tighter">Pro-Climb <br><span class="neon-text">Categorization</span></h1>
-        <p class="text-slate-500 font-bold uppercase tracking-widest text-sm italic">Core Concept: Vertical Intensity Analysis</p>
+        <h1 class="text-4xl md:text-6xl font-black uppercase italic text-white leading-none tracking-tighter">S-Scale <br><span class="neon-text">Trail Grading</span></h1>
+        <p class="text-slate-500 font-bold uppercase tracking-widest text-sm italic">Core Concept: Technical Difficulty Standards</p>
     </header>
 
     <div class="article-content">
-        <p>In professional cycling, not all meters climbed are equal. A 500m ascent on a paved road is a different physiological mission compared to 500m on a technical volcanic trail. Pro-Climb Categorization is the engine BikeScout uses to classify ascents into categories (from Cat 4 to the legendary Hors Catégorie), adjusted for bike-specific rolling resistance and terrain intensity.</p>
+        <p>In off-road exploration, distance and elevation only tell half the story. The S-Scale (Singletrail-Skala) is the international benchmark used by BikeScout to quantify the technical demand of a trail. By parsing OpenStreetMap (OSM) tags, we assign a grade from S0 to S5 to help riders determine if a mission matches their skill level and equipment.</p>
 
-        <h2>The Effort Multiplier</h2>
-        <p>The core innovation of the Pro-Climb engine is the <code>effort_multiplier</code>. BikeScout recognizes that gravity and rolling resistance impact riders differently based on their equipment:</p>
+        <h2>Standard Classification</h2>
+        <p>BikeScout's <code>_analyze_technical_difficulty</code> module maps raw metadata into six distinct levels of technicality:</p>
 
-        <div class="highlight-box">
-            <ul class="space-y-4">
-                <li><strong class="neon-text">Road/Gravel (1.0x):</strong> The baseline for sustained, efficient climbing on predictable surfaces.</li>
-                <li><strong class="neon-text">MTB/XC (1.4x):</strong> Accounts for the increased energy cost of off-road traction and bike geometry.</li>
-                <li><strong class="neon-text">Enduro/Tech (1.6x):</strong> The maximum multiplier, reflecting the massive physical demand of punchy, technical climbs on heavy, long-travel machinery.</li>
-            </ul>
-        </div>
+        <table class="grading-table">
+            <thead>
+            <tr>
+                <th>Grade</th>
+                <th>Description</th>
+                <th>Typical Obstacles</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr>
+                <td class="neon-text font-bold text-lg">S0</td>
+                <td>Easy / Flow</td>
+                <td>Smooth, firm soil, no obstacles.</td>
+            </tr>
+            <tr>
+                <td class="neon-text font-bold text-lg">S1</td>
+                <td>Intermediate</td>
+                <td>Small roots, loose stones, easy water bars.</td>
+            </tr>
+            <tr>
+                <td class="neon-text font-bold text-lg">S2</td>
+                <td>Advanced</td>
+                <td>Larger roots/stones, steps, shallow switchbacks.</td>
+            </tr>
+            <tr>
+                <td class="neon-text font-bold text-lg">S3</td>
+                <td>Technical</td>
+                <td>Rock gardens, high steps, tight hairpins.</td>
+            </tr>
+            <tr>
+                <td class="neon-text font-bold text-lg">S4</td>
+                <td>Extreme</td>
+                <td>Steep ramps, switchbacks requiring trial skills.</td>
+            </tr>
+            <tr>
+                <td class="neon-text font-bold text-lg">S5</td>
+                <td>Near Vertical</td>
+                <td>Maximum difficulty, high risk of falling.</td>
+            </tr>
+            </tbody>
+        </table>
 
-        <h2>The Scoring Formula</h2>
-        <p>To assign a category, BikeScout calculates an Adjusted Effort Score. This formula combines the total vertical gain with the steepness of the climb, then applies the multiplier.</p>
+        <h2>The Visibility Factor</h2>
+        <p>Technicality isn't just about rocks; it's about pathfinding. BikeScout integrates <strong>Trail Visibility</strong> metadata into the tactical briefing. This is critical for missions in volcanic or high-alpine environments where the trail can become "Invisible" (Visibility Level 4), requiring GPS-only navigation.</p>
 
-        <div class="formula-card">
-            Scoring_Gradient = min(Avg_Gradient, 18.0) <br>
-            Adjusted_Score = Total_Ascent * (Scoring_Gradient / 10) * Effort_Multiplier
-        </div>
-
-        <h2>Category Thresholds</h2>
-        <p>Based on the final score, the climb is assigned a rank following the professional standards of grand tours:</p>
-
-        <ul>
-            <li><strong>Hors Catégorie (HC):</strong> Legendary challenges (Score > 800 or Ascent > 1000m).</li>
-            <li><strong>Category 1:</strong> Brutal ascents requiring elite-level pacing.</li>
-            <li><strong>Category 2:</strong> Hard climbs that test endurance.</li>
-            <li><strong>Category 3:</strong> Challenging hills.</li>
-            <li><strong>Category 4:</strong> Short, intense burners.</li>
-        </ul>
-
-        <h2>Geodesic Precision</h2>
-        <p>Unlike standard apps that use flat-map distances, Pro-Climb relies on Geodesic Accuracy. By using the Haversine formula to measure the true horizontal baseline, BikeScout's gradient calculations (and thus the categorization) remain accurate even on the steepest "walls" where satellite data often fails.</p>
+        <h2>Strategic Deployment</h2>
+        <p>The S-Scale grading directly influences the ASI (Actionable Setup Intelligence). If BikeScout detects an S3+ segment, it will automatically trigger a "Compliance Strategy" for tire pressure, even if the rest of the route is smooth. Furthermore, for Road profiles, any segment graded above S will trigger a critical safety warning.</p>
 
 
         <div class="mt-16 flex flex-wrap gap-4">
-            <span class="bg-slate-900 border border-slate-700 px-3 py-1 text-[10px] mono uppercase text-slate-400">#Climbing-Physics</span>
-            <span class="bg-slate-900 border border-slate-700 px-3 py-1 text-[10px] mono uppercase text-slate-400">#Effort-Multiplier</span>
-            <span class="bg-slate-900 border border-slate-700 px-3 py-1 text-[10px] mono uppercase text-slate-400">#King-Of-Mountains</span>
+            <span class="bg-slate-900 border border-slate-700 px-3 py-1 text-[10px] mono uppercase text-slate-400">#MTB-Scale</span>
+            <span class="bg-slate-900 border border-slate-700 px-3 py-1 text-[10px] mono uppercase text-slate-400">#Technical-Grading</span>
+            <span class="bg-slate-900 border border-slate-700 px-3 py-1 text-[10px] mono uppercase text-slate-400">#OSM-Intelligence</span>
         </div>
     </div>
 </article>

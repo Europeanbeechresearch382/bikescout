@@ -3,12 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>BikeScout Encyclopedia | TAEL Model: Terrain-Aware Evaporation Lag</title>
+    <title>BikeScout Blog | Wall-Sense: Beyond the 10% Barrier</title>
     <meta name="description" content="Transform raw map data into Tactical Intelligence. BikeScout is the first MCP server for AI agents to predict mud risk, S-Scale terrain and E-MTB range. Optimize your mission.">
     <meta name="keywords" content="MCP Server, Model Context Protocol, MTB Intelligence, Gravel Scouting, Cycling Geodata, Mud Prediction, Trail Analysis, Strava Integration">
     <meta name="robots" content="index, follow">
     <link rel="canonical" href="https://hifly81.github.io/bikescout">
-    <link rel="icon" type="image/svg+xml" href="images/favicon.svg">
+    <link rel="icon" type="image/svg+xml" href="../images/favicon.svg">
     <meta property="og:title" content="BikeScout | Tactical Cycling Intelligence">
     <meta property="og:description" content="Stop guessing. Analyze soil drainage, technical grade and elevation with the first MCP-powered cycling scout.">
     <meta property="og:type" content="website">
@@ -16,7 +16,6 @@
     <meta property="og:image" content="https://hifly81.github.io/bikescout/images/preview.png">
     <meta http-equiv="content-language" content="en">
 
-    <script async src="https://www.googletagmanager.com/gtag/js?id=G-YTC60Z790M"></script>
     <script>
         window.dataLayer = window.dataLayer || [];
         function gtag(){dataLayer.push(arguments);}
@@ -70,7 +69,6 @@
         .article-content h2 { color: white; font-weight: 900; font-style: italic; text-transform: uppercase; margin-top: 3rem; margin-bottom: 1rem; font-size: 1.5rem; }
         .article-content p { margin-bottom: 1.5rem; color: #94a3b8; font-size: 1.125rem; }
         .article-content strong { color: #e2e8f0; }
-        .tech-box { background: #0f172a; border: 1px solid #1e293b; border-left: 4px solid #bef264; padding: 1.5rem; margin: 2rem 0; }
     </style>
 </head>
 <body class="bg-[#0b0f1a] text-slate-200">
@@ -79,24 +77,23 @@
     <button id="close-btn" class="absolute top-6 right-6 text-3xl neon-text p-4">
         <i class="fas fa-times"></i>
     </button>
-
     <div class="flex flex-col items-center gap-8 text-2xl font-black uppercase italic text-white">
-        <a href="index.html">Home</a>
-        <a href="blog.html">Blog</a>
-        <a href="cycling_encyclopedia.html">Encyclopedia</a>
-        <a href="about.html">About</a>
+        <a href="../index.html">Home</a>
+        <a href="../blog.html">Blog</a>
+        <a href="../cycling_encyclopedia.html">Encyclopedia</a>
+        <a href="../about.html">About</a>
     </div>
 </div>
 
 <nav class="fixed top-0 left-0 w-full z-50 bg-[#0b0f1a]/90 backdrop-blur-md border-b border-slate-800 px-6 py-4">
     <div class="max-w-6xl mx-auto flex justify-between items-center">
-        <a href="index.html" class="text-xl font-black italic uppercase tracking-tighter text-white">
+        <a href="../index.html" class="text-xl font-black italic uppercase tracking-tighter text-white">
             Bike<span class="neon-text">Scout</span>
         </a>
         <div class="hidden md:flex gap-8 font-bold text-xs uppercase tracking-widest text-slate-400">
-            <a href="blog.html" class="text-neon-text">Blog</a>
-            <a href="cycling_encyclopedia.html" class="hover:text-neon-text transition-colors">Encyclopedia</a>
-            <a href="about.html" class="hover:text-neon-text transition-colors">About</a>
+            <a href="../blog.html" class="text-neon-text">Blog</a>
+            <a href="../cycling_encyclopedia.html" class="hover:text-neon-text transition-colors">Encyclopedia</a>
+            <a href="../about.html" class="hover:text-neon-text transition-colors">About</a>
         </div>
         <button id="menu-btn" class="md:hidden text-white text-2xl"><i class="fas fa-bars"></i></button>
     </div>
@@ -104,41 +101,46 @@
 
 <article class="max-w-3xl mx-auto py-20 px-6">
     <header class="mb-12 border-b border-slate-800 pb-12">
-        <h1 class="text-4xl md:text-6xl font-black uppercase italic text-white leading-none tracking-tighter">TAEL <br><span class="neon-text">Model</span></h1>
-        <p class="text-slate-500 font-bold uppercase tracking-widest text-sm italic">Terrain-Aware Evaporation Lag</p>
+        <h1 class="text-4xl md:text-6xl font-black uppercase italic text-white leading-none tracking-tighter">Vertical Awareness: <br><span class="neon-text">The "Wall-Sense" Engine</span></h1>
+        <p class="text-slate-500 font-bold uppercase tracking-widest text-sm italic">Released: April 17, 2026</p>
     </header>
 
     <div class="article-content">
-        <p>The <strong>TAEL (Terrain-Aware Evaporation Lag)</strong> Model is BikeScout’s algorithm designed to solve the "Post-Rain Paradox": why do trails remain saturated even after hours of direct sunlight? Unlike basic weather apps, TAEL treats the soil as a dynamic capacitor that stores and releases moisture at different rates.</p>
+        <p>A 10% gradient is a number. A 200-meter wall of volcanic mud at 18% is a tactical crisis. Most routing engines smooth out the pain, averaging the incline over miles. <strong>BikeScout doesn't smooth. It amplifies.</strong></p>
 
-        <h2>The Core Logic</h2>
-        <p>TAEL operates on the principle that evaporation is not instantaneous. It calculates a "Lag Factor" based on three variables: <strong>Cumulative Precipitation (72h)</strong>, <strong>Soil Drainage Class</strong> (Clay, Loam, Sand), and <strong>Photonic Energy flux</strong>.</p>
+        <p>Today we announce the deployment of the <strong>High-Fidelity Altimetry Engine</strong>. By bypassing standard payload constraints and moving to a localized caching system, BikeScout can now render pixel-perfect vertical profiles that highlight anaerobic trap zones.</p>
 
-        <div class="tech-box">
-            <span class="mono text-neon-text font-bold">// TAEL MOISTURE INDEX FORMULA</span><br>
-            <span class="mono text-slate-400">Index = (Precip_72h * Drainage_Coeff) / (Temp_Efficiency + Solar_Persistence)</span>
-        </div>
+        <h2>The Problem: The "Average" Trap</h2>
+        <p>Standard GPX viewers often hide the "Wall". They tell you a climb is 6% average, but they miss the 15% ramp hidden behind the forest curve. For a cyclist, this lack of data leads to poor pacing, incorrect gear ratios, and total energy depletion.</p>
 
-        <h2>Drainage Coefficients</h2>
-        <p>Different surfaces have different "memories". TAEL assigns specific weights to soil types detected via MCP surface sensing:</p>
-        <ul>
-            <li><strong>Clay/Compact:</strong> High retention, slow lag (Mud risk remains high for 48h+).</li>
-            <li><strong>Gravel/Fine Gravel:</strong> Low retention, fast lag (Quick recovery).</li>
-            <li><strong>Forest Loam:</strong> Variable lag based on organic saturation.</li>
+        <h2>The Solution: High-Resolution Sparklines</h2>
+        <p>The updated <code>get_elevation_profile_image</code> tool now generates tactical sparklines with chromatic scaling:
+        <ul class="list-disc list-inside mb-4 text-slate-400">
+            <li><strong class="text-green-400">Green:</strong> Efficiency Zones (<3%)</li>
+            <li><strong class="text-yellow-400">Yellow:</strong> Power Thresholds (4-9%)</li>
+            <li><strong class="text-red-500">Red:</strong> The "Wall" (>10%)</li>
         </ul>
+        </p>
+        <p>By saving these reports directly to the user's home directory (<code>~/.bikescout/altimetry/</code>), we maintain total visual fidelity without compromising the performance of the MCP server.</p>
 
-        <h2>Tactical Advantage</h2>
-        <p>The TAEL Model provides a <code>mud_risk_score</code> from 1 to 100. This is used by the AI to suggest tire tread patterns and pressure. If TAEL predicts a "Saturation Lock", the briefing will recommend higher-profile knobs and lower PSI, even if the current sky is clear.</p>
+        <h2>Tactical Export: Waypoint Injection</h2>
+        <p>Knowledge is useless without execution. Our <strong>Wall-Sense</strong> logic now injects tactical waypoints directly into your GPX file. When your GPS screams "WALL: 14%", it's not guessing, it's reading the precise elevation delta calculated by BikeScout's latest decimation algorithm.</p>
+
+        <h2>Gear for the Vertical</h2>
+        <p>The <code>mud_risk_score</code> and <code>climb_intensity</code> now work in synergy. If the TAEL algorithm detects Shadow-Locked mud on a Red Zone Wall, BikeScout will advise a significant drop in tire pressure or a route bypass. This isn't just navigation; it's survival intelligence.</p>
+
+
 
         <div class="mt-16 flex flex-wrap gap-4">
-            <span class="bg-slate-900 border border-slate-700 px-3 py-1 text-[10px] mono uppercase text-slate-400">#Soil-Science</span>
-            <span class="bg-slate-900 border border-slate-700 px-3 py-1 text-[10px] mono uppercase text-slate-400">#Predictive-Modeling</span>
-            <span class="bg-slate-900 border border-slate-700 px-3 py-1 text-[10px] mono uppercase text-slate-400">#TAEL</span>
+            <span class="bg-slate-900 border border-slate-700 px-3 py-1 text-[10px] mono uppercase text-slate-400">#Wall-Sense</span>
+            <span class="bg-slate-900 border border-slate-700 px-3 py-1 text-[10px] mono uppercase text-slate-400">#Gradient-Intelligence</span>
+            <span class="bg-slate-900 border border-slate-700 px-3 py-1 text-[10px] mono uppercase text-slate-400">#MCP-Update</span>
         </div>
     </div>
 </article>
+
 <footer class="py-12 border-t border-slate-900 text-center text-slate-600 mono text-[10px] uppercase tracking-[0.4em]">
-    BikeScout @ 2026// <span class="text-white">hifly81</span>
+    BikeScout @ 2026 // <span class="text-white">hifly81</span>
 </footer>
 
 <script>
@@ -155,14 +157,6 @@
     closeBtn.addEventListener('click', () => {
         mobileMenu.classList.add('hidden');
         document.body.style.overflow = 'auto';
-    });
-
-
-    mobileMenu.querySelectorAll('a').forEach(link => {
-        link.addEventListener('click', () => {
-            mobileMenu.classList.add('hidden');
-            document.body.style.overflow = 'auto';
-        });
     });
 </script>
 </body>
