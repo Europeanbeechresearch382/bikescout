@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>BikeScout Encyclopedia | TAEL Model: Terrain-Aware Evaporation Lag</title>
+    <title>BikeScout Encyclopedia | Geodesic Accuracy & Haversine Grade Calculation</title>
     <meta name="description" content="Transform raw map data into Tactical Intelligence. BikeScout is the first MCP server for AI agents to predict mud risk, S-Scale terrain and E-MTB range. Optimize your mission.">
     <meta name="keywords" content="MCP Server, Model Context Protocol, MTB Intelligence, Gravel Scouting, Cycling Geodata, Mud Prediction, Trail Analysis, Strava Integration">
     <meta name="robots" content="index, follow">
@@ -13,7 +13,7 @@
     <meta property="og:description" content="Stop guessing. Analyze soil drainage, technical grade and elevation with the first MCP-powered cycling scout.">
     <meta property="og:type" content="website">
     <meta property="og:url" content="https://hifly81.github.io/bikescout">
-    <meta property="og:image" content="https://hifly81.github.io/bikescout/site/images/preview.png">
+    <meta property="og:image" content="https://hifly81.github.io/bikescout/images/preview.png">
     <meta http-equiv="content-language" content="en">
 
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-YTC60Z790M"></script>
@@ -35,7 +35,7 @@
   "operatingSystem": "Independent (MCP Protocol)",
   "downloadUrl": "https://github.com/hifly81/bikescout",
   "license": "https://opensource.org/licenses/apache-2.0",
-  "softwareVersion": "1.1.1",
+  "softwareVersion": "1.1.2",
   "keywords": "MCP server, cycling intelligence, predictive mud logic, S-Scale MTB, OpenStreetMap AI, tactical cycling",
   "author": {
     "@type": "Person",
@@ -55,7 +55,7 @@
     "Tactical POI Discovery: Real-time identification of strategic water points and shelters.",
     "Dynamic GPX Generation: Tailored routing based on technical skill and bike type."
   ],
-  "screenshot": "https://hifly81.github.io/bikescout/site/images/preview.png",
+  "screenshot": "https://hifly81.github.io/bikescout/images/preview.png",
   "softwareRequirements": "Python 3.10+, MCP Client (Claude Desktop, etc.)"
 }
 </script>
@@ -70,7 +70,7 @@
         .article-content h2 { color: white; font-weight: 900; font-style: italic; text-transform: uppercase; margin-top: 3rem; margin-bottom: 1rem; font-size: 1.5rem; }
         .article-content p { margin-bottom: 1.5rem; color: #94a3b8; font-size: 1.125rem; }
         .article-content strong { color: #e2e8f0; }
-        .tech-box { background: #0f172a; border: 1px solid #1e293b; border-left: 4px solid #bef264; padding: 1.5rem; margin: 2rem 0; }
+        .formula-card { background: #1a202c; border-left: 4px solid #bef264; padding: 1.5rem; margin: 2rem 0; font-family: 'JetBrains Mono', monospace; color: #bef264; font-size: 0.875rem; overflow-x: auto; }
     </style>
 </head>
 <body class="bg-[#0b0f1a] text-slate-200">
@@ -81,7 +81,7 @@
     </button>
 
     <div class="flex flex-col items-center gap-8 text-2xl font-black uppercase italic text-white">
-        <a href="../index.html">Home</a>
+        <a href="index.html">Home</a>
         <a href="blog.html">Blog</a>
         <a href="cycling_encyclopedia.html">Encyclopedia</a>
         <a href="about.html">About</a>
@@ -90,7 +90,7 @@
 
 <nav class="fixed top-0 left-0 w-full z-50 bg-[#0b0f1a]/90 backdrop-blur-md border-b border-slate-800 px-6 py-4">
     <div class="max-w-6xl mx-auto flex justify-between items-center">
-        <a href="../index.html" class="text-xl font-black italic uppercase tracking-tighter text-white">
+        <a href="index.html" class="text-xl font-black italic uppercase tracking-tighter text-white">
             Bike<span class="neon-text">Scout</span>
         </a>
         <div class="hidden md:flex gap-8 font-bold text-xs uppercase tracking-widest text-slate-400">
@@ -104,39 +104,45 @@
 
 <article class="max-w-3xl mx-auto py-20 px-6">
     <header class="mb-12 border-b border-slate-800 pb-12">
-        <h1 class="text-4xl md:text-6xl font-black uppercase italic text-white leading-none tracking-tighter">TAEL <br><span class="neon-text">Model</span></h1>
-        <p class="text-slate-500 font-bold uppercase tracking-widest text-sm italic">Terrain-Aware Evaporation Lag</p>
+        <h1 class="text-4xl md:text-6xl font-black uppercase italic text-white leading-none tracking-tighter">Geodesic <br><span class="neon-text">Accuracy</span></h1>
+        <p class="text-slate-500 font-bold uppercase tracking-widest text-sm italic">Core Concept: Geospatial Intelligence</p>
     </header>
 
     <div class="article-content">
-        <p>The <strong>TAEL (Terrain-Aware Evaporation Lag)</strong> Model is BikeScout’s algorithm designed to solve the "Post-Rain Paradox": why do trails remain saturated even after hours of direct sunlight? Unlike basic weather apps, TAEL treats the soil as a dynamic capacitor that stores and releases moisture at different rates.</p>
+        <p>In the world of tactical cycling, distance is not a straight line on a flat map. Most consumer-grade cycling apps treat the Earth as a plane (Euclidean geometry), which leads to significant errors in distance and slope calculation. <strong>Geodesic Accuracy</strong> is the practice of measuring distance over the Earth's ellipsoidal surface.</p>
 
-        <h2>The Core Logic</h2>
-        <p>TAEL operates on the principle that evaporation is not instantaneous. It calculates a "Lag Factor" based on three variables: <strong>Cumulative Precipitation (72h)</strong>, <strong>Soil Drainage Class</strong> (Clay, Loam, Sand), and <strong>Photonic Energy flux</strong>.</p>
+        <p>BikeScout implements 100% Geodesic Accuracy to ensure that when we report a 15% gradient "Wall", it is physically accurate, whether you are riding at the Equator or the high latitudes of the Dolomites.</p>
 
-        <div class="tech-box">
-            <span class="mono text-neon-text font-bold">// TAEL MOISTURE INDEX FORMULA</span><br>
-            <span class="mono text-slate-400">Index = (Precip_72h * Drainage_Coeff) / (Temp_Efficiency + Solar_Persistence)</span>
+        <h2>The Problem: Meridian Distortion</h2>
+        <p>The distance between degrees of longitude shrinks as you move away from the Equator. At 45°N (common in the Alps or Oregon), a degree of longitude is roughly 30% shorter than at the Equator. If your routing engine uses fixed multipliers, your total distance will be wrong, and your slope calculations will be purely fictional.</p>
+
+
+
+        <h2>The Solution: The Haversine Formula</h2>
+        <p>To defeat this distortion, BikeScout ignores the summary data provided by standard APIs and recalculates every single coordinate segment using the <strong>Haversine Formula</strong>. This calculates the great-circle distance between two points on a sphere given their longitudes and latitudes.</p>
+
+        <div class="formula-card">
+            a = sin²(Δφ/2) + cos φ1 ⋅ cos φ2 ⋅ sin²(Δλ/2)<br>
+            c = 2 ⋅ atan2( √a, √(1−a) )<br>
+            d = R ⋅ c
         </div>
 
-        <h2>Drainage Coefficients</h2>
-        <p>Different surfaces have different "memories". TAEL assigns specific weights to soil types detected via MCP surface sensing:</p>
-        <ul>
-            <li><strong>Clay/Compact:</strong> High retention, slow lag (Mud risk remains high for 48h+).</li>
-            <li><strong>Gravel/Fine Gravel:</strong> Low retention, fast lag (Quick recovery).</li>
-            <li><strong>Forest Loam:</strong> Variable lag based on organic saturation.</li>
-        </ul>
+        <h2>Tactical Impact: The "Wall %" Credibility</h2>
+        <p>Gradient (Slope) is the ratio between <strong>Vertical Gain</strong> and <strong>Horizontal Distance</strong>. By using Geodesic distance as our horizontal baseline, BikeScout eliminates the "flattening" effect of map projections. This is why our <code>climb_category</code> and <code>avg_gradient</code> metrics match the physical effort felt by the rider's legs, providing a higher level of tactical trust than generic GPS trackers.</p>
 
-        <h2>Tactical Advantage</h2>
-        <p>The TAEL Model provides a <code>mud_risk_score</code> from 1 to 100. This is used by the AI to suggest tire tread patterns and pressure. If TAEL predicts a "Saturation Lock", the briefing will recommend higher-profile knobs and lower PSI, even if the current sky is clear.</p>
+        <h2>Why it Matters for AI</h2>
+        <p>Large Language Models (LLMs) cannot "feel" the terrain. They rely on the data we feed them. By providing Geodesically Accurate telemetry through the MCP protocol, BikeScout ensures the AI can accurately predict energy expenditure and technical difficulty without being misled by map distortion.</p>
+
 
         <div class="mt-16 flex flex-wrap gap-4">
-            <span class="bg-slate-900 border border-slate-700 px-3 py-1 text-[10px] mono uppercase text-slate-400">#Soil-Science</span>
-            <span class="bg-slate-900 border border-slate-700 px-3 py-1 text-[10px] mono uppercase text-slate-400">#Predictive-Modeling</span>
-            <span class="bg-slate-900 border border-slate-700 px-3 py-1 text-[10px] mono uppercase text-slate-400">#TAEL</span>
+            <span class="bg-slate-900 border border-slate-700 px-3 py-1 text-[10px] mono uppercase text-slate-400">#Geodesy</span>
+            <span class="bg-slate-900 border border-slate-700 px-3 py-1 text-[10px] mono uppercase text-slate-400">#Haversine</span>
+            <span class="bg-slate-900 border border-slate-700 px-3 py-1 text-[10px] mono uppercase text-slate-400">#Tactical-Briefing</span>
         </div>
     </div>
+
 </article>
+
 <footer class="py-12 border-t border-slate-900 text-center text-slate-600 mono text-[10px] uppercase tracking-[0.4em]">
     BikeScout @ 2026// <span class="text-white">hifly81</span>
 </footer>

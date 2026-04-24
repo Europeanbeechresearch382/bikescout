@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>BikeScout Blog | Wall-Sense: Beyond the 10% Barrier</title>
+    <title>BikeScout Encyclopedia | DST: Dynamic Safety Thresholds</title>
     <meta name="description" content="Transform raw map data into Tactical Intelligence. BikeScout is the first MCP server for AI agents to predict mud risk, S-Scale terrain and E-MTB range. Optimize your mission.">
     <meta name="keywords" content="MCP Server, Model Context Protocol, MTB Intelligence, Gravel Scouting, Cycling Geodata, Mud Prediction, Trail Analysis, Strava Integration">
     <meta name="robots" content="index, follow">
@@ -13,9 +13,10 @@
     <meta property="og:description" content="Stop guessing. Analyze soil drainage, technical grade and elevation with the first MCP-powered cycling scout.">
     <meta property="og:type" content="website">
     <meta property="og:url" content="https://hifly81.github.io/bikescout">
-    <meta property="og:image" content="https://hifly81.github.io/bikescout/site/images/preview.png">
+    <meta property="og:image" content="https://hifly81.github.io/bikescout/images/preview.png">
     <meta http-equiv="content-language" content="en">
 
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-YTC60Z790M"></script>
     <script>
         window.dataLayer = window.dataLayer || [];
         function gtag(){dataLayer.push(arguments);}
@@ -34,7 +35,7 @@
   "operatingSystem": "Independent (MCP Protocol)",
   "downloadUrl": "https://github.com/hifly81/bikescout",
   "license": "https://opensource.org/licenses/apache-2.0",
-  "softwareVersion": "1.1.1",
+  "softwareVersion": "1.1.2",
   "keywords": "MCP server, cycling intelligence, predictive mud logic, S-Scale MTB, OpenStreetMap AI, tactical cycling",
   "author": {
     "@type": "Person",
@@ -54,7 +55,7 @@
     "Tactical POI Discovery: Real-time identification of strategic water points and shelters.",
     "Dynamic GPX Generation: Tailored routing based on technical skill and bike type."
   ],
-  "screenshot": "https://hifly81.github.io/bikescout/site/images/preview.png",
+  "screenshot": "https://hifly81.github.io/bikescout/images/preview.png",
   "softwareRequirements": "Python 3.10+, MCP Client (Claude Desktop, etc.)"
 }
 </script>
@@ -69,6 +70,7 @@
         .article-content h2 { color: white; font-weight: 900; font-style: italic; text-transform: uppercase; margin-top: 3rem; margin-bottom: 1rem; font-size: 1.5rem; }
         .article-content p { margin-bottom: 1.5rem; color: #94a3b8; font-size: 1.125rem; }
         .article-content strong { color: #e2e8f0; }
+        .logic-card { background: #0f172a; border-radius: 1rem; padding: 2rem; border: 1px solid #1e293b; margin: 2rem 0; }
     </style>
 </head>
 <body class="bg-[#0b0f1a] text-slate-200">
@@ -77,8 +79,9 @@
     <button id="close-btn" class="absolute top-6 right-6 text-3xl neon-text p-4">
         <i class="fas fa-times"></i>
     </button>
+
     <div class="flex flex-col items-center gap-8 text-2xl font-black uppercase italic text-white">
-        <a href="../index.html">Home</a>
+        <a href="index.html">Home</a>
         <a href="blog.html">Blog</a>
         <a href="cycling_encyclopedia.html">Encyclopedia</a>
         <a href="about.html">About</a>
@@ -87,7 +90,7 @@
 
 <nav class="fixed top-0 left-0 w-full z-50 bg-[#0b0f1a]/90 backdrop-blur-md border-b border-slate-800 px-6 py-4">
     <div class="max-w-6xl mx-auto flex justify-between items-center">
-        <a href="../index.html" class="text-xl font-black italic uppercase tracking-tighter text-white">
+        <a href="index.html" class="text-xl font-black italic uppercase tracking-tighter text-white">
             Bike<span class="neon-text">Scout</span>
         </a>
         <div class="hidden md:flex gap-8 font-bold text-xs uppercase tracking-widest text-slate-400">
@@ -101,46 +104,50 @@
 
 <article class="max-w-3xl mx-auto py-20 px-6">
     <header class="mb-12 border-b border-slate-800 pb-12">
-        <h1 class="text-4xl md:text-6xl font-black uppercase italic text-white leading-none tracking-tighter">Vertical Awareness: <br><span class="neon-text">The "Wall-Sense" Engine</span></h1>
-        <p class="text-slate-500 font-bold uppercase tracking-widest text-sm italic">Released: April 17, 2026</p>
+        <h1 class="text-4xl md:text-6xl font-black uppercase italic text-white leading-none tracking-tighter">Dynamic <br><span class="neon-text">Safety Thresholds (DST)</span></h1>
+        <p class="text-slate-500 font-bold uppercase tracking-widest text-sm italic">Tactical Weather Logic & Multi-Factor Risk Assessment</p>
     </header>
 
     <div class="article-content">
-        <p>A 10% gradient is a number. A 200-meter wall of volcanic mud at 18% is a tactical crisis. Most routing engines smooth out the pain, averaging the incline over miles. <strong>BikeScout doesn't smooth. It amplifies.</strong></p>
+        <p>In tactical cycling, a 20 km/h wind means a slight annoyance, but a 45 km/h wind on an exposed ridge is a mission-critical hazard. <strong>Dynamic Safety Thresholds (DST)</strong> is the engine within BikeScout that translates raw meteorological telemetry into actionable safety protocols.</p>
 
-        <p>Today we announce the deployment of the <strong>High-Fidelity Altimetry Engine</strong>. By bypassing standard payload constraints and moving to a localized caching system, BikeScout can now render pixel-perfect vertical profiles that highlight anaerobic trap zones.</p>
+        <h2>Beyond Raw Data</h2>
+        <p>Weather stations provide values; DST provides <strong>context</strong>. By applying specific cycling-centric thresholds to temperature, precipitation probability, and wind velocity, BikeScout can identify dangerous conditions that general-purpose weather apps often ignore.</p>
 
-        <h2>The Problem: The "Average" Trap</h2>
-        <p>Standard GPX viewers often hide the "Wall". They tell you a climb is 6% average, but they miss the 15% ramp hidden behind the forest curve. For a cyclist, this lack of data leads to poor pacing, incorrect gear ratios, and total energy depletion.</p>
+        <div class="logic-card">
+            <h3 class="text-white font-bold mb-4 mono text-sm">// RISK CATEGORIES</h3>
+            <ul class="space-y-4">
+                <li class="flex gap-4">
+                    <span class="text-red-500 font-black">CRITICAL:</span>
+                    <span class="text-slate-400 text-sm">Wind > 45 km/h or Rain > 50%. High risk of structural trail failure or uncontrollable bike handling.</span>
+                </li>
+                <li class="flex gap-4">
+                    <span class="text-orange-500 font-black">EXPOSURE:</span>
+                    <span class="text-slate-400 text-sm">Temp > 30°C. High heat exhaustion risk. Electrolyte and hydration protocols activated.</span>
+                </li>
+                <li class="flex gap-4">
+                    <span class="text-blue-400 font-black">THERMAL:</span>
+                    <span class="text-slate-400 text-sm">Temp < 7°C. Hypothermia risk in descents. Recommendation for thermal layering.</span>
+                </li>
+            </ul>
+        </div>
 
-        <h2>The Solution: High-Resolution Sparklines</h2>
-        <p>The updated <code>get_elevation_profile_image</code> tool now generates tactical sparklines with chromatic scaling:
-        <ul class="list-disc list-inside mb-4 text-slate-400">
-            <li><strong class="text-green-400">Green:</strong> Efficiency Zones (<3%)</li>
-            <li><strong class="text-yellow-400">Yellow:</strong> Power Thresholds (4-9%)</li>
-            <li><strong class="text-red-500">Red:</strong> The "Wall" (>10%)</li>
-        </ul>
-        </p>
-        <p>By saving these reports directly to the user's home directory (<code>~/.bikescout/altimetry/</code>), we maintain total visual fidelity without compromising the performance of the MCP server.</p>
+        <h2>Multi-Factor Assessment</h2>
+        <p>The strength of DST lies in its ability to understand the environment. For example, a "Chilly" warning at 14°C triggers a recommendation for arm warmers, a specific tactical gear advice that ensures the rider maintains optimal core temperature throughout the mission.</p>
 
-        <h2>Tactical Export: Waypoint Injection</h2>
-        <p>Knowledge is useless without execution. Our <strong>Wall-Sense</strong> logic now injects tactical waypoints directly into your GPX file. When your GPS screams "WALL: 14%", it's not guessing, it's reading the precise elevation delta calculated by BikeScout's latest decimation algorithm.</p>
-
-        <h2>Gear for the Vertical</h2>
-        <p>The <code>mud_risk_score</code> and <code>climb_intensity</code> now work in synergy. If the TAEL algorithm detects Shadow-Locked mud on a Red Zone Wall, BikeScout will advise a significant drop in tire pressure or a route bypass. This isn't just navigation; it's survival intelligence.</p>
-
-
+        <h2>Integration with Mud Intelligence</h2>
+        <p>DST data is directly fed into the <strong>TAEL Model</strong>. High precipitation probability scores don't just trigger a "Rain" warning; they update the <code>mud_risk_score</code> for the next 72 hours, creating a persistent memory of the terrain's state.</p>
 
         <div class="mt-16 flex flex-wrap gap-4">
-            <span class="bg-slate-900 border border-slate-700 px-3 py-1 text-[10px] mono uppercase text-slate-400">#Wall-Sense</span>
-            <span class="bg-slate-900 border border-slate-700 px-3 py-1 text-[10px] mono uppercase text-slate-400">#Gradient-Intelligence</span>
-            <span class="bg-slate-900 border border-slate-700 px-3 py-1 text-[10px] mono uppercase text-slate-400">#MCP-Update</span>
+            <span class="bg-slate-900 border border-slate-700 px-3 py-1 text-[10px] mono uppercase text-slate-400">#Risk-Management</span>
+            <span class="bg-slate-900 border border-slate-700 px-3 py-1 text-[10px] mono uppercase text-slate-400">#Meteorology</span>
+            <span class="bg-slate-900 border border-slate-700 px-3 py-1 text-[10px] mono uppercase text-slate-400">#DST</span>
         </div>
     </div>
 </article>
 
 <footer class="py-12 border-t border-slate-900 text-center text-slate-600 mono text-[10px] uppercase tracking-[0.4em]">
-    BikeScout @ 2026 // <span class="text-white">hifly81</span>
+    BikeScout @ 2026// <span class="text-white">hifly81</span>
 </footer>
 
 <script>
@@ -157,6 +164,14 @@
     closeBtn.addEventListener('click', () => {
         mobileMenu.classList.add('hidden');
         document.body.style.overflow = 'auto';
+    });
+
+
+    mobileMenu.querySelectorAll('a').forEach(link => {
+        link.addEventListener('click', () => {
+            mobileMenu.classList.add('hidden');
+            document.body.style.overflow = 'auto';
+        });
     });
 </script>
 </body>

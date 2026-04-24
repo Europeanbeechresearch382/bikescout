@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>BikeScout Encyclopedia | S-Scale: Technical Trail Grading</title>
+    <title>BikeScout Encyclopedia | Hydration Scout: Metabolic & Thermal Modeling</title>
     <meta name="description" content="Transform raw map data into Tactical Intelligence. BikeScout is the first MCP server for AI agents to predict mud risk, S-Scale terrain and E-MTB range. Optimize your mission.">
     <meta name="keywords" content="MCP Server, Model Context Protocol, MTB Intelligence, Gravel Scouting, Cycling Geodata, Mud Prediction, Trail Analysis, Strava Integration">
     <meta name="robots" content="index, follow">
@@ -13,7 +13,7 @@
     <meta property="og:description" content="Stop guessing. Analyze soil drainage, technical grade and elevation with the first MCP-powered cycling scout.">
     <meta property="og:type" content="website">
     <meta property="og:url" content="https://hifly81.github.io/bikescout">
-    <meta property="og:image" content="https://hifly81.github.io/bikescout/site/images/preview.png">
+    <meta property="og:image" content="https://hifly81.github.io/bikescout/images/preview.png">
     <meta http-equiv="content-language" content="en">
 
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-YTC60Z790M"></script>
@@ -35,7 +35,7 @@
   "operatingSystem": "Independent (MCP Protocol)",
   "downloadUrl": "https://github.com/hifly81/bikescout",
   "license": "https://opensource.org/licenses/apache-2.0",
-  "softwareVersion": "1.1.1",
+  "softwareVersion": "1.1.2",
   "keywords": "MCP server, cycling intelligence, predictive mud logic, S-Scale MTB, OpenStreetMap AI, tactical cycling",
   "author": {
     "@type": "Person",
@@ -55,7 +55,7 @@
     "Tactical POI Discovery: Real-time identification of strategic water points and shelters.",
     "Dynamic GPX Generation: Tailored routing based on technical skill and bike type."
   ],
-  "screenshot": "https://hifly81.github.io/bikescout/site/images/preview.png",
+  "screenshot": "https://hifly81.github.io/bikescout/images/preview.png",
   "softwareRequirements": "Python 3.10+, MCP Client (Claude Desktop, etc.)"
 }
 </script>
@@ -70,9 +70,10 @@
         .article-content h2 { color: white; font-weight: 900; font-style: italic; text-transform: uppercase; margin-top: 3rem; margin-bottom: 1rem; font-size: 1.5rem; }
         .article-content p { margin-bottom: 1.5rem; color: #94a3b8; font-size: 1.125rem; }
         .article-content strong { color: #e2e8f0; }
-        .grading-table { width: 100%; border-collapse: collapse; margin: 2rem 0; background: #1a202c; border-radius: 0.5rem; overflow: hidden; }
-        .grading-table th, .grading-table td { padding: 1rem; text-align: left; border-bottom: 1px solid #334155; }
-        .grading-table th { background: #0b0f1a; color: #bef264; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.1em; }
+        .article-content ul { margin-bottom: 1.5rem; list-style-type: none; }
+        .article-content li { color: #94a3b8; margin-bottom: 0.5rem; position: relative; padding-left: 1.5rem; }
+        .article-content li::before { content: "//"; position: absolute; left: 0; color: #bef264; font-family: 'JetBrains Mono'; font-weight: bold; }
+        .tech-box { background: #0f172a; border: 1px solid #1e293b; border-left: 4px solid #bef264; padding: 1.5rem; margin: 2rem 0; }
     </style>
 </head>
 <body class="bg-[#0b0f1a] text-slate-200">
@@ -82,7 +83,7 @@
         <i class="fas fa-times"></i>
     </button>
     <div class="flex flex-col items-center gap-8 text-2xl font-black uppercase italic text-white">
-        <a href="../index.html">Home</a>
+        <a href="index.html">Home</a>
         <a href="blog.html">Blog</a>
         <a href="cycling_encyclopedia.html">Encyclopedia</a>
         <a href="about.html">About</a>
@@ -91,11 +92,11 @@
 
 <nav class="fixed top-0 left-0 w-full z-50 bg-[#0b0f1a]/90 backdrop-blur-md border-b border-slate-800 px-6 py-4">
     <div class="max-w-6xl mx-auto flex justify-between items-center">
-        <a href="../index.html" class="text-xl font-black italic uppercase tracking-tighter text-white">
+        <a href="index.html" class="text-xl font-black italic uppercase tracking-tighter text-white">
             Bike<span class="neon-text">Scout</span>
         </a>
         <div class="hidden md:flex gap-8 font-bold text-xs uppercase tracking-widest text-slate-400">
-            <a href="blog.html" class="hover:text-neon-text transition-colors">Blog</a>
+            <a href="blog.html" class="text-neon-text">Blog</a>
             <a href="cycling_encyclopedia.html" class="hover:text-neon-text transition-colors">Encyclopedia</a>
             <a href="about.html" class="hover:text-neon-text transition-colors">About</a>
         </div>
@@ -105,69 +106,41 @@
 
 <article class="max-w-3xl mx-auto py-20 px-6">
     <header class="mb-12 border-b border-slate-800 pb-12">
-        <h1 class="text-4xl md:text-6xl font-black uppercase italic text-white leading-none tracking-tighter">S-Scale <br><span class="neon-text">Trail Grading</span></h1>
-        <p class="text-slate-500 font-bold uppercase tracking-widest text-sm italic">Core Concept: Technical Difficulty Standards</p>
+        <h1 class="text-4xl md:text-6xl font-black uppercase italic text-white leading-none tracking-tighter">Hydration <br><span class="neon-text">Scout</span></h1>
+        <p class="text-slate-500 font-bold uppercase tracking-widest text-sm italic">Metabolic & Thermal Modeling</p>
     </header>
 
     <div class="article-content">
-        <p>In off-road exploration, distance and elevation only tell half the story. The S-Scale (Singletrail-Skala) is the international benchmark used by BikeScout to quantify the technical demand of a trail. By parsing OpenStreetMap (OSM) tags, we assign a grade from S0 to S5 to help riders determine if a mission matches their skill level and equipment.</p>
+        <p><strong>Hydration Scout</strong> is BikeScout’s bio-energetic engine. It solves the critical problem of "the wall" (bonking) by correlating geospatial effort with environmental thermal stress. Unlike generic calorie counters, it predicts the <strong>sweat rate</strong> and <strong>glycogen depletion</strong> specifically for off-road cycling conditions.</p>
 
-        <h2>Standard Classification</h2>
-        <p>BikeScout's <code>_analyze_technical_difficulty</code> module maps raw metadata into six distinct levels of technicality:</p>
+        <h2>The Dynamic Fluid Model</h2>
+        <p>The algorithm calculates hydration requirements by setting a baseline metabolic rate and adjusting it for every 5°C increase above the 20°C thermal threshold.</p>
 
-        <table class="grading-table">
-            <thead>
-            <tr>
-                <th>Grade</th>
-                <th>Description</th>
-                <th>Typical Obstacles</th>
-            </tr>
-            </thead>
-            <tbody>
-            <tr>
-                <td class="neon-text font-bold text-lg">S0</td>
-                <td>Easy / Flow</td>
-                <td>Smooth, firm soil, no obstacles.</td>
-            </tr>
-            <tr>
-                <td class="neon-text font-bold text-lg">S1</td>
-                <td>Intermediate</td>
-                <td>Small roots, loose stones, easy water bars.</td>
-            </tr>
-            <tr>
-                <td class="neon-text font-bold text-lg">S2</td>
-                <td>Advanced</td>
-                <td>Larger roots/stones, steps, shallow switchbacks.</td>
-            </tr>
-            <tr>
-                <td class="neon-text font-bold text-lg">S3</td>
-                <td>Technical</td>
-                <td>Rock gardens, high steps, tight hairpins.</td>
-            </tr>
-            <tr>
-                <td class="neon-text font-bold text-lg">S4</td>
-                <td>Extreme</td>
-                <td>Steep ramps, switchbacks requiring trial skills.</td>
-            </tr>
-            <tr>
-                <td class="neon-text font-bold text-lg">S5</td>
-                <td>Near Vertical</td>
-                <td>Maximum difficulty, high risk of falling.</td>
-            </tr>
-            </tbody>
-        </table>
+        <div class="tech-box">
+            <span class="mono text-neon-text font-bold">// HYDRATION FLOW FORMULA</span><br>
+            <span class="mono text-slate-400">Hourly_Fluid = (Base_500ml + Heat_Adjustment) * Intensity_Multiplier</span>
+        </div>
 
-        <h2>The Visibility Factor</h2>
-        <p>Technicality isn't just about rocks; it's about pathfinding. BikeScout integrates <strong>Trail Visibility</strong> metadata into the tactical briefing. This is critical for missions in volcanic or high-alpine environments where the trail can become "Invisible" (Visibility Level 4), requiring GPS-only navigation.</p>
+        <h2>Glycogen Prediction</h2>
+        <p>Intensity isn't just speed; it's a factor of vertical gain and technical terrain (HC climbs, technical singletracks). Hydration Scout categorizes intake into three tiers:</p>
+        <ul>
+            <li><strong>Low Intensity (<40):</strong> 40g Carbs/hr (Endurance/Z2).</li>
+            <li><strong>Moderate Intensity (40-70):</strong> 60g Carbs/hr (Tempo/Trail).</li>
+            <li><strong>High Intensity (>70):</strong> 80g+ Carbs/hr (Legendary HC Climbs).</li>
+        </ul>
 
-        <h2>Strategic Deployment</h2>
-        <p>The S-Scale grading directly influences the ASI (Actionable Setup Intelligence). If BikeScout detects an S3+ segment, it will automatically trigger a "Compliance Strategy" for tire pressure, even if the rest of the route is smooth. Furthermore, for Road profiles, any segment graded above S will trigger a critical safety warning.</p>
+        <h2>Tactical Advice & Safety</h2>
+        <p>Hydration Scout monitors for "Metabolic Redlines". If the forecasted temperature exceeds 28°C or the mission duration crosses the 3-hour mark, the system automatically triggers an <strong>Electrolyte Critical</strong> alert, recommending sodium supplementation to prevent hyponatremia.</p>
 
+        <div class="tech-box">
+            <span class="mono text-neon-text font-bold">// TACTICAL WARNING LOGIC</span><br>
+            <span class="mono text-slate-400">If (Temp > 28°C OR Duration > 3h): Trigger "Sodium Supplementation Needed"</span>
+        </div>
 
         <div class="mt-16 flex flex-wrap gap-4">
-            <span class="bg-slate-900 border border-slate-700 px-3 py-1 text-[10px] mono uppercase text-slate-400">#MTB-Scale</span>
-            <span class="bg-slate-900 border border-slate-700 px-3 py-1 text-[10px] mono uppercase text-slate-400">#Technical-Grading</span>
-            <span class="bg-slate-900 border border-slate-700 px-3 py-1 text-[10px] mono uppercase text-slate-400">#OSM-Intelligence</span>
+            <span class="bg-slate-900 border border-slate-700 px-3 py-1 text-[10px] mono uppercase text-slate-400">#Bio-Mechanics</span>
+            <span class="bg-slate-900 border border-slate-700 px-3 py-1 text-[10px] mono uppercase text-slate-400">#Metabolic-Fueling</span>
+            <span class="bg-slate-900 border border-slate-700 px-3 py-1 text-[10px] mono uppercase text-slate-400">#Hydration-Scout</span>
         </div>
     </div>
 </article>
@@ -189,13 +162,6 @@
     closeBtn.addEventListener('click', () => {
         mobileMenu.classList.add('hidden');
         document.body.style.overflow = 'auto';
-    });
-
-    mobileMenu.querySelectorAll('a').forEach(link => {
-        link.addEventListener('click', () => {
-            mobileMenu.classList.add('hidden');
-            document.body.style.overflow = 'auto';
-        });
     });
 </script>
 </body>

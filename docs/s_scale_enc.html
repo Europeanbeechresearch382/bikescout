@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>BikeScout Blog | MCP Server for Tactical Cycling Intelligence</title>
+    <title>BikeScout Encyclopedia | S-Scale: Technical Trail Grading</title>
     <meta name="description" content="Transform raw map data into Tactical Intelligence. BikeScout is the first MCP server for AI agents to predict mud risk, S-Scale terrain and E-MTB range. Optimize your mission.">
     <meta name="keywords" content="MCP Server, Model Context Protocol, MTB Intelligence, Gravel Scouting, Cycling Geodata, Mud Prediction, Trail Analysis, Strava Integration">
     <meta name="robots" content="index, follow">
@@ -13,14 +13,15 @@
     <meta property="og:description" content="Stop guessing. Analyze soil drainage, technical grade and elevation with the first MCP-powered cycling scout.">
     <meta property="og:type" content="website">
     <meta property="og:url" content="https://hifly81.github.io/bikescout">
-    <meta property="og:image" content="https://hifly81.github.io/bikescout/site/images/preview.png">
+    <meta property="og:image" content="https://hifly81.github.io/bikescout/images/preview.png">
     <meta http-equiv="content-language" content="en">
 
-     <script>
-     window.dataLayer = window.dataLayer || [];
-     function gtag(){dataLayer.push(arguments);}
-     gtag('js', new Date());
-     gtag('config', 'G-YTC60Z790M');
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-YTC60Z790M"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', 'G-YTC60Z790M');
     </script>
 
            <script type="application/ld+json">
@@ -34,7 +35,7 @@
   "operatingSystem": "Independent (MCP Protocol)",
   "downloadUrl": "https://github.com/hifly81/bikescout",
   "license": "https://opensource.org/licenses/apache-2.0",
-  "softwareVersion": "1.1.1",
+  "softwareVersion": "1.1.2",
   "keywords": "MCP server, cycling intelligence, predictive mud logic, S-Scale MTB, OpenStreetMap AI, tactical cycling",
   "author": {
     "@type": "Person",
@@ -54,7 +55,7 @@
     "Tactical POI Discovery: Real-time identification of strategic water points and shelters.",
     "Dynamic GPX Generation: Tailored routing based on technical skill and bike type."
   ],
-  "screenshot": "https://hifly81.github.io/bikescout/site/images/preview.png",
+  "screenshot": "https://hifly81.github.io/bikescout/images/preview.png",
   "softwareRequirements": "Python 3.10+, MCP Client (Claude Desktop, etc.)"
 }
 </script>
@@ -68,6 +69,10 @@
         .neon-text { color: #bef264; }
         .article-content h2 { color: white; font-weight: 900; font-style: italic; text-transform: uppercase; margin-top: 3rem; margin-bottom: 1rem; font-size: 1.5rem; }
         .article-content p { margin-bottom: 1.5rem; color: #94a3b8; font-size: 1.125rem; }
+        .article-content strong { color: #e2e8f0; }
+        .grading-table { width: 100%; border-collapse: collapse; margin: 2rem 0; background: #1a202c; border-radius: 0.5rem; overflow: hidden; }
+        .grading-table th, .grading-table td { padding: 1rem; text-align: left; border-bottom: 1px solid #334155; }
+        .grading-table th { background: #0b0f1a; color: #bef264; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.1em; }
     </style>
 </head>
 <body class="bg-[#0b0f1a] text-slate-200">
@@ -76,9 +81,8 @@
     <button id="close-btn" class="absolute top-6 right-6 text-3xl neon-text p-4">
         <i class="fas fa-times"></i>
     </button>
-
     <div class="flex flex-col items-center gap-8 text-2xl font-black uppercase italic text-white">
-        <a href="../index.html">Home</a>
+        <a href="index.html">Home</a>
         <a href="blog.html">Blog</a>
         <a href="cycling_encyclopedia.html">Encyclopedia</a>
         <a href="about.html">About</a>
@@ -87,11 +91,11 @@
 
 <nav class="fixed top-0 left-0 w-full z-50 bg-[#0b0f1a]/90 backdrop-blur-md border-b border-slate-800 px-6 py-4">
     <div class="max-w-6xl mx-auto flex justify-between items-center">
-        <a href="../index.html" class="text-xl font-black italic uppercase tracking-tighter text-white">
+        <a href="index.html" class="text-xl font-black italic uppercase tracking-tighter text-white">
             Bike<span class="neon-text">Scout</span>
         </a>
         <div class="hidden md:flex gap-8 font-bold text-xs uppercase tracking-widest text-slate-400">
-            <a href="blog.html" class="text-neon-text">Blog</a>
+            <a href="blog.html" class="hover:text-neon-text transition-colors">Blog</a>
             <a href="cycling_encyclopedia.html" class="hover:text-neon-text transition-colors">Encyclopedia</a>
             <a href="about.html" class="hover:text-neon-text transition-colors">About</a>
         </div>
@@ -101,43 +105,78 @@
 
 <article class="max-w-3xl mx-auto py-20 px-6">
     <header class="mb-12 border-b border-slate-800 pb-12">
-        <h1 class="text-4xl md:text-6xl font-black uppercase italic text-white leading-none tracking-tighter">Hello <br><span class="neon-text">Bikers!</span></h1>
-        <p class="text-slate-500 font-bold uppercase tracking-widest text-sm italic">Released: April 11, 2026</p>
+        <h1 class="text-4xl md:text-6xl font-black uppercase italic text-white leading-none tracking-tighter">S-Scale <br><span class="neon-text">Trail Grading</span></h1>
+        <p class="text-slate-500 font-bold uppercase tracking-widest text-sm italic">Core Concept: Technical Difficulty Standards</p>
     </header>
 
     <div class="article-content">
-        <p>Exactly one week ago, the first lines of code for BikeScout were pushed. It didn't start as a commercial product, but as a tool for riders who are tired of being lied to by their GPS apps.</p>
+        <p>In off-road exploration, distance and elevation only tell half the story. The S-Scale (Singletrail-Skala) is the international benchmark used by BikeScout to quantify the technical demand of a trail. By parsing OpenStreetMap (OSM) tags, we assign a grade from S0 to S5 to help riders determine if a mission matches their skill level and equipment.</p>
 
-        <p>We’ve all been there: your routing app promises a "smooth gravel road," but 5km in, you find yourself waist-deep in sticky clay or carrying your bike over an unrideable rock garden. This is the Geospatial Truth Gap, and BikeScout is here to close it.</p>
+        <h2>Standard Classification</h2>
+        <p>BikeScout's <code>_analyze_technical_difficulty</code> module maps raw metadata into six distinct levels of technicality:</p>
 
-        <h2>The Challenge: Surface Intelligence</h2>
-        <p>Standard maps classify roads by hierarchy (Primary, Secondary, Path). This works for cars, but it’s useless for cyclists. For us, a "path" could be a manicured forest road or a vertical S4-grade descent.</p>
-        <p>BikeScout solves this by performing Deep Tag Parsing. We extract every metadata detail from OpenStreetMap, surface, smoothness, tracktype, and width.
-        <h2>The Challenge: The Mud Variable</h2>
-        <p>A trail is a living thing. Its condition changes with the sky. Most apps ignore weather history, but BikeScout integrates a 72-Hour Rain Analysis. By cross-referencing rainfall volume with soil permeability (clay vs. sand), our engine predicts the "Mud Risk." If the intelligence says Critical, you better bring a fender or change your route.</p>
+        <table class="grading-table">
+            <thead>
+            <tr>
+                <th>Grade</th>
+                <th>Description</th>
+                <th>Typical Obstacles</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr>
+                <td class="neon-text font-bold text-lg">S0</td>
+                <td>Easy / Flow</td>
+                <td>Smooth, firm soil, no obstacles.</td>
+            </tr>
+            <tr>
+                <td class="neon-text font-bold text-lg">S1</td>
+                <td>Intermediate</td>
+                <td>Small roots, loose stones, easy water bars.</td>
+            </tr>
+            <tr>
+                <td class="neon-text font-bold text-lg">S2</td>
+                <td>Advanced</td>
+                <td>Larger roots/stones, steps, shallow switchbacks.</td>
+            </tr>
+            <tr>
+                <td class="neon-text font-bold text-lg">S3</td>
+                <td>Technical</td>
+                <td>Rock gardens, high steps, tight hairpins.</td>
+            </tr>
+            <tr>
+                <td class="neon-text font-bold text-lg">S4</td>
+                <td>Extreme</td>
+                <td>Steep ramps, switchbacks requiring trial skills.</td>
+            </tr>
+            <tr>
+                <td class="neon-text font-bold text-lg">S5</td>
+                <td>Near Vertical</td>
+                <td>Maximum difficulty, high risk of falling.</td>
+            </tr>
+            </tbody>
+        </table>
 
-        <h2>The Challenge: Real-World Elevation</h2>
-        <p>GPS data is inherently noisy. Standard GPX tracks are often riddled with micro-oscillations that create "phantom" vertical gains, those jagged profile lines that make a steady climb look like a saw blade. BikeScout doesn't try to "invent" smoothing where it isn't needed; it uses Tactical Decimation to reveal the true effort of the route.</p>
+        <h2>The Visibility Factor</h2>
+        <p>Technicality isn't just about rocks; it's about pathfinding. BikeScout integrates <strong>Trail Visibility</strong> metadata into the tactical briefing. This is critical for missions in volcanic or high-alpine environments where the trail can become "Invisible" (Visibility Level 4), requiring GPS-only navigation.</p>
 
-        <h2>One Week In: The Future</h2>
-        <p>We are just getting started. BikeScout is currently an MCP Server, meaning it acts as the "brain" that any AI can use to help you plan your missions. In just seven days, we’ve moved from a concept to a functional intelligence tool.</p>
+        <h2>Strategic Deployment</h2>
+        <p>The S-Scale grading directly influences the ASI (Actionable Setup Intelligence). If BikeScout detects an S3+ segment, it will automatically trigger a "Compliance Strategy" for tire pressure, even if the rest of the route is smooth. Furthermore, for Road profiles, any segment graded above S will trigger a critical safety warning.</p>
 
 
         <div class="mt-16 flex flex-wrap gap-4">
-            <span class="bg-slate-900 border border-slate-700 px-3 py-1 text-[10px] mono uppercase text-slate-400">#MCP-Server</span>
-            <span class="bg-slate-900 border border-slate-700 px-3 py-1 text-[10px] mono uppercase text-slate-400">#Geodata</span>
-            <span class="bg-slate-900 border border-slate-700 px-3 py-1 text-[10px] mono uppercase text-slate-400">#MTB-Intelligence</span>
+            <span class="bg-slate-900 border border-slate-700 px-3 py-1 text-[10px] mono uppercase text-slate-400">#MTB-Scale</span>
+            <span class="bg-slate-900 border border-slate-700 px-3 py-1 text-[10px] mono uppercase text-slate-400">#Technical-Grading</span>
+            <span class="bg-slate-900 border border-slate-700 px-3 py-1 text-[10px] mono uppercase text-slate-400">#OSM-Intelligence</span>
         </div>
     </div>
-
 </article>
 
 <footer class="py-12 border-t border-slate-900 text-center text-slate-600 mono text-[10px] uppercase tracking-[0.4em]">
-    BikeScout @ 2026// <span class="text-white">hifly81</span>
+    BikeScout @ 2026 // <span class="text-white">hifly81</span>
 </footer>
 
 <script>
-    // Mobile Menu logic
     const menuBtn = document.getElementById('menu-btn');
     const closeBtn = document.getElementById('close-btn');
     const mobileMenu = document.getElementById('mobile-menu');
@@ -151,7 +190,6 @@
         mobileMenu.classList.add('hidden');
         document.body.style.overflow = 'auto';
     });
-
 
     mobileMenu.querySelectorAll('a').forEach(link => {
         link.addEventListener('click', () => {

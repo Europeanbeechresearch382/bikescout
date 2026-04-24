@@ -3,7 +3,7 @@
 
 User-agent: *
 Allow: /
-Allow: /site/
+Allow: /docs/
 
 Disallow: /README.md
 Disallow: /LICENSE

@@ -2,7 +2,7 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
     <url>
         <loc>https://hifly81.github.io/bikescout/</loc>
-        <lastmod>2026-04-13</lastmod>
+        <lastmod>2026-04-24</lastmod>
         <changefreq>weekly</changefreq>
         <priority>1.0</priority>
     </url>
@@ -13,97 +13,103 @@
         <priority>0.9</priority>
     </url>
     <url>
-        <loc>https://hifly81.github.io/bikescout/site/blog.html</loc>
+        <loc>https://hifly81.github.io/bikescout/blog.html</loc>
         <lastmod>2026-04-13</lastmod>
         <changefreq>daily</changefreq>
         <priority>0.8</priority>
    </url>
    <url>
-        <loc>https://hifly81.github.io/bikescout/site/hello_bikers.html</loc>
+        <loc>https://hifly81.github.io/bikescout/hello_bikers.html</loc>
         <lastmod>2026-04-13</lastmod>
         <changefreq>daily</changefreq>
         <priority>0.8</priority>
     </url>
     <url>
-        <loc>https://hifly81.github.io/bikescout/site/roubaix_2026.html</loc>
+        <loc>https://hifly81.github.io/bikescout/roubaix_2026.html</loc>
         <lastmod>2026-04-13</lastmod>
         <changefreq>daily</changefreq>
         <priority>0.8</priority>
     </url>
     <url>
-        <loc>https://hifly81.github.io/bikescout/site/strava_feat.html</loc>
+        <loc>https://hifly81.github.io/bikescout/strava_feat.html</loc>
         <lastmod>2026-04-13</lastmod>
         <changefreq>daily</changefreq>
         <priority>0.8</priority>
     </url>
     <url>
-        <loc>https://hifly81.github.io/bikescout/site/why_mcp.html</loc>
+        <loc>https://hifly81.github.io/bikescout/why_mcp.html</loc>
         <lastmod>2026-04-13</lastmod>
         <changefreq>daily</changefreq>
         <priority>0.8</priority>
     </url>
     <url>
-        <loc>https://hifly81.github.io/bikescout/site/tael.html</loc>
+        <loc>https://hifly81.github.io/bikescout/tael.html</loc>
         <lastmod>2026-04-13</lastmod>
         <changefreq>daily</changefreq>
         <priority>0.8</priority>
     </url>
     <url>
-        <loc>https://hifly81.github.io/bikescout/site/wallsense.html</loc>
+        <loc>https://hifly81.github.io/bikescout/wallsense.html</loc>
         <lastmod>2026-04-18</lastmod>
         <changefreq>daily</changefreq>
         <priority>0.8</priority>
     </url>
     <url>
-        <loc>https://hifly81.github.io/bikescout/site/asi_enc.html</loc>
+        <loc>https://hifly81.github.io/bikescout/oropa.html</loc>
+        <lastmod>2026-04-24</lastmod>
+        <changefreq>daily</changefreq>
+        <priority>0.8</priority>
+    </url>
+    <url>
+        <loc>https://hifly81.github.io/bikescout/asi_enc.html</loc>
         <lastmod>2026-04-18</lastmod>
         <changefreq>daily</changefreq>
         <priority>0.8</priority>
     </url>
     <url>
-        <loc>https://hifly81.github.io/bikescout/site/cycling_encyclopedia.html</loc>
+        <loc>https://hifly81.github.io/bikescout/cycling_encyclopedia.html</loc>
         <lastmod>2026-04-18</lastmod>
         <changefreq>daily</changefreq>
         <priority>0.8</priority>
     </url>
     <url>
-        <loc>https://hifly81.github.io/bikescout/site/dst_enc.html</loc>
+        <loc>https://hifly81.github.io/bikescout/dst_enc.html</loc>
         <lastmod>2026-04-18</lastmod>
         <changefreq>daily</changefreq>
         <priority>0.8</priority>
     </url>
     <url>
-        <loc>https://hifly81.github.io/bikescout/site/geodesic_accuracy_enc.html</loc>
+        <loc>https://hifly81.github.io/bikescout/geodesic_accuracy_enc.html</loc>
         <lastmod>2026-04-18</lastmod>
         <changefreq>daily</changefreq>
         <priority>0.8</priority>
     </url>
     <url>
-        <loc>https://hifly81.github.io/bikescout/site/proy_climb_enc.html</loc>
+        <loc>https://hifly81.github.io/bikescout/proy_climb_enc.html</loc>
         <lastmod>2026-04-18</lastmod>
         <changefreq>daily</changefreq>
         <priority>0.8</priority>
     </url>
     <url>
-        <loc>https://hifly81.github.io/bikescout/site/s_scale_enc.html</loc>
+        <loc>https://hifly81.github.io/bikescout/s_scale_enc.html</loc>
         <lastmod>2026-04-13</lastmod>
         <changefreq>daily</changefreq>
         <priority>0.7</priority>
     </url>
     <url>
-        <loc>https://hifly81.github.io/bikescout/site/shadow_persistence_enc.html</loc>
+        <loc>https://hifly81.github.io/bikescout/shadow_persistence_enc.html</loc>
         <lastmod>2026-04-13</lastmod>
         <changefreq>daily</changefreq>
         <priority>0.7</priority>
     </url>
     <url>
-        <loc>https://hifly81.github.io/bikescout/site/tael_enc.html</loc>
+        <loc>https://hifly81.github.io/bikescout/tael_enc.html</loc>
         <lastmod>2026-04-13</lastmod>
         <changefreq>daily</changefreq>
         <priority>0.7</priority>
     </url>
     <url>
-        <loc>https://hifly81.github.io/bikescout/site/about.html</loc>
+        <loc>https://hifly81.github.io/bikescout/about.html</loc>
         <lastmod>2026-04-13</lastmod>
         <changefreq>monthly</changefreq>
         <priority>0.7</priority>

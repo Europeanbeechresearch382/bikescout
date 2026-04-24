@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>BikeScout Encyclopedia | Pro-Climb Categorization & Effort Multipliers</title>
+    <title>BikeScout Encyclopedia | Shadow Persistence & Solar Angle Analysis</title>
     <meta name="description" content="Transform raw map data into Tactical Intelligence. BikeScout is the first MCP server for AI agents to predict mud risk, S-Scale terrain and E-MTB range. Optimize your mission.">
     <meta name="keywords" content="MCP Server, Model Context Protocol, MTB Intelligence, Gravel Scouting, Cycling Geodata, Mud Prediction, Trail Analysis, Strava Integration">
     <meta name="robots" content="index, follow">
@@ -13,7 +13,7 @@
     <meta property="og:description" content="Stop guessing. Analyze soil drainage, technical grade and elevation with the first MCP-powered cycling scout.">
     <meta property="og:type" content="website">
     <meta property="og:url" content="https://hifly81.github.io/bikescout">
-    <meta property="og:image" content="https://hifly81.github.io/bikescout/site/images/preview.png">
+    <meta property="og:image" content="https://hifly81.github.io/bikescout/images/preview.png">
     <meta http-equiv="content-language" content="en">
 
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-YTC60Z790M"></script>
@@ -35,7 +35,7 @@
   "operatingSystem": "Independent (MCP Protocol)",
   "downloadUrl": "https://github.com/hifly81/bikescout",
   "license": "https://opensource.org/licenses/apache-2.0",
-  "softwareVersion": "1.1.1",
+  "softwareVersion": "1.1.2",
   "keywords": "MCP server, cycling intelligence, predictive mud logic, S-Scale MTB, OpenStreetMap AI, tactical cycling",
   "author": {
     "@type": "Person",
@@ -55,7 +55,7 @@
     "Tactical POI Discovery: Real-time identification of strategic water points and shelters.",
     "Dynamic GPX Generation: Tailored routing based on technical skill and bike type."
   ],
-  "screenshot": "https://hifly81.github.io/bikescout/site/images/preview.png",
+  "screenshot": "https://hifly81.github.io/bikescout/images/preview.png",
   "softwareRequirements": "Python 3.10+, MCP Client (Claude Desktop, etc.)"
 }
 </script>
@@ -70,8 +70,7 @@
         .article-content h2 { color: white; font-weight: 900; font-style: italic; text-transform: uppercase; margin-top: 3rem; margin-bottom: 1rem; font-size: 1.5rem; }
         .article-content p { margin-bottom: 1.5rem; color: #94a3b8; font-size: 1.125rem; }
         .article-content strong { color: #e2e8f0; }
-        .formula-card { background: #1a202c; border-left: 4px solid #bef264; padding: 1.5rem; margin: 2rem 0; font-family: 'JetBrains Mono', monospace; color: #bef264; font-size: 0.875rem; overflow-x: auto; }
-        .highlight-box { background: rgba(190, 242, 100, 0.05); border: 1px solid rgba(190, 242, 100, 0.2); padding: 1.5rem; border-radius: 0.5rem; margin: 2rem 0; }
+        .concept-map { background: #111827; border: 1px dashed #334155; padding: 2rem; border-radius: 0.5rem; margin: 2rem 0; text-align: center; }
     </style>
 </head>
 <body class="bg-[#0b0f1a] text-slate-200">
@@ -80,8 +79,9 @@
     <button id="close-btn" class="absolute top-6 right-6 text-3xl neon-text p-4">
         <i class="fas fa-times"></i>
     </button>
+
     <div class="flex flex-col items-center gap-8 text-2xl font-black uppercase italic text-white">
-        <a href="../index.html">Home</a>
+        <a href="index.html">Home</a>
         <a href="blog.html">Blog</a>
         <a href="cycling_encyclopedia.html">Encyclopedia</a>
         <a href="about.html">About</a>
@@ -90,11 +90,11 @@
 
 <nav class="fixed top-0 left-0 w-full z-50 bg-[#0b0f1a]/90 backdrop-blur-md border-b border-slate-800 px-6 py-4">
     <div class="max-w-6xl mx-auto flex justify-between items-center">
-        <a href="../index.html" class="text-xl font-black italic uppercase tracking-tighter text-white">
+        <a href="index.html" class="text-xl font-black italic uppercase tracking-tighter text-white">
             Bike<span class="neon-text">Scout</span>
         </a>
         <div class="hidden md:flex gap-8 font-bold text-xs uppercase tracking-widest text-slate-400">
-            <a href="blog.html" class="hover:text-neon-text transition-colors">Blog</a>
+            <a href="blog.html" class="text-neon-text">Blog</a>
             <a href="cycling_encyclopedia.html" class="hover:text-neon-text transition-colors">Encyclopedia</a>
             <a href="about.html" class="hover:text-neon-text transition-colors">About</a>
         </div>
@@ -104,60 +104,37 @@
 
 <article class="max-w-3xl mx-auto py-20 px-6">
     <header class="mb-12 border-b border-slate-800 pb-12">
-        <h1 class="text-4xl md:text-6xl font-black uppercase italic text-white leading-none tracking-tighter">Pro-Climb <br><span class="neon-text">Categorization</span></h1>
-        <p class="text-slate-500 font-bold uppercase tracking-widest text-sm italic">Core Concept: Vertical Intensity Analysis</p>
+        <h1 class="text-4xl md:text-6xl font-black uppercase italic text-white leading-none tracking-tighter">Shadow <br><span class="neon-text">Persistence</span></h1>
+        <p class="text-slate-500 font-bold uppercase tracking-widest text-sm italic">Solar Angle & Terrain Shading Analysis</p>
     </header>
 
     <div class="article-content">
-        <p>In professional cycling, not all meters climbed are equal. A 500m ascent on a paved road is a different physiological mission compared to 500m on a technical volcanic trail. Pro-Climb Categorization is the engine BikeScout uses to classify ascents into categories (from Cat 4 to the legendary Hors Catégorie), adjusted for bike-specific rolling resistance and terrain intensity.</p>
+        <p><strong>Shadow Persistence</strong> is the geospatial metric used by BikeScout to quantify how long a specific trail segment remains shielded from direct solar radiation. In the Northern Hemisphere, this primarily affects north-facing slopes (the "Dark Side"), which can stay dangerously wet while south-facing trails are bone-dry.</p>
 
-        <h2>The Effort Multiplier</h2>
-        <p>The core innovation of the Pro-Climb engine is the <code>effort_multiplier</code>. BikeScout recognizes that gravity and rolling resistance impact riders differently based on their equipment:</p>
-
-        <div class="highlight-box">
-            <ul class="space-y-4">
-                <li><strong class="neon-text">Road/Gravel (1.0x):</strong> The baseline for sustained, efficient climbing on predictable surfaces.</li>
-                <li><strong class="neon-text">MTB/XC (1.4x):</strong> Accounts for the increased energy cost of off-road traction and bike geometry.</li>
-                <li><strong class="neon-text">Enduro/Tech (1.6x):</strong> The maximum multiplier, reflecting the massive physical demand of punchy, technical climbs on heavy, long-travel machinery.</li>
-            </ul>
-        </div>
-
-        <h2>The Scoring Formula</h2>
-        <p>To assign a category, BikeScout calculates an Adjusted Effort Score. This formula combines the total vertical gain with the steepness of the climb, then applies the multiplier.</p>
-
-        <div class="formula-card">
-            Scoring_Gradient = min(Avg_Gradient, 18.0) <br>
-            Adjusted_Score = Total_Ascent * (Scoring_Gradient / 10) * Effort_Multiplier
-        </div>
-
-        <h2>Category Thresholds</h2>
-        <p>Based on the final score, the climb is assigned a rank following the professional standards of grand tours:</p>
-
-        <ul>
-            <li><strong>Hors Catégorie (HC):</strong> Legendary challenges (Score > 800 or Ascent > 1000m).</li>
-            <li><strong>Category 1:</strong> Brutal ascents requiring elite-level pacing.</li>
-            <li><strong>Category 2:</strong> Hard climbs that test endurance.</li>
-            <li><strong>Category 3:</strong> Challenging hills.</li>
-            <li><strong>Category 4:</strong> Short, intense burners.</li>
-        </ul>
-
-        <h2>Geodesic Precision</h2>
-        <p>Unlike standard apps that use flat-map distances, Pro-Climb relies on Geodesic Accuracy. By using the Haversine formula to measure the true horizontal baseline, BikeScout's gradient calculations (and thus the categorization) remain accurate even on the steepest "walls" where satellite data often fails.</p>
+        <h2>The Physics: Solar Azimuth & Elevation</h2>
+        <p>BikeScout calculates the Sun’s position in the sky (Azimuth and Elevation) based on the rider’s exact coordinates and the current UTC time. By cross-referencing this with the trail's <strong>Aspect</strong> (the direction the slope faces), we identify "Thermal Iceboxes".</p>
 
 
+
+        <h2>The "Critical 20" Rule</h2>
+        <p>Through our research, we have identified the "Critical 20" threshold. When the solar elevation angle is below 20 degrees, the energy delivered to the forest floor is insufficient to penetrate the canopy and trigger evaporation. During winter or in deep valley floors, Shadow Persistence can reach 100%, meaning the mud never dries.</p>
+
+        <h2>Integrated Intelligence</h2>
+        <p>Shadow Persistence is a key input for the <strong>TAEL Model</strong>. If a trail has high persistence, BikeScout will automatically trigger a "Traction Alert", warning the rider of potential ice or deep mud in shaded sectors, even if the regional weather forecast is "Sunny".</p>
+        
         <div class="mt-16 flex flex-wrap gap-4">
-            <span class="bg-slate-900 border border-slate-700 px-3 py-1 text-[10px] mono uppercase text-slate-400">#Climbing-Physics</span>
-            <span class="bg-slate-900 border border-slate-700 px-3 py-1 text-[10px] mono uppercase text-slate-400">#Effort-Multiplier</span>
-            <span class="bg-slate-900 border border-slate-700 px-3 py-1 text-[10px] mono uppercase text-slate-400">#King-Of-Mountains</span>
+            <span class="bg-slate-900 border border-slate-700 px-3 py-1 text-[10px] mono uppercase text-slate-400">#Solar-Intelligence</span>
+            <span class="bg-slate-900 border border-slate-700 px-3 py-1 text-[10px] mono uppercase text-slate-400">#Aspect-Analysis</span>
+            <span class="bg-slate-900 border border-slate-700 px-3 py-1 text-[10px] mono uppercase text-slate-400">#Photonic-Traction</span>
         </div>
     </div>
 </article>
-
 <footer class="py-12 border-t border-slate-900 text-center text-slate-600 mono text-[10px] uppercase tracking-[0.4em]">
-    BikeScout @ 2026 // <span class="text-white">hifly81</span>
+    BikeScout @ 2026// <span class="text-white">hifly81</span>
 </footer>
 
 <script>
+    // Mobile Menu logic
     const menuBtn = document.getElementById('menu-btn');
     const closeBtn = document.getElementById('close-btn');
     const mobileMenu = document.getElementById('mobile-menu');
@@ -171,6 +148,7 @@
         mobileMenu.classList.add('hidden');
         document.body.style.overflow = 'auto';
     });
+
 
     mobileMenu.querySelectorAll('a').forEach(link => {
         link.addEventListener('click', () => {

@@ -1,7 +1,7 @@
 # BikeScout MCP Server
 
 [![License: Apache 2.0](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
-[![Version](https://img.shields.io/badge/Version-1.1.1-green.svg)](https://github.com/hifly81/bikescout/releases)
+[![Version](https://img.shields.io/badge/Version-1.1.2-green.svg)](https://github.com/hifly81/bikescout/releases)
 ![Python](https://img.shields.io/badge/python-3.10-blue.svg)
 [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg?style=flat-square)](http://makeapullrequest.com)
 [![Discord](https://img.shields.io/badge/Discord-7289DA?style=flat&logo=discord&logoColor=white)](https://discord.gg/TCetrnAM5b)
@@ -20,11 +20,11 @@ The system provides precise setup advice, tailoring your equipment to the demand
 
 ## Explore BikeScout
 
-* **[BikeScout Documentation](site/md/api_docs.md)** **The Technical Core.** Detailed API references and step-by-step guides to deploy the MCP server. Essential for developers integrating BikeScout into Claude, ChatGPT, or custom AI agents.
+* **[BikeScout Documentation](docs/md/api_docs.md)** **The Technical Core.** Detailed API references and step-by-step guides to deploy the MCP server. Essential for developers integrating BikeScout into Claude, ChatGPT, or custom AI agents.
 
 * **[Official Website](https://hifly81.github.io/bikescout)** **The Strategic Hub.** A high-level overview of our predictive algorithms. Explore the visual breakdown of Mud Logic, S-Scale terrain grading, and how we transform raw OSM data into mission-ready intel.
 
-* **[Tactical Intelligence Blog](https://hifly81.github.io/bikescout/site/blog.html)** **Field Reports & R&D.** Stay ahead of the curve with our latest research on cycling AI, terrain analysis updates, and real-world testing of tactical routing logic.
+* **[Tactical Intelligence Blog](https://hifly81.github.io/bikescout/blog.html)** **Field Reports & R&D.** Stay ahead of the curve with our latest research on cycling AI, terrain analysis updates, and real-world testing of tactical routing logic.
 
 
 **Love BikeScout?** ⭐ Star this repo to support the development of the first open-source tactical cycling engine.
@@ -100,7 +100,7 @@ docker compose down -v
 
 If you prefer a private and free experience without external API costs, use the `docker-compose-ollama.yml`
 file to run BikeScout with Ollama (Llama 3/Mistral) instead of OpenAI.
-Refer to this [guide](site/md/bikescout_ollama.md) to setup a complete local installation with Ollama and Open WebUI.
+Refer to this [guide](docs/md/bikescout_ollama.md) to setup a complete local installation with Ollama and Open WebUI.
 
 ### Using the Source Code
 
@@ -113,7 +113,7 @@ Pre Requirements:
 
 To enable Strava integration, you need to create a developer application and generate a long-lived Refresh Token:
 
-See the related [how to obtain a Strava key section](site/md/strava_key.md)
+See the related [how to obtain a Strava key section](docs/md/strava_key.md)
 
 To integrate **BikeScout** with your preferred MCP client (Claude Desktop, Cline, Roo Code, etc.), add the following configuration to your settings file:
 
