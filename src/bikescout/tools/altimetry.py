@@ -93,7 +93,7 @@ def _generate_altimetry_plot(geometry: list, width: int = 8, height: int = 3):
 
     return img_base64
 
-def get_elevation_profile_image(geometry: RouteGeometry, width: int = 8, height: int = 3, style: Literal["sparkline", "filled", "bars"] = "sparkline"):
+def get_elevation_profile_image(geometry: RouteGeometry, uuid_input, width: int = 8, height: int = 3, style: Literal["sparkline", "filled", "bars"] = "sparkline"):
     """
     Generates an elevation profile, saves it to ~/.bikescout/altimetry/
     and performs auto-cleaning of old files.
@@ -120,7 +120,8 @@ def get_elevation_profile_image(geometry: RouteGeometry, width: int = 8, height:
         if not raw_data:
             return {"status": "Error", "message": "No plot data."}
 
-        filename = f"bs_altimetry_{uuid.uuid4().hex[:6]}.png"
+        unique_id = uuid_input if uuid_input else uuid.uuid4().hex[:6]
+        filename = f"bs_altimetry_{unique_id}.png"
         file_path = home_dir / filename
 
         with open(file_path, "wb") as f:

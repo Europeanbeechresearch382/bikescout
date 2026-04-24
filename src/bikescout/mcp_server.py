@@ -254,7 +254,7 @@ def elevation_profile_image(geometry: RouteGeometry, width: int = 8, height: int
         style: Visual style of the profile "sparkline", "filled", "bars".
     """
 
-    data = get_elevation_profile_image(geometry, width, height, style)
+    data = get_elevation_profile_image(geometry=geometry, width=width, height=height, style=style)
     return {"payload_version": BIKESCOUT_PROTOCOL_VERSION, **data}
 
 @mcp.tool()

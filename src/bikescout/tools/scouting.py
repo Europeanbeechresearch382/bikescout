@@ -3,7 +3,7 @@ import uuid
 import time
 from pathlib import Path
 from typing import Literal
-from bikescout.tools.maps import get_static_map_url
+from bikescout.tools.maps import save_local_tactical_map
 from bikescout.tools.weather import get_weather_forecast
 from bikescout.tools.surface import get_surface_analyzer
 from bikescout.tools.poi import get_poi_scout
@@ -41,7 +41,7 @@ def calculate_detailed_difficulty(dist_km: float, ascent_m: float) -> str:
     # 4. BEGINNER: Short and flat
     return "🟢 Beginner (Short and relatively flat, ideal for everyone)"
 
-def generate_tactical_gpx(geojson_data, amenities=[]):
+def generate_tactical_gpx(filename_part, geojson_data, amenities=[]):
     """
     Generates a GPX file with tactical waypoints and optimized track segments.
     Includes an Elevation Healing layer to fix SRTM data gaps (0.0 values).
@@ -156,7 +156,7 @@ def generate_tactical_gpx(geojson_data, amenities=[]):
 
         # 6. FILE PERSISTENCE
         full_content = gpx_xml + waypoints + track + '</gpx>'
-        filename = f"tactical_route_{uuid.uuid4().hex[:6]}.gpx"
+        filename = f"tactical_route_{filename_part}.gpx"
         file_path = home_dir / filename
 
         with open(file_path, "w", encoding="utf-8") as f:
@@ -213,6 +213,9 @@ def get_complete_trail_scout(
     try:
         # --- 2. EXECUTE PRIMARY ROUTING ---
         endpoint = f"{ORS_BASE_URL}/{mission.profile}/geojson"
+        headers = {'Authorization': api_key, 'Content-Type': 'application/json'}
+
+        # ORS Request Body
         response = requests.post(endpoint, json=routing_payload, headers=headers, timeout=15)
         response.raise_for_status()
         data = response.json()
@@ -299,13 +302,15 @@ def get_complete_trail_scout(
             }
         }
 
+        filename_part = uuid.uuid4().hex[:6]
+
         # --- 9. ARTIFACTS: MAP, GPX, ALTIMETRY ---
         if include_map:
-            response_payload["map_image_url"] = get_static_map_url(data)
+            response_payload["map_image_url"] = save_local_tactical_map(filename_part, data)
 
         if include_gpx:
             try:
-                gpx_report = generate_tactical_gpx(geojson_data=route_geo, amenities=amenities)
+                gpx_report = generate_tactical_gpx(filename_part, geojson_data=route_geo, amenities=amenities)
                 if gpx_report["status"] == "Success":
                     response_payload["gpx_export_path"] = gpx_report["file_location"]
                     response_payload["gpx_stats"] = gpx_report.get("tactical_stats")
@@ -314,7 +319,7 @@ def get_complete_trail_scout(
 
         if output_level != "summary":
             try:
-                altimetry_report = get_elevation_profile_image(geometry=route_geo)
+                altimetry_report = get_elevation_profile_image(geometry=route_geo, uuid_input=filename_part, style="filled")
                 if altimetry_report["status"] == "Success":
                     response_payload["elevation_profile_path"] = altimetry_report["file_location"]
                     response_payload["elevation_summary"] = altimetry_report.get("summary")

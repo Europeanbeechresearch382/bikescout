@@ -9,7 +9,6 @@ services:
       - STRAVA_CLIENT_ID=${STRAVA_CLIENT_ID}
       - STRAVA_CLIENT_SECRET=${STRAVA_CLIENT_SECRET}
       - STRAVA_REFRESH_TOKEN=${STRAVA_REFRESH_TOKEN}
-      - STADIA_API_KEY=${STADIA_API_KEY}
     networks:
       - mcp_network
 

@@ -31,7 +31,6 @@ services:
       - STRAVA_CLIENT_ID=${STRAVA_CLIENT_ID}
       - STRAVA_CLIENT_SECRET=${STRAVA_CLIENT_SECRET}
       - STRAVA_REFRESH_TOKEN=${STRAVA_REFRESH_TOKEN}
-      - STADIA_API_KEY=${STADIA_API_KEY}
     entrypoint: >
       sh -c "cd /app/mcp_servers/bikescout_project &&
              rm -rf venv && 

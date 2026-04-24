@@ -102,85 +102,115 @@ class ProCyclingEngine:
 
     def _process_segments(self, points, surface_type):
         """
-        Cleans GPS data. Applies SMA (Simple Moving Average) smoothing and
-        filters out distance jitter to prevent unrealistic gradient spikes.
+        Cleans and normalizes GPS data into logical track segments.
+
+        Uses distance accumulation instead of dropping points. This preserves
+        the total race distance and prevents artificial gradient spikes, ensuring
+        that the calculated slope matches real-world road conditions.
         """
-        # Define constraints based on surface type
-        # Road: Higher distance filter, lower grade cap (more smooth)
-        # MTB: Lower distance filter, higher grade cap (more reactive)
+        # Distance threshold to group points and safety caps for unrealistic gradients
         dist_filter = 15.0 if surface_type == "road" else 6.0
         grade_cap = 28.0 if surface_type == "road" else 45.0
 
-        # Elevation Smoothing (Window of 5 points to reduce barometric noise)
+        # Elevation Smoothing: Apply a Simple Moving Average (SMA) window of 5 points
+        # to mitigate barometric or GPS altitude noise.
         elevations = [p['ele'] for p in points]
         window_size = 5
         smoothed_ele = np.convolve(elevations, np.ones(window_size)/window_size, mode='same')
 
         segments = []
+        accumulated_dist = 0.0
+        start_idx = 0
+
         for i in range(len(points) - 1):
             p1, p2 = points[i], points[i+1]
+            # Calculate high-precision distance between coordinates
             dist = geodesic((p1['lat'], p1['lon']), (p2['lat'], p2['lon'])).meters
+            accumulated_dist += dist
 
-            # Skip noise jitter
-            if dist < dist_filter: continue
+            # Create a segment only once the minimum distance threshold is met
+            if accumulated_dist >= dist_filter:
+                elev_diff = smoothed_ele[i+1] - smoothed_ele[start_idx]
+                grade = (elev_diff / accumulated_dist) * 100
 
-            elev_diff = smoothed_ele[i+1] - smoothed_ele[i]
-            grade = (elev_diff / dist) * 100
+                # Apply Safety Cap to prevent outliers
+                grade = max(min(grade, grade_cap), -grade_cap)
 
-            # Apply Safety Cap
-            grade = max(min(grade, grade_cap), -grade_cap)
+                # Tactical Bearing calculation (Compass heading for wind analysis)
+                lat1, lon1 = math.radians(p1['lat']), math.radians(p1['lon'])
+                lat2, lon2 = math.radians(p2['lat']), math.radians(p2['lon'])
+                d_lon = lon2 - lon1
+                y = math.sin(d_lon) * math.cos(lat2)
+                x = math.cos(lat1) * math.sin(lat2) - math.sin(lat1) * math.cos(lat2) * math.cos(d_lon)
+                bearing = (math.degrees(math.atan2(y, x)) + 360) % 360
 
-            # Bearing calculation (Heading)
-            lat1, lon1 = math.radians(p1['lat']), math.radians(p1['lon'])
-            lat2, lon2 = math.radians(p2['lat']), math.radians(p2['lon'])
-            d_lon = lon2 - lon1
-            y = math.sin(d_lon) * math.cos(lat2)
-            x = math.cos(lat1) * math.sin(lat2) - math.sin(lat1) * math.cos(lat2) * math.cos(d_lon)
-            bearing = (math.degrees(math.atan2(y, x)) + 360) % 360
+                segments.append({
+                    'dist': accumulated_dist,
+                    'grade': grade,
+                    'bearing': bearing,
+                    'ele_start': smoothed_ele[start_idx],
+                    'ele_end': smoothed_ele[i+1],
+                    'lat': points[start_idx]['lat'],
+                    'lon': points[start_idx]['lon']
+                })
 
-            segments.append({
-                'dist': dist, 'grade': grade, 'bearing': bearing,
-                'ele_start': smoothed_ele[i], 'ele_end': smoothed_ele[i+1],
-                'lat': p1['lat'], 'lon': p1['lon']
-            })
+                # Reset accumulation for the next tactical segment
+                start_idx = i + 1
+                accumulated_dist = 0.0
+
         return segments
 
     def _detect_uci_climbs(self, segments):
         """
-        Groups segments into continuous climbs.
-        Allows for a 'flat buffer' of 200m to keep a climb unified even if
-        it contains short descents or flat sections.
+        Groups segments into continuous climbs using professional racing logic.
+
+        Implements an 'Elastic Buffer' (up to 1500m) to tolerate plateaus
+        and minor descents often found in iconic climbs (e.g., Oropa or Alpe d'Huez).
         """
         climbs = []
         current_climb = []
         flat_buffer = 0
+        flat_buffer_max = 1500  # 1.5km tolerance for plateaus/false flats
 
         for s in segments:
-            if s['grade'] > 2.0: # Threshold for climbing
+            if s['grade'] >= 1.0: # Threshold for active climbing
                 current_climb.append(s)
                 flat_buffer = 0
             elif current_climb:
+                # Potential plateau detected; temporarily sustain the climb
                 flat_buffer += s['dist']
-                if flat_buffer < 200: # Sustaining the climb through a brief plateau
-                    current_climb.append(s)
-                else:
+                current_climb.append(s)
+
+                if flat_buffer > flat_buffer_max:
+                    # Plateau too long; end the climb and trim trailing flat segments
+                    while current_climb and current_climb[-1]['grade'] < 1.0:
+                        current_climb.pop()
+
                     self._finalize_climb(current_climb, segments, climbs)
                     current_climb = []
                     flat_buffer = 0
 
+        # Close any active climb at the end of the track (e.g., Summit Finishes)
         if current_climb:
-            self._finalize_climb(current_climb, segments, climbs)
+            while current_climb and current_climb[-1]['grade'] < 1.0:
+                current_climb.pop()
+            if current_climb:
+                self._finalize_climb(current_climb, segments, climbs)
+
         return climbs
 
     def _finalize_climb(self, current_climb, all_segments, climbs_list):
-        """Calculates UCI Score and metadata for a detected climb."""
+        """
+        Calculates the official UCI Score and metadata for a verified climb.
+        """
         total_dist = sum(x['dist'] for x in current_climb)
         total_gain = current_climb[-1]['ele_end'] - current_climb[0]['ele_start']
 
-        # UCI Minimum: ~1.5km length and ~100m gain for a Cat 4
-        if total_dist > 1200 and total_gain > 80:
+        # Professional filters: Climb must be >1.5km or a significant 'Muro' (Wall)
+        if (total_dist > 1500 and total_gain > 80) or (total_dist > 500 and total_gain > 50):
             avg_grade = (total_gain / total_dist) * 100
-            score = total_gain * avg_grade / 10
+            # Classic UCI Intensity Score formula
+            score = (total_gain * avg_grade) / 10
 
             start_idx = all_segments.index(current_climb[0])
             km_start = sum(x['dist'] for x in all_segments[:start_idx]) / 1000
@@ -194,11 +224,15 @@ class ProCyclingEngine:
             })
 
     def _get_uci_cat(self, score, gain):
-        """Categorizes climbs based on UCI difficulty scores."""
-        if score > 600 or gain > 1000: return "HC"
-        if score > 350: return "Cat 1"
-        if score > 150: return "Cat 2"
-        if score > 50: return "Cat 3"
+        """
+        Categorizes climbs based on modern ASO/RCS Grand Tour metrics.
+
+        Calibrated for 2024/2026 World Tour standards
+        """
+        if score >= 650 or gain >= 1000: return "HC"
+        if score >= 400 or gain >= 600:  return "Cat 1"
+        if score >= 200 or gain >= 350:  return "Cat 2"
+        if score >= 80  or gain >= 150:  return "Cat 3"
         return "Cat 4"
 
     def _calculate_performance(self, climbs, rider_w, bike_w, intensity):
