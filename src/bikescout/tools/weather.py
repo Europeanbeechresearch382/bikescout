@@ -34,14 +34,12 @@ def get_safety_advice(temp: float, rain_prob: int, wind_speed: float) -> str:
 def get_weather_forecast(lat: float, lon: float, target_date: str = None):
     """
     Advanced cycling-specific weather engine for BikeScout.
-    Fetches hourly forecast data from Open-Meteo.
+    Fetches a full 24-hour hourly forecast from Open-Meteo.
 
     Args:
         lat: Latitude of the target location.
         lon: Longitude of the target location.
-        target_date: Optional string in 'YYYY-MM-DD' format.
-                     If provided, retrieves forecast for that specific day.
-                     If None, defaults to today's real-time forecast.
+        target_date: Optional 'YYYY-MM-DD' string. Defaults to today.
     """
     url = "https://api.open-meteo.com/v1/forecast"
 
@@ -50,7 +48,7 @@ def get_weather_forecast(lat: float, lon: float, target_date: str = None):
         target_date = date.today().isoformat()
 
     # 2. API Parameters:
-    # We use start_date and end_date to pin the analysis to a specific event day.
+    # Requesting full 24h data by pinning start/end dates to the target_date.
     params = {
         "latitude": lat,
         "longitude": lon,
@@ -70,46 +68,48 @@ def get_weather_forecast(lat: float, lon: float, target_date: str = None):
 
         hourly = data["hourly"]
 
-        # 3. Reference Hour Logic:
-        # If the analyzed day is TODAY, we start from the current hour.
-        # If it's a FUTURE date (e.g., a race), we start at 08:00 AM for tactical planning.
+        # 3. Dynamic Reference Index:
+        # For today's analysis, we use the current real-time hour.
+        # For future/past dates, we use 08:00 AM as the standard pro-cycling baseline.
         is_today = target_date == date.today().isoformat()
         current_hour_now = datetime.now().hour
-        start_hour = current_hour_now if is_today else 8
+        ref_idx = current_hour_now if is_today else 8
 
-        # 4. Extracting Reference Conditions:
-        # These are used to generate the Safety Advice (gear, tire pressure, etc.)
-        curr_temp = hourly['temperature_2m'][start_hour]
-        curr_rain = hourly['precipitation_probability'][start_hour]
-        curr_wind = hourly['windspeed_10m'][start_hour]
-
-        # 5. Build Forecast Window:
-        # We capture an 8-hour block to cover the full duration of most cycling stages.
+        # 4. Full-Day Tactical Forecast:
+        # We iterate through all 24 hours (0-23) to avoid truncating the race window.
+        # This allows ProCyclingEngine to slice any interval (e.g., 10:00 to 16:00).
         forecast_summary = []
-        for i in range(start_hour, min(start_hour + 8, 24)):
+        for i in range(24):
             forecast_summary.append({
-                "time": hourly["time"][i].split("T")[1], # Extract HH:MM
+                "time": hourly["time"][i].split("T")[1], # Returns "HH:MM"
                 "temp": f"{hourly['temperature_2m'][i]}°C",
                 "rain_prob": f"{hourly['precipitation_probability'][i]}%",
                 "wind": f"{hourly['windspeed_10m'][i]} km/h"
             })
 
-        # 6. Return Structured Payload
+        # 5. Extract Baseline Reference Conditions:
+        # These values drive the default safety advice and nutrition baselines.
+        curr_temp = hourly['temperature_2m'][ref_idx]
+        curr_rain = hourly['precipitation_probability'][ref_idx]
+        curr_wind = hourly['windspeed_10m'][ref_idx]
+
+        # 6. Return Structured Multi-Temporal Payload
         return {
             "status": "Success",
             "metadata": {
                 "date_analyzed": target_date,
                 "is_future_planning": not is_today,
-                "location": {"lat": lat, "lon": lon}
+                "location": {"lat": lat, "lon": lon},
+                "data_points": len(forecast_summary)
             },
-            "tactical_forecast": forecast_summary,
+            "tactical_forecast": forecast_summary, # Contains the full 24h set
             "reference_conditions": {
                 "temp": curr_temp,
                 "rain_prob": curr_rain,
                 "wind_speed": curr_wind,
-                "reference_hour": f"{start_hour}:00"
+                "reference_hour": f"{ref_idx}:00"
             },
-            # This method should be your existing logic for gear/risk advice
+            # Adaptive advice based on the reference point
             "safety_advice": get_safety_advice(curr_temp, curr_rain, curr_wind)
         }
 

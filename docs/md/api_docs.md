@@ -984,13 +984,16 @@ A professional-grade performance engine for high-fidelity race track auditing. I
 
 #### **Parameters:**
 
-| Parameter | Type | Default | Description |
-| :--- | :--- | :--- | :--- |
-| `gpx_url` | `string` | Required | Remote URL or local path of the GPX file to analyze. |
-| `rider_weight_kg` | `float` | Required | Body mass of the rider for Power-to-Weight calculations. |
-| `bike_weight_kg` | `float` | `7.5` | Mass of the bike (default is for pro road bikes). |
-| `pro_intensity` | `float` | `1.6` | Effort multiplier (**1.0** = amateur, **1.6** = pro pace, **2.0** = attack). |
-| `surface_type` | `string` | `"road"` | Terrain mode: `"road"` or `"mtb"` (affects noise filtering). |
+| Parameter         | Type     | Default | Description                                                                                |
+|:------------------|:---------| :--- |:-------------------------------------------------------------------------------------------|
+| `gpx_url`         | `string` | Required | Remote URL or local path of the GPX file to analyze.                                       |
+| `rider_weight_kg` | `float`  | Required | Body mass of the rider for Power-to-Weight calculations.                                   |
+| `bike_weight_kg`  | `float`  | `7.5` | Mass of the bike (default is for pro road bikes).                                          |
+| `pro_intensity`   | `float`  | `1.6` | Effort multiplier (**1.0** = amateur, **1.6** = pro pace, **2.0** = attack).               |
+| `surface_type`    | `string` | `"road"` | Terrain mode: `"road"` or `"mtb"` (affects noise filtering).                               |
+| `target_date`     | `string` | | Optional race date (YYYY-MM-DD). If provided, fetches historical or forecast weather.      |
+| `start_hour`      | `int`    |  | Expected start time (0-23). If provided with end_hour, calculates window-averaged metrics. |
+| `end_hour`        | `int`    |  | Expected end time (0-23). If provided with end_hour, calculates window-averaged metrics.   |
 
 **Example Output (JSON):**
 ```json
@@ -998,97 +1001,201 @@ A professional-grade performance engine for high-fidelity race track auditing. I
   "payload_version": "1.0",
   "status": "Success",
   "mode": "ROAD",
+  "target_date": "2026-04-26",
   "track_metrics": {
     "distance_km": 155.29,
     "total_ascent": 2245.6,
     "max_altitude": 1136
   },
+  "planning_tools": {
+    "weather_forecast": {
+      "status": "Success",
+      "metadata": {
+        "date_analyzed": "2026-04-26",
+        "is_future_planning": true,
+        "location": {
+          "lat": 45.25411,
+          "lon": 7.65618
+        },
+        "data_points": 24
+      },
+      "tactical_forecast": [
+        {
+          "time": "09:00",
+          "temp": "15.3°C",
+          "rain_prob": "0%",
+          "wind": "3.1 km/h"
+        },
+        {
+          "time": "10:00",
+          "temp": "17.7°C",
+          "rain_prob": "0%",
+          "wind": "2.5 km/h"
+        },
+        {
+          "time": "11:00",
+          "temp": "19.8°C",
+          "rain_prob": "0%",
+          "wind": "3.1 km/h"
+        },
+        {
+          "time": "12:00",
+          "temp": "21.4°C",
+          "rain_prob": "0%",
+          "wind": "3.9 km/h"
+        },
+        {
+          "time": "13:00",
+          "temp": "22.7°C",
+          "rain_prob": "0%",
+          "wind": "5.8 km/h"
+        },
+        {
+          "time": "14:00",
+          "temp": "23.3°C",
+          "rain_prob": "0%",
+          "wind": "6.1 km/h"
+        },
+        {
+          "time": "15:00",
+          "temp": "23.9°C",
+          "rain_prob": "0%",
+          "wind": "6.5 km/h"
+        },
+        {
+          "time": "16:00",
+          "temp": "24.5°C",
+          "rain_prob": "0%",
+          "wind": "6.3 km/h"
+        },
+        {
+          "time": "17:00",
+          "temp": "24.7°C",
+          "rain_prob": "0%",
+          "wind": "8.3 km/h"
+        }
+      ],
+      "reference_conditions": {
+        "temp": 21.9,
+        "rain_prob": 0,
+        "wind_speed": 4.9,
+        "reference_hour": "Average 10-16"
+      },
+      "safety_advice": "🌥️ CHILLY: Light jacket or arm warmers recommended."
+    },
+    "nutrition_plan": {
+      "status": "Success",
+      "mission_nutrition_briefing": {
+        "fluids": {
+          "total_liters": 4.7,
+          "hourly_rate_ml": 700
+        },
+        "carbohydrates": {
+          "total_grams": 535,
+          "hourly_target_g": 80,
+          "intensity_context": "High"
+        },
+        "tactical_advice": [
+          "ELECTROLYTE CRITICAL: High sweat rate or duration detected. Add sodium to bottles.",
+          "FUELING ALERT: High intensity detected. Train your gut for 80g+/hr intake."
+        ]
+      }
+    },
+    "mud_risk": null
+  },
   "climb_analysis": [
     {
-      "km_start": 79.8,
-      "dist_km": 1.6,
-      "gain_m": 112,
-      "avg_grade": 7,
+      "km_start": 0,
+      "dist_km": 1.44,
+      "gain_m": 143.2,
+      "avg_grade": 9.9,
       "category": "Cat 3"
     },
     {
-      "km_start": 83.1,
-      "dist_km": 2.27,
-      "gain_m": 161,
-      "avg_grade": 7.1,
+      "km_start": 36.5,
+      "dist_km": 2.29,
+      "gain_m": 58.8,
+      "avg_grade": 2.6,
+      "category": "Cat 4"
+    },
+    {
+      "km_start": 77,
+      "dist_km": 17.06,
+      "gain_m": 286,
+      "avg_grade": 1.7,
       "category": "Cat 3"
     },
     {
-      "km_start": 92.9,
-      "dist_km": 3.58,
-      "gain_m": 296.8,
-      "avg_grade": 8.3,
-      "category": "Cat 2"
-    },
-    {
-      "km_start": 102,
-      "dist_km": 1.42,
-      "gain_m": 221.2,
-      "avg_grade": 15.6,
-      "category": "Cat 2"
-    },
-    {
-      "km_start": 112.2,
-      "dist_km": 1.61,
-      "gain_m": 118,
-      "avg_grade": 7.3,
+      "km_start": 96.6,
+      "dist_km": 4.33,
+      "gain_m": 184.8,
+      "avg_grade": 4.3,
       "category": "Cat 3"
     },
     {
-      "km_start": 114.1,
-      "dist_km": 3.53,
-      "gain_m": 535.4,
-      "avg_grade": 15.2,
-      "category": "HC"
+      "km_start": 107.9,
+      "dist_km": 8.36,
+      "gain_m": 337,
+      "avg_grade": 4,
+      "category": "Cat 3"
+    },
+    {
+      "km_start": 123.8,
+      "dist_km": 8.2,
+      "gain_m": 234,
+      "avg_grade": 2.9,
+      "category": "Cat 3"
+    },
+    {
+      "km_start": 140.7,
+      "dist_km": 14.25,
+      "gain_m": 716.4,
+      "avg_grade": 5,
+      "category": "Cat 1"
     }
   ],
   "performance_simulation": [
     {
-      "climb": "Climb @ km 79.8",
+      "climb": "Climb @ km 0.0",
       "category": "Cat 3",
-      "target_vam": 1100,
-      "power_required_watts": 381.2,
-      "watts_per_kg": 5.29
+      "base_wkg": 5.29,
+      "weather_adjusted_wkg": 5.29
     },
     {
-      "climb": "Climb @ km 83.1",
+      "climb": "Climb @ km 36.5",
+      "category": "Cat 4",
+      "base_wkg": 5.29,
+      "weather_adjusted_wkg": 5.29
+    },
+    {
+      "climb": "Climb @ km 77.0",
       "category": "Cat 3",
-      "target_vam": 1100,
-      "power_required_watts": 381.2,
-      "watts_per_kg": 5.29
+      "base_wkg": 5.29,
+      "weather_adjusted_wkg": 5.29
     },
     {
-      "climb": "Climb @ km 92.9",
-      "category": "Cat 2",
-      "target_vam": 1100,
-      "power_required_watts": 381.2,
-      "watts_per_kg": 5.29
-    },
-    {
-      "climb": "Climb @ km 102.0",
-      "category": "Cat 2",
-      "target_vam": 1100,
-      "power_required_watts": 381.2,
-      "watts_per_kg": 5.29
-    },
-    {
-      "climb": "Climb @ km 112.2",
+      "climb": "Climb @ km 96.6",
       "category": "Cat 3",
-      "target_vam": 1100,
-      "power_required_watts": 381.2,
-      "watts_per_kg": 5.29
+      "base_wkg": 5.29,
+      "weather_adjusted_wkg": 5.29
     },
     {
-      "climb": "Climb @ km 114.1",
-      "category": "HC",
-      "target_vam": 1550,
-      "power_required_watts": 537.1,
-      "watts_per_kg": 7.46
+      "climb": "Climb @ km 107.9",
+      "category": "Cat 3",
+      "base_wkg": 5.29,
+      "weather_adjusted_wkg": 5.29
+    },
+    {
+      "climb": "Climb @ km 123.8",
+      "category": "Cat 3",
+      "base_wkg": 5.29,
+      "weather_adjusted_wkg": 5.29
+    },
+    {
+      "climb": "Climb @ km 140.7",
+      "category": "Cat 1",
+      "base_wkg": 6.5,
+      "weather_adjusted_wkg": 6.5
     }
   ],
   "tactical_alerts": [],
@@ -1104,8 +1211,43 @@ A professional-grade performance engine for high-fidelity race track auditing. I
       "type": "Steep Road Wall"
     },
     {
-      "km": 117.08,
-      "grade": 18.9,
+      "km": 97.89,
+      "grade": 25.6,
+      "type": "Steep Road Wall"
+    },
+    {
+      "km": 111.47,
+      "grade": 18.5,
+      "type": "Steep Road Wall"
+    },
+    {
+      "km": 111.5,
+      "grade": 23.9,
+      "type": "Steep Road Wall"
+    },
+    {
+      "km": 111.52,
+      "grade": 22.3,
+      "type": "Steep Road Wall"
+    },
+    {
+      "km": 128.1,
+      "grade": 23,
+      "type": "Steep Road Wall"
+    },
+    {
+      "km": 128.55,
+      "grade": 28,
+      "type": "Steep Road Wall"
+    },
+    {
+      "km": 129.06,
+      "grade": 25.4,
+      "type": "Steep Road Wall"
+    },
+    {
+      "km": 129.1,
+      "grade": 26.6,
       "type": "Steep Road Wall"
     }
   ]

@@ -21,7 +21,7 @@ OPENAI_API_KEY=your_llm_key_here
 ```bash
 docker compose -f docker-compose-ollama.yml up -d
 ```
-4. Download a LLM model for Ollama, example `llama3.1:8b` (or `gemma2:27b`):
+4. Download a LLM model for Ollama, example `llama3.1:8b` (or `gemma2:27b`) (or `qwen2.5-coder:32b`):
 ```bash
    docker exec -it ollama ollama pull llama3.1:8b
    docker exec -it ollama ollama pull qwen2.5-coder:32b
