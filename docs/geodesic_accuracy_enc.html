@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>BikeScout Encyclopedia | Shadow Persistence & Solar Angle Analysis</title>
+    <title>BikeScout Encyclopedia | Geodesic Accuracy & Haversine Grade Calculation</title>
     <meta name="description" content="Transform raw map data into Tactical Intelligence. BikeScout is the first MCP server for AI agents to predict mud risk, S-Scale terrain and E-MTB range. Optimize your mission.">
     <meta name="keywords" content="MCP Server, Model Context Protocol, MTB Intelligence, Gravel Scouting, Cycling Geodata, Mud Prediction, Trail Analysis, Strava Integration">
     <meta name="robots" content="index, follow">
@@ -13,7 +13,7 @@
     <meta property="og:description" content="Stop guessing. Analyze soil drainage, technical grade and elevation with the first MCP-powered cycling scout.">
     <meta property="og:type" content="website">
     <meta property="og:url" content="https://hifly81.github.io/bikescout">
-    <meta property="og:image" content="https://hifly81.github.io/bikescout/site/images/preview.png">
+    <meta property="og:image" content="https://hifly81.github.io/bikescout/images/preview.png">
     <meta http-equiv="content-language" content="en">
 
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-YTC60Z790M"></script>
@@ -55,7 +55,7 @@
     "Tactical POI Discovery: Real-time identification of strategic water points and shelters.",
     "Dynamic GPX Generation: Tailored routing based on technical skill and bike type."
   ],
-  "screenshot": "https://hifly81.github.io/bikescout/site/images/preview.png",
+  "screenshot": "https://hifly81.github.io/bikescout/images/preview.png",
   "softwareRequirements": "Python 3.10+, MCP Client (Claude Desktop, etc.)"
 }
 </script>
@@ -70,7 +70,7 @@
         .article-content h2 { color: white; font-weight: 900; font-style: italic; text-transform: uppercase; margin-top: 3rem; margin-bottom: 1rem; font-size: 1.5rem; }
         .article-content p { margin-bottom: 1.5rem; color: #94a3b8; font-size: 1.125rem; }
         .article-content strong { color: #e2e8f0; }
-        .concept-map { background: #111827; border: 1px dashed #334155; padding: 2rem; border-radius: 0.5rem; margin: 2rem 0; text-align: center; }
+        .formula-card { background: #1a202c; border-left: 4px solid #bef264; padding: 1.5rem; margin: 2rem 0; font-family: 'JetBrains Mono', monospace; color: #bef264; font-size: 0.875rem; overflow-x: auto; }
     </style>
 </head>
 <body class="bg-[#0b0f1a] text-slate-200">
@@ -81,7 +81,7 @@
     </button>
 
     <div class="flex flex-col items-center gap-8 text-2xl font-black uppercase italic text-white">
-        <a href="../index.html">Home</a>
+        <a href="index.html">Home</a>
         <a href="blog.html">Blog</a>
         <a href="cycling_encyclopedia.html">Encyclopedia</a>
         <a href="about.html">About</a>
@@ -90,7 +90,7 @@
 
 <nav class="fixed top-0 left-0 w-full z-50 bg-[#0b0f1a]/90 backdrop-blur-md border-b border-slate-800 px-6 py-4">
     <div class="max-w-6xl mx-auto flex justify-between items-center">
-        <a href="../index.html" class="text-xl font-black italic uppercase tracking-tighter text-white">
+        <a href="index.html" class="text-xl font-black italic uppercase tracking-tighter text-white">
             Bike<span class="neon-text">Scout</span>
         </a>
         <div class="hidden md:flex gap-8 font-bold text-xs uppercase tracking-widest text-slate-400">
@@ -104,31 +104,45 @@
 
 <article class="max-w-3xl mx-auto py-20 px-6">
     <header class="mb-12 border-b border-slate-800 pb-12">
-        <h1 class="text-4xl md:text-6xl font-black uppercase italic text-white leading-none tracking-tighter">Shadow <br><span class="neon-text">Persistence</span></h1>
-        <p class="text-slate-500 font-bold uppercase tracking-widest text-sm italic">Solar Angle & Terrain Shading Analysis</p>
+        <h1 class="text-4xl md:text-6xl font-black uppercase italic text-white leading-none tracking-tighter">Geodesic <br><span class="neon-text">Accuracy</span></h1>
+        <p class="text-slate-500 font-bold uppercase tracking-widest text-sm italic">Core Concept: Geospatial Intelligence</p>
     </header>
 
     <div class="article-content">
-        <p><strong>Shadow Persistence</strong> is the geospatial metric used by BikeScout to quantify how long a specific trail segment remains shielded from direct solar radiation. In the Northern Hemisphere, this primarily affects north-facing slopes (the "Dark Side"), which can stay dangerously wet while south-facing trails are bone-dry.</p>
+        <p>In the world of tactical cycling, distance is not a straight line on a flat map. Most consumer-grade cycling apps treat the Earth as a plane (Euclidean geometry), which leads to significant errors in distance and slope calculation. <strong>Geodesic Accuracy</strong> is the practice of measuring distance over the Earth's ellipsoidal surface.</p>
 
-        <h2>The Physics: Solar Azimuth & Elevation</h2>
-        <p>BikeScout calculates the Sun’s position in the sky (Azimuth and Elevation) based on the rider’s exact coordinates and the current UTC time. By cross-referencing this with the trail's <strong>Aspect</strong> (the direction the slope faces), we identify "Thermal Iceboxes".</p>
+        <p>BikeScout implements 100% Geodesic Accuracy to ensure that when we report a 15% gradient "Wall", it is physically accurate, whether you are riding at the Equator or the high latitudes of the Dolomites.</p>
+
+        <h2>The Problem: Meridian Distortion</h2>
+        <p>The distance between degrees of longitude shrinks as you move away from the Equator. At 45°N (common in the Alps or Oregon), a degree of longitude is roughly 30% shorter than at the Equator. If your routing engine uses fixed multipliers, your total distance will be wrong, and your slope calculations will be purely fictional.</p>
 
 
 
-        <h2>The "Critical 20" Rule</h2>
-        <p>Through our research, we have identified the "Critical 20" threshold. When the solar elevation angle is below 20 degrees, the energy delivered to the forest floor is insufficient to penetrate the canopy and trigger evaporation. During winter or in deep valley floors, Shadow Persistence can reach 100%, meaning the mud never dries.</p>
+        <h2>The Solution: The Haversine Formula</h2>
+        <p>To defeat this distortion, BikeScout ignores the summary data provided by standard APIs and recalculates every single coordinate segment using the <strong>Haversine Formula</strong>. This calculates the great-circle distance between two points on a sphere given their longitudes and latitudes.</p>
 
-        <h2>Integrated Intelligence</h2>
-        <p>Shadow Persistence is a key input for the <strong>TAEL Model</strong>. If a trail has high persistence, BikeScout will automatically trigger a "Traction Alert", warning the rider of potential ice or deep mud in shaded sectors, even if the regional weather forecast is "Sunny".</p>
-        
+        <div class="formula-card">
+            a = sin²(Δφ/2) + cos φ1 ⋅ cos φ2 ⋅ sin²(Δλ/2)<br>
+            c = 2 ⋅ atan2( √a, √(1−a) )<br>
+            d = R ⋅ c
+        </div>
+
+        <h2>Tactical Impact: The "Wall %" Credibility</h2>
+        <p>Gradient (Slope) is the ratio between <strong>Vertical Gain</strong> and <strong>Horizontal Distance</strong>. By using Geodesic distance as our horizontal baseline, BikeScout eliminates the "flattening" effect of map projections. This is why our <code>climb_category</code> and <code>avg_gradient</code> metrics match the physical effort felt by the rider's legs, providing a higher level of tactical trust than generic GPS trackers.</p>
+
+        <h2>Why it Matters for AI</h2>
+        <p>Large Language Models (LLMs) cannot "feel" the terrain. They rely on the data we feed them. By providing Geodesically Accurate telemetry through the MCP protocol, BikeScout ensures the AI can accurately predict energy expenditure and technical difficulty without being misled by map distortion.</p>
+
+
         <div class="mt-16 flex flex-wrap gap-4">
-            <span class="bg-slate-900 border border-slate-700 px-3 py-1 text-[10px] mono uppercase text-slate-400">#Solar-Intelligence</span>
-            <span class="bg-slate-900 border border-slate-700 px-3 py-1 text-[10px] mono uppercase text-slate-400">#Aspect-Analysis</span>
-            <span class="bg-slate-900 border border-slate-700 px-3 py-1 text-[10px] mono uppercase text-slate-400">#Photonic-Traction</span>
+            <span class="bg-slate-900 border border-slate-700 px-3 py-1 text-[10px] mono uppercase text-slate-400">#Geodesy</span>
+            <span class="bg-slate-900 border border-slate-700 px-3 py-1 text-[10px] mono uppercase text-slate-400">#Haversine</span>
+            <span class="bg-slate-900 border border-slate-700 px-3 py-1 text-[10px] mono uppercase text-slate-400">#Tactical-Briefing</span>
         </div>
     </div>
+
 </article>
+
 <footer class="py-12 border-t border-slate-900 text-center text-slate-600 mono text-[10px] uppercase tracking-[0.4em]">
     BikeScout @ 2026// <span class="text-white">hifly81</span>
 </footer>

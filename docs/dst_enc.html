@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>BikeScout Encyclopedia | S-Scale: Technical Trail Grading</title>
+    <title>BikeScout Encyclopedia | DST: Dynamic Safety Thresholds</title>
     <meta name="description" content="Transform raw map data into Tactical Intelligence. BikeScout is the first MCP server for AI agents to predict mud risk, S-Scale terrain and E-MTB range. Optimize your mission.">
     <meta name="keywords" content="MCP Server, Model Context Protocol, MTB Intelligence, Gravel Scouting, Cycling Geodata, Mud Prediction, Trail Analysis, Strava Integration">
     <meta name="robots" content="index, follow">
@@ -13,7 +13,7 @@
     <meta property="og:description" content="Stop guessing. Analyze soil drainage, technical grade and elevation with the first MCP-powered cycling scout.">
     <meta property="og:type" content="website">
     <meta property="og:url" content="https://hifly81.github.io/bikescout">
-    <meta property="og:image" content="https://hifly81.github.io/bikescout/site/images/preview.png">
+    <meta property="og:image" content="https://hifly81.github.io/bikescout/images/preview.png">
     <meta http-equiv="content-language" content="en">
 
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-YTC60Z790M"></script>
@@ -55,7 +55,7 @@
     "Tactical POI Discovery: Real-time identification of strategic water points and shelters.",
     "Dynamic GPX Generation: Tailored routing based on technical skill and bike type."
   ],
-  "screenshot": "https://hifly81.github.io/bikescout/site/images/preview.png",
+  "screenshot": "https://hifly81.github.io/bikescout/images/preview.png",
   "softwareRequirements": "Python 3.10+, MCP Client (Claude Desktop, etc.)"
 }
 </script>
@@ -70,9 +70,7 @@
         .article-content h2 { color: white; font-weight: 900; font-style: italic; text-transform: uppercase; margin-top: 3rem; margin-bottom: 1rem; font-size: 1.5rem; }
         .article-content p { margin-bottom: 1.5rem; color: #94a3b8; font-size: 1.125rem; }
         .article-content strong { color: #e2e8f0; }
-        .grading-table { width: 100%; border-collapse: collapse; margin: 2rem 0; background: #1a202c; border-radius: 0.5rem; overflow: hidden; }
-        .grading-table th, .grading-table td { padding: 1rem; text-align: left; border-bottom: 1px solid #334155; }
-        .grading-table th { background: #0b0f1a; color: #bef264; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.1em; }
+        .logic-card { background: #0f172a; border-radius: 1rem; padding: 2rem; border: 1px solid #1e293b; margin: 2rem 0; }
     </style>
 </head>
 <body class="bg-[#0b0f1a] text-slate-200">
@@ -81,8 +79,9 @@
     <button id="close-btn" class="absolute top-6 right-6 text-3xl neon-text p-4">
         <i class="fas fa-times"></i>
     </button>
+
     <div class="flex flex-col items-center gap-8 text-2xl font-black uppercase italic text-white">
-        <a href="../index.html">Home</a>
+        <a href="index.html">Home</a>
         <a href="blog.html">Blog</a>
         <a href="cycling_encyclopedia.html">Encyclopedia</a>
         <a href="about.html">About</a>
@@ -91,11 +90,11 @@
 
 <nav class="fixed top-0 left-0 w-full z-50 bg-[#0b0f1a]/90 backdrop-blur-md border-b border-slate-800 px-6 py-4">
     <div class="max-w-6xl mx-auto flex justify-between items-center">
-        <a href="../index.html" class="text-xl font-black italic uppercase tracking-tighter text-white">
+        <a href="index.html" class="text-xl font-black italic uppercase tracking-tighter text-white">
             Bike<span class="neon-text">Scout</span>
         </a>
         <div class="hidden md:flex gap-8 font-bold text-xs uppercase tracking-widest text-slate-400">
-            <a href="blog.html" class="hover:text-neon-text transition-colors">Blog</a>
+            <a href="blog.html" class="text-neon-text">Blog</a>
             <a href="cycling_encyclopedia.html" class="hover:text-neon-text transition-colors">Encyclopedia</a>
             <a href="about.html" class="hover:text-neon-text transition-colors">About</a>
         </div>
@@ -105,78 +104,54 @@
 
 <article class="max-w-3xl mx-auto py-20 px-6">
     <header class="mb-12 border-b border-slate-800 pb-12">
-        <h1 class="text-4xl md:text-6xl font-black uppercase italic text-white leading-none tracking-tighter">S-Scale <br><span class="neon-text">Trail Grading</span></h1>
-        <p class="text-slate-500 font-bold uppercase tracking-widest text-sm italic">Core Concept: Technical Difficulty Standards</p>
+        <h1 class="text-4xl md:text-6xl font-black uppercase italic text-white leading-none tracking-tighter">Dynamic <br><span class="neon-text">Safety Thresholds (DST)</span></h1>
+        <p class="text-slate-500 font-bold uppercase tracking-widest text-sm italic">Tactical Weather Logic & Multi-Factor Risk Assessment</p>
     </header>
 
     <div class="article-content">
-        <p>In off-road exploration, distance and elevation only tell half the story. The S-Scale (Singletrail-Skala) is the international benchmark used by BikeScout to quantify the technical demand of a trail. By parsing OpenStreetMap (OSM) tags, we assign a grade from S0 to S5 to help riders determine if a mission matches their skill level and equipment.</p>
+        <p>In tactical cycling, a 20 km/h wind means a slight annoyance, but a 45 km/h wind on an exposed ridge is a mission-critical hazard. <strong>Dynamic Safety Thresholds (DST)</strong> is the engine within BikeScout that translates raw meteorological telemetry into actionable safety protocols.</p>
 
-        <h2>Standard Classification</h2>
-        <p>BikeScout's <code>_analyze_technical_difficulty</code> module maps raw metadata into six distinct levels of technicality:</p>
+        <h2>Beyond Raw Data</h2>
+        <p>Weather stations provide values; DST provides <strong>context</strong>. By applying specific cycling-centric thresholds to temperature, precipitation probability, and wind velocity, BikeScout can identify dangerous conditions that general-purpose weather apps often ignore.</p>
 
-        <table class="grading-table">
-            <thead>
-            <tr>
-                <th>Grade</th>
-                <th>Description</th>
-                <th>Typical Obstacles</th>
-            </tr>
-            </thead>
-            <tbody>
-            <tr>
-                <td class="neon-text font-bold text-lg">S0</td>
-                <td>Easy / Flow</td>
-                <td>Smooth, firm soil, no obstacles.</td>
-            </tr>
-            <tr>
-                <td class="neon-text font-bold text-lg">S1</td>
-                <td>Intermediate</td>
-                <td>Small roots, loose stones, easy water bars.</td>
-            </tr>
-            <tr>
-                <td class="neon-text font-bold text-lg">S2</td>
-                <td>Advanced</td>
-                <td>Larger roots/stones, steps, shallow switchbacks.</td>
-            </tr>
-            <tr>
-                <td class="neon-text font-bold text-lg">S3</td>
-                <td>Technical</td>
-                <td>Rock gardens, high steps, tight hairpins.</td>
-            </tr>
-            <tr>
-                <td class="neon-text font-bold text-lg">S4</td>
-                <td>Extreme</td>
-                <td>Steep ramps, switchbacks requiring trial skills.</td>
-            </tr>
-            <tr>
-                <td class="neon-text font-bold text-lg">S5</td>
-                <td>Near Vertical</td>
-                <td>Maximum difficulty, high risk of falling.</td>
-            </tr>
-            </tbody>
-        </table>
+        <div class="logic-card">
+            <h3 class="text-white font-bold mb-4 mono text-sm">// RISK CATEGORIES</h3>
+            <ul class="space-y-4">
+                <li class="flex gap-4">
+                    <span class="text-red-500 font-black">CRITICAL:</span>
+                    <span class="text-slate-400 text-sm">Wind > 45 km/h or Rain > 50%. High risk of structural trail failure or uncontrollable bike handling.</span>
+                </li>
+                <li class="flex gap-4">
+                    <span class="text-orange-500 font-black">EXPOSURE:</span>
+                    <span class="text-slate-400 text-sm">Temp > 30°C. High heat exhaustion risk. Electrolyte and hydration protocols activated.</span>
+                </li>
+                <li class="flex gap-4">
+                    <span class="text-blue-400 font-black">THERMAL:</span>
+                    <span class="text-slate-400 text-sm">Temp < 7°C. Hypothermia risk in descents. Recommendation for thermal layering.</span>
+                </li>
+            </ul>
+        </div>
 
-        <h2>The Visibility Factor</h2>
-        <p>Technicality isn't just about rocks; it's about pathfinding. BikeScout integrates <strong>Trail Visibility</strong> metadata into the tactical briefing. This is critical for missions in volcanic or high-alpine environments where the trail can become "Invisible" (Visibility Level 4), requiring GPS-only navigation.</p>
+        <h2>Multi-Factor Assessment</h2>
+        <p>The strength of DST lies in its ability to understand the environment. For example, a "Chilly" warning at 14°C triggers a recommendation for arm warmers, a specific tactical gear advice that ensures the rider maintains optimal core temperature throughout the mission.</p>
 
-        <h2>Strategic Deployment</h2>
-        <p>The S-Scale grading directly influences the ASI (Actionable Setup Intelligence). If BikeScout detects an S3+ segment, it will automatically trigger a "Compliance Strategy" for tire pressure, even if the rest of the route is smooth. Furthermore, for Road profiles, any segment graded above S will trigger a critical safety warning.</p>
-
+        <h2>Integration with Mud Intelligence</h2>
+        <p>DST data is directly fed into the <strong>TAEL Model</strong>. High precipitation probability scores don't just trigger a "Rain" warning; they update the <code>mud_risk_score</code> for the next 72 hours, creating a persistent memory of the terrain's state.</p>
 
         <div class="mt-16 flex flex-wrap gap-4">
-            <span class="bg-slate-900 border border-slate-700 px-3 py-1 text-[10px] mono uppercase text-slate-400">#MTB-Scale</span>
-            <span class="bg-slate-900 border border-slate-700 px-3 py-1 text-[10px] mono uppercase text-slate-400">#Technical-Grading</span>
-            <span class="bg-slate-900 border border-slate-700 px-3 py-1 text-[10px] mono uppercase text-slate-400">#OSM-Intelligence</span>
+            <span class="bg-slate-900 border border-slate-700 px-3 py-1 text-[10px] mono uppercase text-slate-400">#Risk-Management</span>
+            <span class="bg-slate-900 border border-slate-700 px-3 py-1 text-[10px] mono uppercase text-slate-400">#Meteorology</span>
+            <span class="bg-slate-900 border border-slate-700 px-3 py-1 text-[10px] mono uppercase text-slate-400">#DST</span>
         </div>
     </div>
 </article>
 
 <footer class="py-12 border-t border-slate-900 text-center text-slate-600 mono text-[10px] uppercase tracking-[0.4em]">
-    BikeScout @ 2026 // <span class="text-white">hifly81</span>
+    BikeScout @ 2026// <span class="text-white">hifly81</span>
 </footer>
 
 <script>
+    // Mobile Menu logic
     const menuBtn = document.getElementById('menu-btn');
     const closeBtn = document.getElementById('close-btn');
     const mobileMenu = document.getElementById('mobile-menu');
@@ -190,6 +165,7 @@
         mobileMenu.classList.add('hidden');
         document.body.style.overflow = 'auto';
     });
+
 
     mobileMenu.querySelectorAll('a').forEach(link => {
         link.addEventListener('click', () => {

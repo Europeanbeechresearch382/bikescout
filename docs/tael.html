@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>BikeScout Blog | Wall-Sense: Beyond the 10% Barrier</title>
+    <title>BikeScout Blog | Shadow Lock: Defeating the Thermal Icebox</title>
     <meta name="description" content="Transform raw map data into Tactical Intelligence. BikeScout is the first MCP server for AI agents to predict mud risk, S-Scale terrain and E-MTB range. Optimize your mission.">
     <meta name="keywords" content="MCP Server, Model Context Protocol, MTB Intelligence, Gravel Scouting, Cycling Geodata, Mud Prediction, Trail Analysis, Strava Integration">
     <meta name="robots" content="index, follow">
@@ -13,7 +13,7 @@
     <meta property="og:description" content="Stop guessing. Analyze soil drainage, technical grade and elevation with the first MCP-powered cycling scout.">
     <meta property="og:type" content="website">
     <meta property="og:url" content="https://hifly81.github.io/bikescout">
-    <meta property="og:image" content="https://hifly81.github.io/bikescout/site/images/preview.png">
+    <meta property="og:image" content="https://hifly81.github.io/bikescout/images/preview.png">
     <meta http-equiv="content-language" content="en">
 
     <script>
@@ -54,7 +54,7 @@
     "Tactical POI Discovery: Real-time identification of strategic water points and shelters.",
     "Dynamic GPX Generation: Tailored routing based on technical skill and bike type."
   ],
-  "screenshot": "https://hifly81.github.io/bikescout/site/images/preview.png",
+  "screenshot": "https://hifly81.github.io/bikescout/images/preview.png",
   "softwareRequirements": "Python 3.10+, MCP Client (Claude Desktop, etc.)"
 }
 </script>
@@ -77,8 +77,9 @@
     <button id="close-btn" class="absolute top-6 right-6 text-3xl neon-text p-4">
         <i class="fas fa-times"></i>
     </button>
+
     <div class="flex flex-col items-center gap-8 text-2xl font-black uppercase italic text-white">
-        <a href="../index.html">Home</a>
+        <a href="index.html">Home</a>
         <a href="blog.html">Blog</a>
         <a href="cycling_encyclopedia.html">Encyclopedia</a>
         <a href="about.html">About</a>
@@ -87,7 +88,7 @@
 
 <nav class="fixed top-0 left-0 w-full z-50 bg-[#0b0f1a]/90 backdrop-blur-md border-b border-slate-800 px-6 py-4">
     <div class="max-w-6xl mx-auto flex justify-between items-center">
-        <a href="../index.html" class="text-xl font-black italic uppercase tracking-tighter text-white">
+        <a href="index.html" class="text-xl font-black italic uppercase tracking-tighter text-white">
             Bike<span class="neon-text">Scout</span>
         </a>
         <div class="hidden md:flex gap-8 font-bold text-xs uppercase tracking-widest text-slate-400">
@@ -101,46 +102,42 @@
 
 <article class="max-w-3xl mx-auto py-20 px-6">
     <header class="mb-12 border-b border-slate-800 pb-12">
-        <h1 class="text-4xl md:text-6xl font-black uppercase italic text-white leading-none tracking-tighter">Vertical Awareness: <br><span class="neon-text">The "Wall-Sense" Engine</span></h1>
-        <p class="text-slate-500 font-bold uppercase tracking-widest text-sm italic">Released: April 17, 2026</p>
+        <h1 class="text-4xl md:text-6xl font-black uppercase italic text-white leading-none tracking-tighter">Introducing <br><span class="neon-text">TAEL (Terrain-Aware Evaporation Lag)</span> algorithm.</h1>
+        <p class="text-slate-500 font-bold uppercase tracking-widest text-sm italic">Released: April 14, 2026</p>
     </header>
 
     <div class="article-content">
-        <p>A 10% gradient is a number. A 200-meter wall of volcanic mud at 18% is a tactical crisis. Most routing engines smooth out the pain, averaging the incline over miles. <strong>BikeScout doesn't smooth. It amplifies.</strong></p>
+        <p>Weather apps are lying to you. They see 18°C and a clear sky and tell you the trail is dry. But as every local pro knows, the ground has a memory. Today, we introduce the <strong>TAEL (Terrain-Aware Evaporation Lag)</strong> algorithm, the first photonic intelligence model for tactical cycling.</p>
 
-        <p>Today we announce the deployment of the <strong>High-Fidelity Altimetry Engine</strong>. By bypassing standard payload constraints and moving to a localized caching system, BikeScout can now render pixel-perfect vertical profiles that highlight anaerobic trap zones.</p>
+        <p>The latest update to the <code>check_trail_soil_condition</code> tool now accounts for the "Shadow Lock" effect: the phenomenon where north-facing slopes and deep valley sectors remain saturated for days, regardless of the ambient temperature.</p>
 
-        <h2>The Problem: The "Average" Trap</h2>
-        <p>Standard GPX viewers often hide the "Wall". They tell you a climb is 6% average, but they miss the 15% ramp hidden behind the forest curve. For a cyclist, this lack of data leads to poor pacing, incorrect gear ratios, and total energy depletion.</p>
+        <h2>The Challenge: The Thermal Icebox</h2>
+        <p>Traditional mud models only look at rainfall. BikeScout now looks at <strong>Energy</strong>. By integrating <code><a href="https://pysolar.readthedocs.io/en/latest/">pysolar</a></code>, we calculate the exact altitude of the sun relative to your trail's coordinates at the moment of the request.</p>
+        <p>If the solar altitude is below 20°, the drying efficiency of the atmosphere drops by up to 60%. This creates a "Thermal Icebox", a state where moisture is trapped in the soil texture because the photonic energy is insufficient to trigger evaporation.</p>
 
-        <h2>The Solution: High-Resolution Sparklines</h2>
-        <p>The updated <code>get_elevation_profile_image</code> tool now generates tactical sparklines with chromatic scaling:
-        <ul class="list-disc list-inside mb-4 text-slate-400">
-            <li><strong class="text-green-400">Green:</strong> Efficiency Zones (<3%)</li>
-            <li><strong class="text-yellow-400">Yellow:</strong> Power Thresholds (4-9%)</li>
-            <li><strong class="text-red-500">Red:</strong> The "Wall" (>10%)</li>
-        </ul>
-        </p>
-        <p>By saving these reports directly to the user's home directory (<code>~/.bikescout/altimetry/</code>), we maintain total visual fidelity without compromising the performance of the MCP server.</p>
+        <h2>The Innovation: The TAEL Algorithm</h2>
+        <p>Our new <strong>TAEL</strong> model cross-references three critical data streams: 72-hour historical precipitation, geological drainage coefficients (Clay, Earth, Gravel), and real-time solar persistence.</p>
+        <p>The result is an <strong>Adjusted Moisture Index</strong>. When BikeScout detects a Shadow Lock, it applies a penalty to the drying efficiency, revealing the "invisible mud" that causes catastrophic traction loss on seemingly perfect days.</p>
 
-        <h2>Tactical Export: Waypoint Injection</h2>
-        <p>Knowledge is useless without execution. Our <strong>Wall-Sense</strong> logic now injects tactical waypoints directly into your GPX file. When your GPS screams "WALL: 14%", it's not guessing, it's reading the precise elevation delta calculated by BikeScout's latest decimation algorithm.</p>
+        <h2>The Goal: Precision Traction</h2>
+        <p>Knowing the trail is "damp" isn't enough. You need to know if the roots will act like ice. The <code>mud_risk_score</code> now factors in this evaporation lag, providing a technical briefing on tire choice and pressure (PSI) that respects the actual state of the terrain, not just the sky.</p>
 
-        <h2>Gear for the Vertical</h2>
-        <p>The <code>mud_risk_score</code> and <code>climb_intensity</code> now work in synergy. If the TAEL algorithm detects Shadow-Locked mud on a Red Zone Wall, BikeScout will advise a significant drop in tire pressure or a route bypass. This isn't just navigation; it's survival intelligence.</p>
+        <h2>The Future: Geospatial Dominance</h2>
+        <p>BikeScout is evolving from a data aggregator into a terrain-simulation engine. By understanding the relationship between solar angles and soil memory, we are giving riders the ultimate tactical advantage: the ability to see the mud before they even reach the trailhead.</p>
 
-
+        <p class="mt-8">TAEL Logic is now integrated into the core server. Update your dependencies, restart your MCP instance, and run the telemetry.</p>
 
         <div class="mt-16 flex flex-wrap gap-4">
-            <span class="bg-slate-900 border border-slate-700 px-3 py-1 text-[10px] mono uppercase text-slate-400">#Wall-Sense</span>
-            <span class="bg-slate-900 border border-slate-700 px-3 py-1 text-[10px] mono uppercase text-slate-400">#Gradient-Intelligence</span>
-            <span class="bg-slate-900 border border-slate-700 px-3 py-1 text-[10px] mono uppercase text-slate-400">#MCP-Update</span>
+            <span class="bg-slate-900 border border-slate-700 px-3 py-1 text-[10px] mono uppercase text-slate-400">#Shadow-Lock</span>
+            <span class="bg-slate-900 border border-slate-700 px-3 py-1 text-[10px] mono uppercase text-slate-400">#TAEL-Algorithm</span>
+            <span class="bg-slate-900 border border-slate-700 px-3 py-1 text-[10px] mono uppercase text-slate-400">#Terrain-Intelligence</span>
         </div>
     </div>
+
 </article>
 
 <footer class="py-12 border-t border-slate-900 text-center text-slate-600 mono text-[10px] uppercase tracking-[0.4em]">
-    BikeScout @ 2026 // <span class="text-white">hifly81</span>
+    BikeScout @ 2026// <span class="text-white">hifly81</span>
 </footer>
 
 <script>
@@ -157,6 +154,14 @@
     closeBtn.addEventListener('click', () => {
         mobileMenu.classList.add('hidden');
         document.body.style.overflow = 'auto';
+    });
+
+
+    mobileMenu.querySelectorAll('a').forEach(link => {
+        link.addEventListener('click', () => {
+            mobileMenu.classList.add('hidden');
+            document.body.style.overflow = 'auto';
+        });
     });
 </script>
 </body>
