@@ -3,7 +3,7 @@ import sys
 from dotenv import load_dotenv
 from fastmcp import FastMCP
 from pathlib import Path
-from typing import Literal
+from typing import Literal, Optional
 from bikescout.schemas import RiderProfile, BikeSetup, MissionConstraints, RouteGeometry
 from bikescout.tools.scouting import get_complete_trail_scout
 from bikescout.tools.weather import get_weather_forecast
@@ -15,7 +15,7 @@ from bikescout.tools.strava import get_strava_activity
 from bikescout.tools.gonogo import calculate_ride_windows
 from bikescout.tools.altimetry import get_elevation_profile_image
 from bikescout.tools.nutrition import get_nutrition_plan
-from bikescout.tools.race.analysis import analyze_gpx_track
+from bikescout.tools.race.analysis import analyze_track
 from bikescout.prompts import BikeScoutPrompts
 from bikescout.resources import BikeScoutResources
 
@@ -63,7 +63,7 @@ def trail_scout(
         include_gpx: bool = True,
         include_map: bool = False,
         output_level: Literal["summary", "standard", "full"] = "standard",
-        target_date: str = None
+        target_date: Optional[str] = None
 ):
     """
     Advanced trail discovery.
@@ -87,7 +87,7 @@ def trail_scout(
     return {"payload_version": BIKESCOUT_PROTOCOL_VERSION, **data}
 
 @mcp.tool()
-def check_trail_weather(lat: float, lon: float, target_date: str = None):
+def check_trail_weather(lat: float, lon: float, target_date: Optional[str] = None):
     """
     Advanced cycling-specific weather assistant for real-time and future planning.
     Provides temperature, rain risk, and wind speed analysis.
@@ -115,7 +115,7 @@ def ride_window_planner(
         lon: float,
         ride_duration_hours: float = 2.0,
         surface_type: Literal["dirt", "gravel", "asphalt", "sand", "clay"] = "dirt",
-        target_date: str = None
+        target_date: Optional[str] = None
 ):
     """
     Tactical Go/No-Go Planner.
@@ -141,7 +141,7 @@ def analyze_route_surfaces(
     mission: MissionConstraints,
     lat: float,
     lon: float,
-    target_date: str = None
+    target_date: Optional[str] = None
 ):
     """
     Analyzes the route surface, technical difficulty, categorize climbs,
@@ -187,7 +187,7 @@ def check_trail_soil_condition(
         lat: float,
         lon: float,
         surface_type: Literal["dirt", "gravel", "asphalt", "sand", "clay"] = "dirt",
-        target_date: str = None
+        target_date: Optional[str] = None
 ):
     """
     Advanced predictive and historical model for ground saturation and mud risk.
@@ -263,7 +263,7 @@ def hydration_scout(
         lon: float,
         duration_hours: float = 2,
         intensity_score: int = 50,
-        target_date: str = None
+        target_date: Optional[str] = None
 ):
     """
     Physiological Intelligence Engine.
@@ -324,9 +324,9 @@ def analyze_gpx_track(
         bike_weight_kg: float = 7.5,
         pro_intensity: float = 1.6,
         surface_type: str = "road",
-        target_date: str = None,
-        start_hour: int = None,
-        end_hour: int = None
+        target_date: Optional[str] = None,
+        start_hour: Optional[int] = None,
+        end_hour: Optional[int] = None
 ):
     """
     Performs a high-fidelity professional audit of a GPX race track.
@@ -344,10 +344,10 @@ def analyze_gpx_track(
         end_hour: Expected finish time (0-23). Used to average weather conditions during the event.
     """
 
-    data = analyze_gpx_track(
+    data = analyze_track(
             gpx_url=gpx_url,
-            rider_weight=rider_weight_kg,
-            bike_weight=bike_weight_kg,
+            rider_weight_kg=rider_weight_kg,
+            bike_weight_kg=bike_weight_kg,
             pro_intensity=pro_intensity,
             surface_type=surface_type,
             target_date=target_date,
@@ -443,7 +443,7 @@ def apply_safety_protocol(
     }
 
 @mcp.tool()
-def get_baseline_mechanics(bike_category: str):
+def get_baseline_mechanics(bike_category: Literal["mtb", "ebike", "road", "gravel", "general"]):
     """
     Provides baseline tire pressure and mechanical settings from the BikeScout Registry.
     Categories: 'road', 'gravel', 'mtb'.

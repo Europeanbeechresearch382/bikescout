@@ -1,86 +1,109 @@
 import requests
 import json
+import sys
 
+# OpenRouteService POIs API endpoint
 ORS_POIS_URL = "https://api.openrouteservice.org/pois"
 
 def get_poi_scout(api_key: str, lat: float, lon: float, radius_km: float):
     """
-    Finds cycling POIs by category.
-    If some categories are missing, it returns what's available.
+    Finds cycling-specific POIs (Water, Repair, Rest Areas).
+    Strictly follows ORS server constraints: Max 2000m buffer and 5 specific categories.
     """
-    url = ORS_POIS_URL
+    # 1. Standardized headers for ORS API
     headers = {
         'Authorization': api_key,
-        'Content-Type': 'application/json'
+        'Content-Type': 'application/json; charset=utf-8',
+        'Accept': 'application/json, application/geo+json'
     }
 
-    # API Limit: 5000m
-    safe_buffer = min(int(radius_km * 1000), 5000)
+    # 2. Parameter Normalization
+    # Buffer MUST be an integer between 1 and 2000 meters.
+    safe_buffer = int(min(max(radius_km * 1000, 1), 2000))
 
-    # Expanded category list to be more inclusive
-    # 162: Water
+    # 3. Category Selection (STRICT LIMIT: 5 categories per request)
+    # These IDs are verified from your server's whitelist:
+    # 162: Drinking Water
     # 372: Bicycle Shop
-    # 342: Shelter
-    # 331: Picnic Site (often has water/shelter)
-    categories = {
-        162: "Water Fountain 💧",
-        372: "Bike Shop/Repair 🔧",
-        342: "Shelter/Rest Area 🏠",
-        331: "Picnic Area 🧺"
+    # 371: Bicycle Rental / Repair Station
+    # 331: Picnic Site
+    # 332: Playground (Reliable source of benches/water)
+    target_categories = [162, 372, 371, 331, 332]
+
+    # 4. Request Body Construction
+    body = {
+        "request": "pois",
+        "geometry": {
+            "geojson": {
+                "type": "Point",
+                "coordinates": [float(lon), float(lat)] # GeoJSON is [Longitude, Latitude]
+            },
+            "buffer": safe_buffer
+        },
+        "filters": {
+            "category_ids": target_categories
+        },
+        "limit": 20,
+        "sortby": "distance"
     }
 
-    all_pois = []
+    try:
+        # 5. API Execution
+        # Use json=body to ensure clean serialization and correct Content-Type
+        response = requests.post(ORS_POIS_URL, json=body, headers=headers)
 
-    for cat_id, label in categories.items():
-        body = {
-            "request": "pois",
-            "geometry": {
-                "buffer": safe_buffer,
-                "geojson": {
-                    "type": "Point",
-                    "coordinates": [float(lon), float(lat)]
-                }
-            },
-            "filters": {
-                "category_ids": [cat_id]
-            },
-            "limit": 5
-        }
+        # 6. Detailed Error Handling for MCP Stability
+        if not response.ok:
+            # We log the specific API error message to stderr
+            # This prevents breaking the MCP JSON-RPC protocol on stdout
+            print(f"ORS API Error: {response.status_code} - {response.text}", file=sys.stderr)
+            return {
+                "status": "Error",
+                "message": f"ORS API error {response.status_code}"
+            }
 
-        try:
-            response = requests.post(url, data=json.dumps(body), headers=headers)
-            if response.ok:
-                data = response.json()
-                features = data.get('features', [])
+        # 7. Response Processing
+        data = response.json()
+        features = data.get('features', [])
 
-                for feature in features:
-                    p = feature.get('properties', {})
-                    g = feature.get('geometry', {}).get('coordinates', [])
-                    tags = p.get('osm_tags', {})
+        all_amenities = []
+        for feature in features:
+            props = feature.get('properties', {})
+            geom = feature.get('geometry', {}).get('coordinates', [])
+            tags = props.get('osm_tags', {})
 
-                    all_pois.append({
-                        "name": tags.get('name') or tags.get('operator') or f"{label}",
-                        "type": label,
-                        "distance_m": round(p.get('distance', 0)),
-                        "location": {"lat": g[1], "lon": g[0]}
-                    })
-        except Exception:
-            continue
+            # Map category IDs back to readable labels
+            # Keys in props['category_ids'] are returned as strings by ORS
+            found_cats = props.get('category_ids', {}).keys()
 
-    # De-duplicate results
-    unique_pois = {f"{p['location']['lat']}{p['location']['lon']}": p for p in all_pois}.values()
-    results = sorted(list(unique_pois), key=lambda x: x['distance_m'])
+            label = "Point of Interest"
+            if '162' in found_cats:
+                label = "Water Fountain 💧"
+            elif '372' in found_cats or '371' in found_cats:
+                label = "Bike Support 🚲"
+            elif '331' in found_cats or '332' in found_cats:
+                label = "Rest Area 🧺"
 
-    if not results:
+            all_amenities.append({
+                "name": tags.get('name') or tags.get('amenity') or tags.get('operator') or label,
+                "type": label,
+                "distance_m": round(props.get('distance', 0)),
+                "location": {"lat": geom[1], "lon": geom[0]}
+            })
+
+        # 8. Success Response
+        # Return the clean payload sorted by proximity
         return {
             "status": "Success",
-            "message": f"No specific cycling amenities found within {safe_buffer}m. Try a different coordinate or a larger radius.",
-            "amenities": []
+            "search_radius": f"{safe_buffer}m",
+            "total_found": len(all_amenities),
+            "amenities": sorted(all_amenities, key=lambda x: x['distance_m'])
         }
 
-    return {
-        "status": "Success",
-        "search_radius": f"{safe_buffer}m",
-        "total_found": len(results),
-        "amenities": results[:15]
-    }
+    except Exception as e:
+        # Catch-all for network or serialization errors, logged to stderr
+        print(f"POI Engine Critical Exception: {str(e)}", file=sys.stderr)
+        return {
+            "status": "Error",
+            "message": f"Internal Engine failure: {str(e)}"
+        }

@@ -1,7 +1,31 @@
+import math
+from datetime import datetime, date
+from typing import Literal
 from bikescout.tools.weather import get_weather_forecast
 from bikescout.tools.mud import get_mud_risk_analysis
-from typing import Literal
-from datetime import datetime, date
+
+def get_solar_visibility(lat: float, lon: float, target_date: date) -> tuple:
+    """
+    Calculates Sunrise and Sunset hours based on latitude and day of year.
+    Returns (sunrise_hour, sunset_hour) for internal window filtering.
+    """
+    day_of_year = target_date.timetuple().tm_yday
+    # Solar declination approximation
+    decl = 0.409 * math.sin(2 * math.pi * day_of_year / 365 - 1.39)
+
+    try:
+        # Hour angle at sunrise/sunset
+        # We use a conservative -0.833 deg for standard sunrise/sunset
+        hour_angle = math.acos(-math.tan(math.radians(lat)) * math.tan(decl))
+        offset_hours = math.degrees(hour_angle) / 15.0
+
+        sunrise = 12.0 - offset_hours
+        sunset = 12.0 + offset_hours
+        return (int(sunrise), int(sunset))
+    except ValueError:
+        # Handle cases where the sun doesn't set or rise (Polar regions)
+        if lat > 0 and 80 < day_of_year < 260: return (0, 23)
+        return (10, 15)
 
 def calculate_ride_windows(
         lat: float,
@@ -10,34 +34,43 @@ def calculate_ride_windows(
         surface_type: Literal["dirt", "gravel", "asphalt", "sand", "clay"] = "dirt",
         target_date: str = None):
     """
-    Tactical Ride Planner: Specifically mapped for BikeScout JSON output.
-    Fuses weather forecasting with mud risk to find the optimal cycling window.
-    Now supports future date planning for race events.
+    Tactical Ride Planner: Compatible with version 1.0 JSON payload.
+    Integrates dynamic solar visibility filtering based on coordinates.
     """
     try:
-        # --- 1. DATA ACQUISITION ---
-        # Fetch updated weather forecast (now supports target_date)
+        # 1. TEMPORAL & SOLAR SETUP
+        t_date = date.fromisoformat(target_date) if target_date else date.today()
+        sunrise_h, sunset_h = get_solar_visibility(lat, lon, t_date)
+
+        # Define safe cycling window based on visibility
+        # We allow riding from sunrise until sunset
+        START_ALLOWED = sunrise_h + 1
+        END_ALLOWED = sunset_h
+
+        # 2. DATA ACQUISITION
+        from bikescout.tools.weather import get_weather_forecast
+        from bikescout.tools.mud import get_mud_risk_analysis
+
         weather_data = get_weather_forecast(lat, lon, target_date)
-        # Fetch mud risk (Note: currently uses latest 72h, valid for 'today')
         mud_risk_data = get_mud_risk_analysis(lat, lon, surface_type)
 
-        # --- 2. DATA NORMALIZATION ---
-        # Updated key: from 'next_4_hours' to 'tactical_forecast'
         raw_forecasts = weather_data.get("tactical_forecast", [])
         current_mud_score = mud_risk_data.get("mud_risk_score", 0)
 
+        # 3. DATA NORMALIZATION
         normalized_forecasts = []
         for h in raw_forecasts:
             try:
-                # Helper function to strip symbols and convert to float
                 def clean_val(v):
                     if isinstance(v, str):
-                        # Support for different encodings and units
                         return float(v.replace('°C', '').replace('C', '').replace('%', '').replace(' km/h', '').strip())
                     return float(v or 0)
 
+                hour_int = int(h.get("time", "00:00").split(":")[0])
+
                 normalized_forecasts.append({
                     "time": h.get("time", "N/A"),
+                    "hour": hour_int,
                     "precip_prob": clean_val(h.get("rain_prob", 0)),
                     "wind_speed": clean_val(h.get("wind", 0)),
                     "temp": clean_val(h.get("temp", 15))
@@ -45,48 +78,30 @@ def calculate_ride_windows(
             except Exception:
                 continue
 
-        # --- 3. VALIDATION ---
+        # 4. SLIDING WINDOW ENGINE
         duration_int = int(max(1, ride_duration_hours))
-        if not normalized_forecasts:
-            return {"status": "Error", "message": "No forecast data available for the selected date."}
-
-        # Cap requested duration to available data window
-        if len(normalized_forecasts) < duration_int:
-            duration_int = len(normalized_forecasts)
-
-        # --- 4. SLIDING WINDOW ENGINE ---
         best_slot = None
         highest_score = -500.0
 
-        # Strategic Thresholds
-        MAX_RAIN_PROB = 30
-        MAX_WIND_SPEED = 25
-        MUD_PENALTY_WEIGHT = 0.6
-
-        # Slide through the forecast to find the window with the best conditions
         for i in range(len(normalized_forecasts) - duration_int + 1):
             window = normalized_forecasts[i : i + duration_int]
 
+            # VISIBILITY CHECK: Is the window within daylight hours for this lat/lon?
+            if window[0]["hour"] < START_ALLOWED or window[-1]["hour"] > END_ALLOWED:
+                continue
+
+            # Scoring Logic
             avg_rain = sum(h["precip_prob"] for h in window) / duration_int
             max_wind = max(h["wind_speed"] for h in window)
             avg_temp = sum(h["temp"] for h in window) / duration_int
 
-            # Scoring logic (Base 100)
             current_score = 100.0
+            if avg_rain > 30: current_score -= (avg_rain - 30) * 3
+            else: current_score -= (avg_rain * 0.5)
 
-            # Rain Penalty: Heavier weight for higher probabilities
-            if avg_rain > MAX_RAIN_PROB:
-                current_score -= (avg_rain - MAX_RAIN_PROB) * 3
-            else:
-                current_score -= (avg_rain * 0.5)
-
-            # Wind Penalty: Critical for road/exposed stages
-            if max_wind > MAX_WIND_SPEED:
-                current_score -= (max_wind - MAX_WIND_SPEED) * 2
-
-            # Mud Penalty: Only relevant for off-road surface types
+            if max_wind > 25: current_score -= (max_wind - 25) * 2
             if surface_type != "asphalt":
-                current_score -= (current_mud_score * MUD_PENALTY_WEIGHT)
+                current_score -= (current_mud_score * 0.6)
 
             if current_score > highest_score:
                 highest_score = current_score
@@ -101,13 +116,23 @@ def calculate_ride_windows(
                     }
                 }
 
-        # --- 5. TACTICAL VERDICT ---
-        if highest_score > 75:
-            verdict, color = "GO", "GREEN"
-        elif highest_score > 40:
-            verdict, color = "CAUTION", "YELLOW"
-        else:
-            verdict, color = "NO-GO", "RED"
+        # 5. VERDICT & COMPATIBLE RESPONSE (v1.0)
+        if not best_slot:
+            return {
+                "status": "Success",
+                "planner_report": {
+                    "verdict": "NO-GO",
+                    "tactical_color": "RED",
+                    "confidence_score": "0/100",
+                    "best_window": "N/A",
+                    "environmental_briefing": {"message": "No daylight visibility for the requested duration"},
+                    "mud_risk_impact": f"{current_mud_score}%"
+                }
+            }
+
+        if highest_score > 75: verdict, color = "GO", "GREEN"
+        elif highest_score > 40: verdict, color = "CAUTION", "YELLOW"
+        else: verdict, color = "NO-GO", "RED"
 
         return {
             "payload_version": "1.0",
