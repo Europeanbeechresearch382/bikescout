@@ -15,9 +15,9 @@ from bikescout.tools.strava import get_strava_activity
 from bikescout.tools.gonogo import calculate_ride_windows
 from bikescout.tools.altimetry import get_elevation_profile_image
 from bikescout.tools.nutrition import get_nutrition_plan
+from bikescout.tools.race.analysis import analyze_gpx_track
 from bikescout.prompts import BikeScoutPrompts
 from bikescout.resources import BikeScoutResources
-from bikescout.tools.pro.ProCyclingEngine import ProCyclingEngine
 
 
 mcp = FastMCP("BikeScout")
@@ -343,15 +343,8 @@ def analyze_gpx_track(
         start_hour: Expected start time (0-23). If provided with end_hour, calculates window-averaged metrics.
         end_hour: Expected finish time (0-23). Used to average weather conditions during the event.
     """
-    try:
-        # Initialize the Pro Engine
-        # Ensure ORS_API_KEY is defined in your environment/config
-        engine = ProCyclingEngine(ors_key=ORS_API_KEY)
 
-        sys.stderr.write(f"DEBUG: Starting Pro Analysis [{surface_type.upper()}] for {gpx_url}\n")
-
-        # Execute the heavy-duty analysis with the new surface_type switch
-        data = engine.analyze_gpx_track(
+    data = analyze_gpx_track(
             gpx_url=gpx_url,
             rider_weight=rider_weight_kg,
             bike_weight=bike_weight_kg,
@@ -360,31 +353,9 @@ def analyze_gpx_track(
             target_date=target_date,
             start_hour=start_hour,
             end_hour=end_hour
-        )
+    )
 
-        # Check if the engine returned an internal error (e.g., file not found or empty GPX)
-        if data.get("status") == "Error":
-            return {
-                "payload_version": BIKESCOUT_PROTOCOL_VERSION,
-                "status": "Error",
-                "message": data.get("message")
-            }
-
-        # Return the full tactical report (Metrics, Climbs, Power, Echelons)
-        return {
-            "payload_version": BIKESCOUT_PROTOCOL_VERSION,
-            **data
-        }
-
-    except Exception as e:
-        import traceback
-        # Logging to stderr ensures we don't break the MCP JSON-RPC response
-        sys.stderr.write(f"CRITICAL: GPX Tool Failure\n{traceback.format_exc()}\n")
-        return {
-            "payload_version": BIKESCOUT_PROTOCOL_VERSION,
-            "status": "Error",
-            "message": f"GPX Analysis Engine failed: {str(e)}"
-        }
+    return {"payload_version": BIKESCOUT_PROTOCOL_VERSION, **data}
 
 # --- SKILLS SECTION
 
