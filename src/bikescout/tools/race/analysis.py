@@ -5,6 +5,8 @@ import sys
 import os
 import traceback
 import numpy as np
+import matplotlib.pyplot as plt
+from fpdf import FPDF
 from typing import List, Dict, Any, Optional
 from datetime import date
 from geopy.distance import geodesic
@@ -28,11 +30,13 @@ def analyze_track(
         surface_type: str = "road",
         target_date: Optional[str] = None,
         start_hour: Optional[int] = None,
-        end_hour: Optional[int] = None
+        end_hour: Optional[int] = None,
+        report: bool = False
 ) -> Dict[str, Any]:
     """
     High-fidelity track audit. Processes GPX data, applies weather windowing,
-    and calculates performance metrics and tactical insights using a physics-based model.
+    calculates performance metrics, identifies strategic tactical zones (weighted for the finale),
+    and generates a Technical Director PDF report.
     """
     try:
         # 1. Data Retrieval and Parsing
@@ -56,55 +60,55 @@ def analyze_track(
         distance_km = round(gpx.length_3d() / 1000, 2)
         total_ascent = round(gpx.get_uphill_downhill().uphill, 1)
 
-        # 2. Path Analysis with Cold Start protection and smoothing
+        # 2. Path Analysis (Smoothing and Segmenting)
         analysis_segments = _process_segments(points, surface_type)
         uci_climbs = _detect_uci_climbs(analysis_segments)
 
         # 3. Dynamic Weather Windowing
-        weather_data = get_weather_forecast(start_lat, start_lon, target_date)
+        # Default window: 09:00 AM to 07:00 PM if not specified
+        s_hour = start_hour if start_hour is not None else 9
+        e_hour = end_hour if end_hour is not None else 19
+        t_date = target_date if target_date else date.today().isoformat()
+
+        weather_data = get_weather_forecast(start_lat, start_lon, t_date)
         ref_temp, ref_wind_speed, ref_wind_dir = 20.0, 10.0, 90
 
         if weather_data.get("status") == "Success":
-            if start_hour is not None and end_hour is not None:
-                weather_data = _apply_weather_windowing(weather_data, start_hour, end_hour)
-
+            weather_data = _apply_weather_windowing(weather_data, s_hour, e_hour)
             ref_cond = weather_data.get("reference_conditions", {})
             ref_temp = ref_cond.get("temp", ref_temp)
             ref_wind_speed = ref_cond.get("wind_speed", ref_wind_speed)
             ref_wind_dir = ref_cond.get("wind_dir_degrees", ref_wind_dir)
 
-        # 4. Tactical and Environmental Assessment
-        tactical_alerts = []
-        mud_risk = None
+        # 4. Environmental and Tactical Assessment
         intensity_score = min(100, int((total_ascent / max(distance_km, 1)) * 10 * pro_intensity))
-
         est_speed = 35.0 if surface_type.lower() == "road" else 20.0
         duration_hours = (distance_km / est_speed) + (total_ascent / 1000)
 
+        tactical_alerts = []
+        mud_risk = None
         if surface_type.lower() == "road":
             tactical_alerts = _calculate_aero_risks(analysis_segments, ref_wind_dir, ref_wind_speed)
         else:
             mapped_surface = "gravel" if "gravel" in surface_type.lower() else "dirt"
-            mud_risk = get_mud_risk_analysis(start_lat, start_lon, mapped_surface, target_date)
+            mud_risk = get_mud_risk_analysis(start_lat, start_lon, mapped_surface, t_date)
 
         nutrition_plan = get_nutrition_plan(duration_hours, ref_temp, intensity_score)
+        performance = _calculate_performance(uci_climbs, rider_weight_kg, bike_weight_kg, pro_intensity, ref_temp, ref_wind_speed)
 
-        # 5. Performance Simulation
-        performance = _calculate_performance(
-            uci_climbs, rider_weight_kg, bike_weight_kg, pro_intensity, ref_temp, ref_wind_speed
-        )
+        # 5. Strategic Zone Identification (Weighted for the finale)
+        tactical_output = _identify_tactical_zones(analysis_segments, uci_climbs, distance_km)
 
         elev_extremes = gpx.get_elevation_extremes()
-        max_elevation = getattr(elev_extremes, 'maximum', 0)
 
-        return {
+        final_json = {
             "status": "Success",
             "mode": surface_type.upper(),
-            "target_date": target_date if target_date else date.today().isoformat(),
+            "target_date": t_date,
             "track_metrics": {
                 "distance_km": distance_km,
                 "total_ascent": total_ascent,
-                "max_altitude": round(max_elevation, 1)
+                "max_altitude": round(getattr(elev_extremes, 'maximum', 0), 1)
             },
             "planning_tools": {
                 "weather_forecast": weather_data,
@@ -114,45 +118,263 @@ def analyze_track(
             "climb_analysis": uci_climbs,
             "performance_simulation": performance,
             "tactical_alerts": tactical_alerts,
-            "tactical_zones": _identify_tactical_zones(analysis_segments, surface_type, uci_climbs)
+            "pre_climb_positioning": tactical_output["pre_climb_positioning"],
+            "tactical_action_zones": tactical_output["action_zones"]
         }
+
+        # 6. PDF Report Generation with Elevation Chart and DS Briefing
+        if report:
+            plot_path = _generate_elevation_plot(analysis_segments, t_date)
+            pdf_path = _generate_pdf_report(final_json, plot_path)
+            final_json["report_path"] = pdf_path
+
+        return final_json
 
     except Exception as e:
         sys.stderr.write(f"ANALYSIS FAILURE: {traceback.format_exc()}\n")
-        return {"status": "Error", "message": f"Track Analysis Failed: {str(e)}"}
+        return {"status": "Error", "message": str(e)}
 
 def _load_gpx_content(gpx_path: str) -> str:
-    """Fetches GPX content from web or local file system."""
+    """Fetches GPX content from the web or local file system."""
     if gpx_path.startswith(('http://', 'https://')):
         res = requests.get(gpx_path, timeout=20)
         res.raise_for_status()
         return res.text
-    elif os.path.exists(gpx_path):
-        with open(gpx_path, 'r', encoding='utf-8') as f:
-            return f.read()
-    else:
-        raise ValueError(f"GPX source invalid: {gpx_path}")
+    with open(gpx_path, 'r', encoding='utf-8') as f:
+        return f.read()
+
+def _process_segments(points: List[Dict], surface: str) -> List[Dict]:
+    """Smooths raw elevation data and groups it into measurable segments."""
+    dist_filter = 25.0 if surface == "road" else 15.0
+    grade_cap = 25.0 if surface == "road" else 35.0
+
+    elevations = [p['ele'] for p in points]
+    smoothed_ele = np.convolve(elevations, np.ones(10)/10, mode='same')
+
+    segments = []
+    accum_d, total_elapsed, start_idx = 0.0, 0.0, 0
+    for i in range(len(points) - 1):
+        d = geodesic((points[i]['lat'], points[i]['lon']), (points[i+1]['lat'], points[i+1]['lon'])).meters
+        accum_d += d
+        total_elapsed += d
+
+        if accum_d >= dist_filter:
+            grade = ((smoothed_ele[i+1] - smoothed_ele[start_idx]) / accum_d) * 100
+
+            # Cold start protection
+            if total_elapsed < 500:
+                grade = max(min(grade, 8.0), -8.0)
+            else:
+                grade = max(min(grade, grade_cap), -grade_cap)
+
+            # Bearing calculation for crosswind alerts
+            lat1, lon1, lat2, lon2 = map(math.radians, [points[i]['lat'], points[i]['lon'], points[i+1]['lat'], points[i+1]['lon']])
+            y = math.sin(lon2 - lon1) * math.cos(lat2)
+            x = math.cos(lat1) * math.sin(lat2) - math.sin(lat1) * math.cos(lat2) * math.cos(lon2 - lon1)
+            bearing = (math.degrees(math.atan2(y, x)) + 360) % 360
+
+            segments.append({
+                'dist': accum_d, 'grade': grade, 'bearing': bearing,
+                'ele_start': smoothed_ele[start_idx], 'ele_end': smoothed_ele[i+1]
+            })
+            start_idx, accum_d = i + 1, 0.0
+    return segments
+
+def _detect_uci_climbs(segments: List[Dict]) -> List[Dict]:
+    """Isolates significant uphill sections and categorizes them."""
+    climbs, current, flat_b = [], [], 0
+    for s in segments:
+        if s['grade'] >= 1.5:
+            current.append(s)
+            flat_b = 0
+        elif current:
+            flat_b += s['dist']
+            current.append(s)
+            if flat_b > 1000:
+                while current and current[-1]['grade'] < 1.0: current.pop()
+                _finalize_climb_data(current, segments, climbs)
+                current, flat_b = [], 0
+    if current:
+        while current and current[-1]['grade'] < 1.0: current.pop()
+        _finalize_climb_data(current, segments, climbs)
+    return climbs
+
+def _finalize_climb_data(current_climb, all_segments, climbs_list):
+    """Calculates final metrics for a climb with Pro-Tour filtering logic."""
+    if not current_climb: return
+
+    total_dist = sum(x['dist'] for x in current_climb)
+    total_gain = current_climb[-1]['ele_end'] - current_climb[0]['ele_start']
+    avg_grade = (total_gain / total_dist) * 100
+
+    # Discard shallow or insignificant bumps
+    if avg_grade < 3.5 and total_gain < 250:
+        return
+
+    if total_dist > 1500 and total_gain > 100:
+        score = (total_gain * avg_grade) / 10
+        start_idx = all_segments.index(current_climb[0])
+        km_start = sum(x['dist'] for x in all_segments[:start_idx]) / 1000
+
+        # Mapping to categories
+        category = "HC" if score >= 800 or total_gain >= 1000 else \
+            "Cat 1" if score >= 400 or total_gain >= 600 else \
+                "Cat 2" if score >= 200 or total_gain >= 350 else \
+                    "Cat 3" if (score >= 100 or total_gain >= 150) and total_dist > 2500 else "Cat 4"
+
+        climbs_list.append({
+            "km_start": round(km_start, 1),
+            "dist_km": round(total_dist / 1000, 2),
+            "gain_m": round(total_gain, 1),
+            "avg_grade": round(avg_grade, 1),
+            "category": category
+        })
+
+def _identify_tactical_zones(segments: List[Dict], uci_climbs: List[Dict], total_dist: float) -> Dict:
+    """
+    Enhanced tactical detection classifying zones and applying a recency bias
+    so points in the final 60km are heavily favored for strategic importance.
+    """
+    pre_climb = []
+
+    # 1. ALWAYS isolate Major Climb Positioning
+    for c in uci_climbs:
+        if c['category'] in ['HC', 'Cat 1']:
+            pre_climb.append({
+                "km": round(c['km_start'] - 0.8, 2),
+                "type": f"CRITICAL POSITIONING: {c['category']} Entrance",
+                "detail": f"Climb {c['dist_km']}km @ {c['avg_grade']}%"
+            })
+
+    # 2. Extract Action Zones with Recency Bias
+    raw_zones = []
+    curr_d = 0.0
+    for s in segments:
+        curr_d += s['dist']
+        km = curr_d / 1000
+        abs_grade = abs(s['grade'])
+
+        # We look for steep segments
+        if abs_grade > 10.0:
+            dist_to_finish = total_dist - km
+
+            # The closer to the finish (within 60km), the higher the multiplier
+            weight = 1.0
+            if 0 < dist_to_finish <= 60:
+                # Multiplier scales linearly from 1.0 at 60km to 2.5 at 0km
+                weight = 1.0 + (1.5 * (60 - dist_to_finish) / 60)
+
+            score = abs_grade * weight
+
+            # Categorize the base physical difficulty without the bias
+            diff = "high" if abs_grade > 14 else "medium" if abs_grade > 11 else "low"
+            z_type = "Explosive Wall / Attack Point" if s['grade'] > 0 else "Steep Technical Descent"
+
+            raw_zones.append({
+                "km": round(km, 2),
+                "grade": round(s['grade'], 1),
+                "score": score,
+                "type": z_type,
+                "difficulty": diff
+            })
+
+    # 3. Sort by our weighted tactical score descending
+    raw_zones.sort(key=lambda x: x['score'], reverse=True)
+
+    # 4. Limit Outputs per requirements: max 3 high, 2 medium, 1 low
+    # and ensure they are physically separated (min 1km apart)
+    final_action = []
+    targets = {"high": 3, "medium": 2, "low": 1}
+
+    for z in raw_zones:
+        if targets[z['difficulty']] > 0:
+            # Avoid picking zones that are essentially the same hill
+            if all(abs(z['km'] - existing['km']) > 1.0 for existing in final_action):
+                # Remove the internal 'score' before final output
+                final_action.append({
+                    "km": z['km'], "grade": z['grade'],
+                    "type": z['type'], "difficulty": z['difficulty']
+                })
+                targets[z['difficulty']] -= 1
+
+    # 5. Re-sort chronologically for the user
+    final_action.sort(key=lambda x: x['km'])
+
+    return {
+        "pre_climb_positioning": pre_climb,
+        "action_zones": final_action
+    }
+
+def _calculate_performance(climbs, rider_w, bike_w, intensity, temp, wind_speed) -> List[Dict]:
+    """Physics model to solve required W/Kg and estimated time/VAM."""
+    results = []
+    total_mass = rider_w + bike_w
+    target_wkg = 3.8 * intensity
+    target_power = target_wkg * rider_w
+
+    for c in climbs:
+        grade_decimal = c['avg_grade'] / 100
+        theta = math.atan(grade_decimal)
+
+        v_mps = 2.0
+        for _ in range(10): # Newton-Raphson approximation
+            f_grav = total_mass * GRAVITY * math.sin(theta)
+            f_roll = total_mass * GRAVITY * math.cos(theta) * CRR_ROAD
+            f_aero = 0.5 * AIR_DENSITY * CDA_CLIMB * (v_mps ** 2)
+            p_total = v_mps * (f_grav + f_roll + f_aero)
+            dp_dv = f_grav + f_roll + 1.5 * AIR_DENSITY * CDA_CLIMB * (v_mps ** 2)
+            v_mps = v_mps - (p_total - target_power) / dp_dv
+
+        speed_kmh = max(v_mps * 3.6, 5.0)
+        time_hours = c['dist_km'] / speed_kmh
+        vam = c['gain_m'] / time_hours
+
+        penalty = (target_power * 0.03 if temp > 28 else 0) + (target_power * 0.02 if wind_speed > 15 else 0)
+        adj_wkg = (target_power + penalty) / rider_w
+
+        results.append({
+            "climb": f"Climb @ km {c['km_start']} ({c['category']})",
+            "est_time_min": round(time_hours * 60, 1),
+            "est_vam": round(vam),
+            "target_wkg": round(target_wkg, 2),
+            "weather_adjusted_wkg": round(adj_wkg, 2)
+        })
+    return results
+
+def _calculate_aero_risks(segments, wind_dir, wind_speed) -> List[Dict]:
+    """Identifies potential echelon formation zones due to crosswinds."""
+    alerts = []
+    if wind_speed < 18: return []
+    for i in range(0, len(segments), 45):
+        s = segments[i]
+        rel_angle = abs(s['bearing'] - wind_dir) % 360
+        if rel_angle > 180: rel_angle = 360 - rel_angle
+
+        if 60 < rel_angle < 120:
+            dist_at = sum(x['dist'] for x in segments[:i]) / 1000
+            alerts.append({
+                "km": round(dist_at, 1), "type": "ECHELON RISK",
+                "detail": f"{round(wind_speed, 1)}km/h Crosswind"
+            })
+    return alerts[:4]
 
 def _apply_weather_windowing(weather_data: Dict, start: int, end: int) -> Dict:
-    """Averages weather metrics within the specified time window."""
+    """Averages weather metrics within the specified race time window."""
     filtered_forecast = []
     window_temps, window_winds, window_dirs = [], [], []
 
     if "reference_conditions" not in weather_data:
         weather_data["reference_conditions"] = {}
 
-    buffer_start, buffer_end = max(0, start - 1), min(23, end + 1)
-
     for hour_info in weather_data.get("tactical_forecast", []):
         try:
             h_int = int(hour_info["time"].split(":")[0])
-            if buffer_start <= h_int <= buffer_end:
-                filtered_forecast.append(hour_info)
-
             if start <= h_int <= end:
-                t_val = float(hour_info["temp"].replace("°C", "").replace("C", "").strip())
-                w_val = float(hour_info["wind"].replace(" km/h", "").strip())
+                filtered_forecast.append(hour_info)
+                t_val = float(str(hour_info["temp"]).replace("°C", "").replace("C", "").strip())
+                w_val = float(str(hour_info["wind"]).replace(" km/h", "").strip())
                 w_dir = hour_info.get("wind_dir", 90)
+
                 window_temps.append(t_val)
                 window_winds.append(w_val)
                 window_dirs.append(w_dir)
@@ -170,196 +392,161 @@ def _apply_weather_windowing(weather_data: Dict, start: int, end: int) -> Dict:
     weather_data["tactical_forecast"] = filtered_forecast
     return weather_data
 
-def _process_segments(points: List[Dict], surface: str) -> List[Dict]:
-    """Processes raw points into smoothed distance/grade segments."""
-    dist_filter = 25.0 if surface == "road" else 15.0
-    grade_cap = 25.0 if surface == "road" else 35.0
+def _generate_elevation_plot(segments: List[Dict], target_date: str) -> str:
+    """Uses matplotlib to generate a track elevation profile image."""
+    x_dist = []
+    y_ele = []
+    curr_dist = 0.0
 
-    elevations = [p['ele'] for p in points]
-    window_size = 10
-    smoothed_ele = np.convolve(elevations, np.ones(window_size)/window_size, mode='same')
-
-    segments = []
-    accum_dist, total_elapsed_dist, start_idx = 0.0, 0.0, 0
-
-    for i in range(len(points) - 1):
-        p1, p2 = points[i], points[i+1]
-        dist = geodesic((p1['lat'], p1['lon']), (p2['lat'], p2['lon'])).meters
-        accum_dist += dist
-        total_elapsed_dist += dist
-
-        if accum_dist >= dist_filter:
-            ele_diff = smoothed_ele[i+1] - smoothed_ele[start_idx]
-            grade = (ele_diff / accum_dist) * 100
-
-            # --- COLD START PROTECTION ---
-            if total_elapsed_dist < 500:
-                grade = max(min(grade, 8.0), -8.0)
-            else:
-                grade = max(min(grade, grade_cap), -grade_cap)
-
-            lat1, lon1, lat2, lon2 = map(math.radians, [p1['lat'], p1['lon'], p2['lat'], p2['lon']])
-            y = math.sin(lon2 - lon1) * math.cos(lat2)
-            x = math.cos(lat1) * math.sin(lat2) - math.sin(lat1) * math.cos(lat2) * math.cos(lon2 - lon1)
-            bearing = (math.degrees(math.atan2(y, x)) + 360) % 360
-
-            segments.append({
-                'dist': accum_dist, 'grade': grade, 'bearing': bearing,
-                'ele_start': smoothed_ele[start_idx], 'ele_end': smoothed_ele[i+1]
-            })
-            start_idx, accum_dist = i + 1, 0.0
-    return segments
-
-def _detect_uci_climbs(segments: List[Dict]) -> List[Dict]:
-    """Isolates significant uphill sections and categories them."""
-    climbs, current_climb, flat_buffer = [], [], 0
     for s in segments:
-        if s['grade'] >= 1.5:
-            current_climb.append(s)
-            flat_buffer = 0
-        elif current_climb:
-            flat_buffer += s['dist']
-            current_climb.append(s)
-            if flat_buffer > 1000:
-                while current_climb and current_climb[-1]['grade'] < 1.0: current_climb.pop()
-                _finalize_climb_data(current_climb, segments, climbs)
-                current_climb, flat_buffer = [], 0
+        curr_dist += s['dist'] / 1000
+        x_dist.append(curr_dist)
+        y_ele.append(s['ele_end'])
 
-    if current_climb:
-        while current_climb and current_climb[-1]['grade'] < 1.0: current_climb.pop()
-        _finalize_climb_data(current_climb, segments, climbs)
-    return climbs
+    plt.figure(figsize=(10, 3.5))
+    plt.fill_between(x_dist, y_ele, color='steelblue', alpha=0.3)
+    plt.plot(x_dist, y_ele, color='midnightblue', linewidth=1.5)
 
-def _finalize_climb_data(current_climb, all_segments, climbs_list):
-    """Calculates final metrics for a climb with Pro-Tour filtering logic."""
-    if not current_climb: return
+    plt.title('Stage Elevation Profile', fontsize=12, fontweight='bold')
+    plt.xlabel('Distance (km)', fontsize=10)
+    plt.ylabel('Elevation (m)', fontsize=10)
+    plt.grid(True, linestyle='--', alpha=0.5)
+    plt.tight_layout()
 
-    total_dist = sum(x['dist'] for x in current_climb)
-    total_gain = current_climb[-1]['ele_end'] - current_climb[0]['ele_start']
-    avg_grade = (total_gain / total_dist) * 100
+    # Save to local directory
+    save_dir = os.path.join(os.path.expanduser("~"), ".bikescout", "race")
+    os.makedirs(save_dir, exist_ok=True)
+    file_path = os.path.join(save_dir, f"profile_{target_date}.png")
 
-    # --- PRO-TOUR FILTERING ---
-    # Discard shallow climbs (<3.5%) unless they have significant gain (>250m)
-    if avg_grade < 3.5 and total_gain < 250:
-        return
+    plt.savefig(file_path, dpi=150)
+    plt.close()
 
-    # Basic physical threshold for categorized climbs
-    if total_dist > 1500 and total_gain > 100:
-        score = (total_gain * avg_grade) / 10
-        start_idx = all_segments.index(current_climb[0])
-        km_start = sum(x['dist'] for x in all_segments[:start_idx]) / 1000
+    return file_path
 
-        climbs_list.append({
-            "km_start": round(km_start, 1),
-            "dist_km": round(total_dist / 1000, 2),
-            "gain_m": round(total_gain, 1),
-            "avg_grade": round(avg_grade, 1),
-            "category": _get_uci_category_label(score, total_gain, total_dist)
-        })
+def _generate_pdf_report(data: Dict[str, Any], plot_path: str) -> str:
+    """Generates a fluent English PDF report including the altimetry chart and dynamic DS Briefing."""
 
-def _get_uci_category_label(score: float, gain: float, dist: float) -> str:
-    """Maps climb difficulty score to UCI standard categories."""
-    if score >= 800 or gain >= 1000: return "HC"
-    if score >= 400 or gain >= 600:  return "Cat 1"
-    if score >= 200 or gain >= 350:  return "Cat 2"
-    if (score >= 100 or gain >= 150) and dist > 2500: return "Cat 3"
-    return "Cat 4"
+    import os
+    from fpdf import FPDF
 
-def _calculate_performance(climbs, rider_w, bike_w, intensity, temp, wind_speed) -> List[Dict]:
-    """Physics model to solve required W/Kg and estimated time/VAM."""
-    results = []
-    total_mass = rider_w + bike_w
-    target_wkg = 3.8 * intensity
-    target_power = target_wkg * rider_w
+    report_dir = os.path.join(os.path.expanduser("~"), ".bikescout", "race")
+    os.makedirs(report_dir, exist_ok=True)
+    file_path = os.path.join(report_dir, f"race_report_{data['target_date']}.pdf")
 
-    for c in climbs:
-        grade_decimal = c['avg_grade'] / 100
-        theta = math.atan(grade_decimal)
+    pdf = FPDF()
+    pdf.add_page()
 
-        v_mps = 2.0
-        for _ in range(10):
-            f_grav = total_mass * GRAVITY * math.sin(theta)
-            f_roll = total_mass * GRAVITY * math.cos(theta) * CRR_ROAD
-            f_aero = 0.5 * AIR_DENSITY * CDA_CLIMB * (v_mps ** 2)
-            p_total = v_mps * (f_grav + f_roll + f_aero)
-            dp_dv = f_grav + f_roll + 1.5 * AIR_DENSITY * CDA_CLIMB * (v_mps ** 2)
-            v_mps = v_mps - (p_total - target_power) / dp_dv
+    # Title
+    pdf.set_font("Arial", 'B', 18)
+    pdf.cell(0, 10, txt="BikeScout Pro Race Strategy Report", ln=True, align='C')
+    pdf.ln(5)
 
-        speed_kmh = max(v_mps * 3.6, 5.0)
-        time_hours = c['dist_km'] / speed_kmh
-        vam = c['gain_m'] / time_hours
+    # Insert Elevation Profile Image
+    if os.path.exists(plot_path):
+        pdf.image(plot_path, x=10, y=pdf.get_y(), w=190)
+        pdf.ln(65) # Push content down below the image
+    else:
+        pdf.ln(10)
 
-        # Environmental W/Kg adjustments
-        penalty = (target_power * 0.03 if temp > 28 else 0) + (target_power * 0.02 if wind_speed > 15 else 0)
-        adj_wkg = (target_power + penalty) / rider_w
+    # ---------------------------------------------------------
+    # TECHNICAL DIRECTOR BRIEFING (Dynamic & Data-Driven)
+    # ---------------------------------------------------------
+    pdf.set_font("Arial", 'B', 14)
+    pdf.cell(0, 10, txt="Technical Director Briefing", ln=True)
+    pdf.set_font("Arial", '', 11)
 
-        results.append({
-            "climb": f"Climb @ km {c['km_start']} ({c['category']})",
-            "est_time_min": round(time_hours * 60, 1),
-            "est_vam": round(vam),
-            "target_wkg": round(target_wkg, 2),
-            "weather_adjusted_wkg": round(adj_wkg, 2)
-        })
-    return results
+    dist = data['track_metrics']['distance_km']
+    asc = data['track_metrics']['total_ascent']
+    climbs = data.get('climb_analysis', [])
+    zones = data.get('tactical_action_zones', [])
+    weather = data.get("planning_tools", {}).get("weather_forecast", {}).get("reference_conditions", {})
 
-def _calculate_aero_risks(segments, wind_dir, wind_speed) -> List[Dict]:
-    """Identifies potential echelon formation zones."""
-    alerts = []
-    for i in range(0, len(segments), 45):
-        s = segments[i]
-        rel_angle = abs(s['bearing'] - wind_dir) % 360
-        if rel_angle > 180: rel_angle = 360 - rel_angle
+    # 1. Evaluate Stage Profile (Meters climbed per KM)
+    profile_ratio = asc / dist if dist > 0 else 0
 
-        if 60 < rel_angle < 120 and wind_speed > 20:
-            dist_at = sum(x['dist'] for x in segments[:i]) / 1000
-            alerts.append({
-                "km": round(dist_at, 1), "type": "ECHELON RISK",
-                "detail": f"{round(wind_speed, 1)}km/h Crosswind at {round(s['bearing'],0)}°"
-            })
-    return alerts[:6]
+    if profile_ratio >= 22:
+        intro = f"Team, today is a brutal day in the mountains: {dist} km and a massive {asc} meters of elevation. Survival and GC preservation are our primary directives. "
+    elif profile_ratio >= 12:
+        intro = f"We have {dist} km with {asc} meters of climbing on the menu. It's a leg-breaking, rolling parcours that perfectly favors a strong breakaway or late puncheur attacks. "
+    else:
+        intro = f"At {dist} km and only {asc} m of climbing, this is ostensibly a flat stage. Staying safe, hiding from the wind, and delivering our sprinter is everything today. "
 
-def _identify_tactical_zones(segments, surface, uci_climbs) -> List[Dict]:
-    zones = []
+    # 2. Dynamic Weather Impacts
+    temp = weather.get('temp', 20)
+    wind = weather.get('wind_speed', 10)
+    wx_str = f"Expect conditions around {temp}C with winds at {wind} km/h. "
 
-    for c in uci_climbs:
-        if c['category'] in ['Cat 1', 'HC']:
-            zones.append({
-                "km": round(c['km_start'] - 0.9, 2),
-                "grade": c['avg_grade'],
-                "type": f"CRITICAL POSITIONING: {c['category']} Entrance"
-            })
+    if temp >= 30:
+        wx_str += "The heat is going to be a major factor; constant hydration and ice packs are mandatory. "
+    elif temp <= 10:
+        wx_str += "It's going to be freezing out there. Keep your core warm, especially before the technical descents. "
 
-    curr_d = 0.0
-    for s in segments:
-        curr_d += s['dist']
-        km = curr_d / 1000
+    if wind >= 20:
+        wx_str += "Wind speeds are absolutely high enough to split the peloton. Stay vigilant and ride at the front to avoid echelon traps! "
 
+    # 3. Dynamic Ignition Point (Replacing the hardcoded 60km rule)
+    tactical_str = ""
+    if zones:
+        # Sort zones chronologically to find the true decisive moments
+        sorted_zones = sorted(zones, key=lambda x: x['km'])
 
-        is_major = any(c['km_start'] <= km <= (c['km_start'] + c['dist_km'])
-                       for c in uci_climbs if c['category'] in ['Cat 1', 'HC'])
+        # Look for the hardest point in the second half of the race
+        late_zones = [z for z in sorted_zones if z['km'] >= (dist * 0.5)]
 
-        up_trigger = 11.0 if is_major else 13.5
-        down_trigger = -13.0
+        if late_zones:
+            # Pick the most difficult zone in the late stage (prioritizing 'high' difficulty, then steepness)
+            ignition_zone = max(late_zones, key=lambda z: (z.get('difficulty') == 'high', abs(z['grade'])))
+        else:
+            # If all hard zones are early, the race will be an early attrition battle
+            ignition_zone = max(sorted_zones, key=lambda z: (z.get('difficulty') == 'high', abs(z['grade'])))
 
-        if s['grade'] > up_trigger:
-            zones.append({
-                "km": round(km, 2), "grade": round(s['grade'], 1),
-                "type": "Attack Zone / Selection Point" if is_major else "Explosive Wall"
-            })
-        elif s['grade'] < down_trigger:
-            zones.append({
-                "km": round(km, 2), "grade": round(s['grade'], 1),
-                "type": "Steep Technical Descent"
-            })
+        ignite_km = ignition_zone['km']
+        dist_to_go = dist - ignite_km
 
-    final = []
-    last_km = -5.0
+        if dist_to_go > (dist * 0.4):
+            tactical_str = (
+                f"Based on the topography, the race will blow apart unusually early, around km {ignite_km}. "
+                f"We cannot afford to be caught sleeping when the {ignition_zone['type'].lower()} starts. "
+                "From there, it's a pure race of attrition. "
+            )
+        elif dist_to_go < 15:
+            tactical_str = (
+                f"It all comes down to a late, explosive finale. The decisive move will likely happen on the "
+                f"{ignition_zone['type'].lower()} at km {ignite_km}, just {round(dist_to_go, 1)} km from the line. "
+                f"It kicks up to {ignition_zone['grade']}%. Be perfectly positioned before this point. "
+            )
+        else:
+            tactical_str = (
+                f"The true battle for the stage begins at km {ignite_km}. That {ignition_zone['type'].lower()} "
+                f"(hitting gradients of {ignition_zone['grade']}%) is the natural launchpad for the winning move. "
+            )
 
-    sorted_zones = sorted(zones, key=lambda x: (x['km'], "Positioning" not in x['type']))
+        tactical_str += "If you have the legs, this is where you commit. "
 
-    for z in sorted_zones:
-        if z['km'] - last_km > 0.7: 
-            final.append(z)
-            last_km = z['km']
+    else:
+        tactical_str = "There are no extreme gradients to force a natural selection today. The race will be decided by pacing, positioning, and tactical awareness in the final sprint. "
 
-    return final
+    closing = "Protect the leaders, stick to the nutrition plan, and communicate constantly. Let's go execute."
+
+    # Combine dynamic parts
+    briefing = intro + wx_str + tactical_str + closing
+
+    # Write the briefing to the PDF
+    pdf.multi_cell(0, 6, txt=briefing)
+    pdf.ln(10)
+
+    # ---------------------------------------------------------
+    # Detailed Data Tables
+    # ---------------------------------------------------------
+    pdf.set_font("Arial", 'B', 12)
+    pdf.cell(0, 10, txt="Detailed Tactical Zones (Final Selection)", ln=True)
+    pdf.set_font("Arial", '', 10)
+
+    if not zones:
+        pdf.cell(0, 6, txt="No high-risk tactical zones identified.", ln=True)
+    for z in zones:
+        diff_str = str(z.get('difficulty', 'unknown')).upper()
+        pdf.cell(0, 6, txt=f"- KM {z['km']}: {z['type']} | Grade: {z['grade']}% [Severity: {diff_str}]", ln=True)
+
+    pdf.output(file_path)
+    return file_path

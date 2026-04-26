@@ -326,7 +326,8 @@ def analyze_gpx_track(
         surface_type: str = "road",
         target_date: Optional[str] = None,
         start_hour: Optional[int] = None,
-        end_hour: Optional[int] = None
+        end_hour: Optional[int] = None,
+        report: bool = False
 ):
     """
     Performs a high-fidelity professional audit of a GPX race track.
@@ -342,6 +343,7 @@ def analyze_gpx_track(
         target_date: Optional race date (YYYY-MM-DD). If provided, fetches historical or forecast weather.
         start_hour: Expected start time (0-23). If provided with end_hour, calculates window-averaged metrics.
         end_hour: Expected finish time (0-23). Used to average weather conditions during the event.
+        report: True or False, geenarte a pdf report with the analysis.
     """
 
     data = analyze_track(
@@ -352,7 +354,8 @@ def analyze_gpx_track(
             surface_type=surface_type,
             target_date=target_date,
             start_hour=start_hour,
-            end_hour=end_hour
+            end_hour=end_hour,
+            report=report
     )
 
     return {"payload_version": BIKESCOUT_PROTOCOL_VERSION, **data}
