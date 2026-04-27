@@ -57,13 +57,13 @@ def geocode_location(location_name: str):
 def trail_scout(
         lat: float,
         lon: float,
+        rider: RiderProfile,
+        bike: BikeSetup,
+        mission: MissionConstraints,
         include_gpx: bool = True,
         include_map: bool = False,
         output_level: Literal["summary", "standard", "full"] = "standard",
-        target_date: Optional[str] = None,
-        rider: Optional[RiderProfile] = None,
-        bike: Optional[BikeSetup] = None,
-        mission: Optional[MissionConstraints] = None,
+        target_date: Optional[str] = None
 ):
     """
     Advanced trail discovery.
@@ -74,13 +74,13 @@ def trail_scout(
     Args:
         lat: Latitude of the starting point.
         lon: Longitude of the starting point.
+        rider: Profile including weight and fitness level.
+        bike: Setup details including bike type and tire width.
+        mission: Constraints like search radius and surface preference.
         include_gpx: If True, generates a downloadable GPX file for navigation.
         include_map: If True, generates a visual static map image.
         output_level: Detail level of the report ("summary", "standard", "full").
         target_date: Optional. The date of the event in YYYY-MM-DD format.
-        rider: Profile including weight and fitness level.
-        bike: Setup details including bike type and tire width.
-        mission: Constraints like search radius and surface preference.
     """
     data = get_complete_trail_scout(
         ORS_API_KEY, lat, lon, rider, bike, mission, include_gpx, include_map, output_level, target_date)
@@ -138,10 +138,10 @@ def ride_window_planner(
 def analyze_route_surfaces(
     lat: float,
     lon: float,
+    rider: RiderProfile,
+    bike: BikeSetup,
+    mission: MissionConstraints,
     target_date: Optional[str] = None,
-    rider: Optional[RiderProfile] = None,
-    bike: Optional[BikeSetup] = None,
-    mission: Optional[MissionConstraints] = None
 ):
     """
     Analyzes the route surface, technical difficulty, categorize climbs,
@@ -151,10 +151,10 @@ def analyze_route_surfaces(
     Args:
         lat: Latitude of the center point.
         lon: Longitude of the center point.
-        target_date: Optional. The date of the event in YYYY-MM-DD format.
         rider: Profile of the cyclist.
         bike: Current bicycle configuration.
         mission: Route requirements and radius.
+        target_date: Optional. The date of the event in YYYY-MM-DD format.
     """
     data = get_surface_analyzer(
         ORS_API_KEY,

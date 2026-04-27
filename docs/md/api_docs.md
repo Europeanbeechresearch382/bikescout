@@ -211,13 +211,13 @@ Unlike standard GPS files, BikeScout automatically injects active <wpt> (waypoin
 | :--- | :--- | :--- |:-----------------------------------------------------|
 | `lat` | `float` | Required | Latitude of the starting point (e.g., `45.81`).      |
 | `lon` | `float` | Required | Longitude of the starting point (e.g., `9.08`).      |
+| **`rider`** | `object` | Required | [Rider Profile](#rider-profile-rider).               |
+| **`bike`** | `object` | Required | [Bike Setup](#bike-setup-bike).                      |
+| **`mission`** | `object` | Required | [Mission Constraints](#mission-constraints-mission). |
 | `include_gpx` | `bool` | `True` | Whether to include the raw XML GPX content.          |
 | `include_map` | `bool` | `False` | Whether to generate the Static Map URL.              |
 | `output_level` | `string` | `standard` | Verbosity level: `summary`, `standard`, or `full`.   |
 | `target_date` | `string` |  | target_date: Optional string in 'YYYY-MM-DD' format  |
-| **`rider`** | `object` | Required | [Rider Profile](#rider-profile-rider).               |
-| **`bike`** | `object` | Required | [Bike Setup](#bike-setup-bike).                      |
-| **`mission`** | `object` | Required | [Mission Constraints](#mission-constraints-mission). |
 
 #### **Tool Output Example (JSON):**
 ```json
@@ -550,10 +550,10 @@ This tool goes beyond simple mapping by cross-referencing terrain data with the 
 | :--- | :--- | :--- | :--- |
 | `lat` | `float` | Required | Latitude of the starting point. |
 | `lon` | `float` | Required | Longitude of the starting point. |
-| `target_date` | `string` |  | target_date: Optional string in 'YYYY-MM-DD' format |
 | **`rider`** | `object` | Required | [Rider Profile](#rider-profile-rider).                  |
 | **`bike`** | `object` | Required | [Bike Setup](#bike-setup-bike).                         |
 | **`mission`** | `object` | Required | [Mission Constraints](#mission-constraints-mission).    |
+| `target_date` | `string` |  | target_date: Optional string in 'YYYY-MM-DD' format |
 
 
 **Example Output (JSON) for MTB:**
