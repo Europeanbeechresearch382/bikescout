@@ -1,48 +1,95 @@
 def get_nutrition_plan(duration_hours: float, temp_c: float, intensity_score: int):
     """
-    Core logic for sweat rate and glycogen depletion prediction.
+    Advanced Nutrition & Hydration Logic v2.0
+    Correlates Glycogen Depletion with Thermoregulatory Strain to provide pro-grade
+    fueling intelligence based on Intensity Factor (IF), Heat Stress, and Duration.
     """
-    # Hydration Logic: Base 500ml/hr + 100ml for every 5°C above 20°C
-    base_rate = 500
-    heat_adjustment = max(0, (temp_c - 20) // 5) * 100
 
-    # Intensity multiplier (Scaling from 0.9 to 1.5)
-    intensity_mult = 0.9 + (intensity_score / 200)
+    # --- 1. Intensity Normalization (The "Human Engine" Map) ---
+    # Maps the orchestrator's 1-5 scale into a standardized Intensity Factor (IF)
+    intensity_map = {
+        1: 0.60,  # Z1 / Active Recovery
+        2: 0.75,  # Z2 / Endurance
+        3: 0.85,  # Z3 / Tempo / Sweet Spot
+        4: 0.95,  # Z4 / Threshold
+        5: 1.05   # Z5 / VO2 Max / Race Day
+    }
+    # Fallback to Z2 if out of bounds
+    intensity_factor = intensity_map.get(intensity_score, 0.75)
 
-    hourly_fluid = (base_rate + heat_adjustment) * intensity_mult
+    # --- 2. Continuous Hydration & Sweat Rate Modeling ---
+    # Replaces the step-function with a continuous linear equation.
+    # Base fluid + Temp coefficient (+30ml per degree > 15C) + Intensity kinetic heat.
+    base_rate = 300
+    temp_coeff = max(0, temp_c - 15) * 30
+    intensity_coeff = intensity_factor * 300
+
+    hourly_fluid = base_rate + temp_coeff + intensity_coeff
     total_fluid = (hourly_fluid * duration_hours) / 1000 # Convert to Liters
 
-    # Nutrition Logic: 30-90g Carbs based on intensity
-    if intensity_score > 70:
-        carb_rate = 80  # High intensity (HC/Cat 1)
-        intensity_label = "High"
-    elif intensity_score > 40:
-        carb_rate = 60  # Moderate
-        intensity_label = "Moderate"
-    else:
-        carb_rate = 40  # Low (Z2/Flat)
-        intensity_label = "Low"
+    # --- 3. Advanced Carbohydrate Optimization ---
+    # Base carbohydrate demand scales dynamically with Intensity Factor
+    if intensity_factor >= 0.95:      # High intensity
+        carb_rate = 90
+        intensity_label = "Race / Threshold"
+    elif intensity_factor >= 0.85:    # Moderate/Tempo intensity
+        carb_rate = 60
+        intensity_label = "Tempo"
+    else:                             # Low intensity
+        carb_rate = 40
+        intensity_label = "Endurance / Recovery"
 
+    # Duration multiplier: Long, demanding rides drastically increase glycogen burn
+    if duration_hours > 3.0 and intensity_factor >= 0.85:
+        carb_rate += 30 # Push towards 90g or 120g/hr for extreme attrition
+
+    # Cap at human absolute limit for gut absorption
+    carb_rate = min(120, carb_rate)
     total_carbs = carb_rate * duration_hours
 
-    # Tactical Alerts
+    # Dual-Source Gut Logic
+    ratios = "Standard isotonic or whole foods"
+    if carb_rate > 60:
+        ratios = "2:1 Glucose-to-Fructose (or 1:0.8 ratio)"
+
+    # --- 4. Electrolyte (Sodium) Estimation ---
+    # Typical physiological loss is ~800mg per liter of sweat.
+    # We estimate sweat loss tightly matches the calculated fluid demand.
+    sodium_mg_per_liter = 800
+    hourly_sodium = (hourly_fluid / 1000) * sodium_mg_per_liter
+    total_sodium = hourly_sodium * duration_hours
+
+    # --- 5. Tactical "Low-Tank" Warnings ---
     alerts = []
-    if temp_c > 28 or duration_hours > 3:
-        alerts.append("ELECTROLYTE CRITICAL: High sweat rate or duration detected. Add sodium to bottles.")
-    if carb_rate >= 80:
-        alerts.append("FUELING ALERT: High intensity detected. Train your gut for 80g+/hr intake.")
+
+    if carb_rate > 60:
+        alerts.append(f"FUELING ALERT: High target ({carb_rate}g/hr). Use a {ratios} mix to prevent GI distress. Gut training required.")
+
+    if temp_c > 28:
+        alerts.append("HEAT STRESS RISK: High core temp expected. Prioritize liquid carbs over solids and consider active pre-cooling.")
+
+    if duration_hours > 2.5 and intensity_factor >= 0.85:
+        alerts.append("BONK RISK: High intensity over prolonged duration. Missing a single feeding window will cause catastrophic glycogen depletion.")
+
+    if hourly_sodium >= 800:
+        alerts.append(f"ELECTROLYTE CRITICAL: High sodium output detected. Add {round(hourly_sodium)}mg/hr directly to your bottles to prevent cramping.")
 
     return {
         "status": "Success",
         "mission_nutrition_briefing": {
             "fluids": {
                 "total_liters": round(total_fluid, 1),
-                "hourly_rate_ml": round(hourly_fluid)
+                "hourly_rate_ml": int(hourly_fluid)
             },
             "carbohydrates": {
-                "total_grams": round(total_carbs),
+                "total_grams": int(total_carbs),
                 "hourly_target_g": carb_rate,
+                "recommended_ratio": ratios,
                 "intensity_context": intensity_label
+            },
+            "electrolytes": {
+                "total_sodium_mg": int(total_sodium),
+                "hourly_sodium_mg": int(hourly_sodium)
             },
             "tactical_advice": alerts
         }
