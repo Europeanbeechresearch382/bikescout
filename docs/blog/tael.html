@@ -3,12 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>BikeScout Blog | MCP Server for Tactical Cycling Intelligence</title>
+    <title>BikeScout Blog | Shadow Lock: Defeating the Thermal Icebox</title>
     <meta name="description" content="Transform raw map data into Tactical Intelligence. BikeScout is the first MCP server for AI agents to predict mud risk, S-Scale terrain and E-MTB range. Optimize your mission.">
     <meta name="keywords" content="MCP Server, Model Context Protocol, MTB Intelligence, Gravel Scouting, Cycling Geodata, Mud Prediction, Trail Analysis, Strava Integration">
     <meta name="robots" content="index, follow">
     <link rel="canonical" href="https://hifly81.github.io/bikescout">
-    <link rel="icon" type="image/svg+xml" href="images/favicon.svg">
+    <link rel="icon" type="image/svg+xml" href="../images/favicon.svg">
     <meta property="og:title" content="BikeScout | Tactical Cycling Intelligence">
     <meta property="og:description" content="Stop guessing. Analyze soil drainage, technical grade and elevation with the first MCP-powered cycling scout.">
     <meta property="og:type" content="website">
@@ -16,11 +16,11 @@
     <meta property="og:image" content="https://hifly81.github.io/bikescout/images/preview.png">
     <meta http-equiv="content-language" content="en">
 
-     <script>
-     window.dataLayer = window.dataLayer || [];
-     function gtag(){dataLayer.push(arguments);}
-     gtag('js', new Date());
-     gtag('config', 'G-YTC60Z790M');
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', 'G-YTC60Z790M');
     </script>
 
            <script type="application/ld+json">
@@ -34,7 +34,7 @@
   "operatingSystem": "Independent (MCP Protocol)",
   "downloadUrl": "https://github.com/hifly81/bikescout",
   "license": "https://opensource.org/licenses/apache-2.0",
-  "softwareVersion": "1.1.2",
+  "softwareVersion": "1.2.0",
   "keywords": "MCP server, cycling intelligence, predictive mud logic, S-Scale MTB, OpenStreetMap AI, tactical cycling",
   "author": {
     "@type": "Person",
@@ -68,6 +68,7 @@
         .neon-text { color: #bef264; }
         .article-content h2 { color: white; font-weight: 900; font-style: italic; text-transform: uppercase; margin-top: 3rem; margin-bottom: 1rem; font-size: 1.5rem; }
         .article-content p { margin-bottom: 1.5rem; color: #94a3b8; font-size: 1.125rem; }
+        .article-content strong { color: #e2e8f0; }
     </style>
 </head>
 <body class="bg-[#0b0f1a] text-slate-200">
@@ -78,22 +79,22 @@
     </button>
 
     <div class="flex flex-col items-center gap-8 text-2xl font-black uppercase italic text-white">
-        <a href="index.html">Home</a>
-        <a href="blog.html">Blog</a>
-        <a href="cycling_encyclopedia.html">Encyclopedia</a>
-        <a href="about.html">About</a>
+        <a href="../index.html">Home</a>
+        <a href="../blog.html">Blog</a>
+        <a href="../cycling_encyclopedia.html">Encyclopedia</a>
+        <a href="../about.html">About</a>
     </div>
 </div>
 
 <nav class="fixed top-0 left-0 w-full z-50 bg-[#0b0f1a]/90 backdrop-blur-md border-b border-slate-800 px-6 py-4">
     <div class="max-w-6xl mx-auto flex justify-between items-center">
-        <a href="index.html" class="text-xl font-black italic uppercase tracking-tighter text-white">
+        <a href="../index.html" class="text-xl font-black italic uppercase tracking-tighter text-white">
             Bike<span class="neon-text">Scout</span>
         </a>
         <div class="hidden md:flex gap-8 font-bold text-xs uppercase tracking-widest text-slate-400">
-            <a href="blog.html" class="text-neon-text">Blog</a>
-            <a href="cycling_encyclopedia.html" class="hover:text-neon-text transition-colors">Encyclopedia</a>
-            <a href="about.html" class="hover:text-neon-text transition-colors">About</a>
+            <a href="../blog.html" class="text-neon-text">Blog</a>
+            <a href="../cycling_encyclopedia.html" class="hover:text-neon-text transition-colors">Encyclopedia</a>
+            <a href="../about.html" class="hover:text-neon-text transition-colors">About</a>
         </div>
         <button id="menu-btn" class="md:hidden text-white text-2xl"><i class="fas fa-bars"></i></button>
     </div>
@@ -101,32 +102,35 @@
 
 <article class="max-w-3xl mx-auto py-20 px-6">
     <header class="mb-12 border-b border-slate-800 pb-12">
-        <h1 class="text-4xl md:text-6xl font-black uppercase italic text-white leading-none tracking-tighter">Hello <br><span class="neon-text">Bikers!</span></h1>
-        <p class="text-slate-500 font-bold uppercase tracking-widest text-sm italic">Released: April 11, 2026</p>
+        <h1 class="text-4xl md:text-6xl font-black uppercase italic text-white leading-none tracking-tighter">Introducing <br><span class="neon-text">TAEL (Terrain-Aware Evaporation Lag)</span> algorithm.</h1>
+        <p class="text-slate-500 font-bold uppercase tracking-widest text-sm italic">Released: April 14, 2026</p>
     </header>
 
     <div class="article-content">
-        <p>Exactly one week ago, the first lines of code for BikeScout were pushed. It didn't start as a commercial product, but as a tool for riders who are tired of being lied to by their GPS apps.</p>
+        <p>Weather apps are lying to you. They see 18°C and a clear sky and tell you the trail is dry. But as every local pro knows, the ground has a memory. Today, we introduce the <strong>TAEL (Terrain-Aware Evaporation Lag)</strong> algorithm, the first photonic intelligence model for tactical cycling.</p>
 
-        <p>We’ve all been there: your routing app promises a "smooth gravel road," but 5km in, you find yourself waist-deep in sticky clay or carrying your bike over an unrideable rock garden. This is the Geospatial Truth Gap, and BikeScout is here to close it.</p>
+        <p>The latest update to the <code>check_trail_soil_condition</code> tool now accounts for the "Shadow Lock" effect: the phenomenon where north-facing slopes and deep valley sectors remain saturated for days, regardless of the ambient temperature.</p>
 
-        <h2>The Challenge: Surface Intelligence</h2>
-        <p>Standard maps classify roads by hierarchy (Primary, Secondary, Path). This works for cars, but it’s useless for cyclists. For us, a "path" could be a manicured forest road or a vertical S4-grade descent.</p>
-        <p>BikeScout solves this by performing Deep Tag Parsing. We extract every metadata detail from OpenStreetMap, surface, smoothness, tracktype, and width.
-        <h2>The Challenge: The Mud Variable</h2>
-        <p>A trail is a living thing. Its condition changes with the sky. Most apps ignore weather history, but BikeScout integrates a 72-Hour Rain Analysis. By cross-referencing rainfall volume with soil permeability (clay vs. sand), our engine predicts the "Mud Risk." If the intelligence says Critical, you better bring a fender or change your route.</p>
+        <h2>The Challenge: The Thermal Icebox</h2>
+        <p>Traditional mud models only look at rainfall. BikeScout now looks at <strong>Energy</strong>. By integrating <code><a href="https://pysolar.readthedocs.io/en/latest/">pysolar</a></code>, we calculate the exact altitude of the sun relative to your trail's coordinates at the moment of the request.</p>
+        <p>If the solar altitude is below 20°, the drying efficiency of the atmosphere drops by up to 60%. This creates a "Thermal Icebox", a state where moisture is trapped in the soil texture because the photonic energy is insufficient to trigger evaporation.</p>
 
-        <h2>The Challenge: Real-World Elevation</h2>
-        <p>GPS data is inherently noisy. Standard GPX tracks are often riddled with micro-oscillations that create "phantom" vertical gains, those jagged profile lines that make a steady climb look like a saw blade. BikeScout doesn't try to "invent" smoothing where it isn't needed; it uses Tactical Decimation to reveal the true effort of the route.</p>
+        <h2>The Innovation: The TAEL Algorithm</h2>
+        <p>Our new <strong>TAEL</strong> model cross-references three critical data streams: 72-hour historical precipitation, geological drainage coefficients (Clay, Earth, Gravel), and real-time solar persistence.</p>
+        <p>The result is an <strong>Adjusted Moisture Index</strong>. When BikeScout detects a Shadow Lock, it applies a penalty to the drying efficiency, revealing the "invisible mud" that causes catastrophic traction loss on seemingly perfect days.</p>
 
-        <h2>One Week In: The Future</h2>
-        <p>We are just getting started. BikeScout is currently an MCP Server, meaning it acts as the "brain" that any AI can use to help you plan your missions. In just seven days, we’ve moved from a concept to a functional intelligence tool.</p>
+        <h2>The Goal: Precision Traction</h2>
+        <p>Knowing the trail is "damp" isn't enough. You need to know if the roots will act like ice. The <code>mud_risk_score</code> now factors in this evaporation lag, providing a technical briefing on tire choice and pressure (PSI) that respects the actual state of the terrain, not just the sky.</p>
 
+        <h2>The Future: Geospatial Dominance</h2>
+        <p>BikeScout is evolving from a data aggregator into a terrain-simulation engine. By understanding the relationship between solar angles and soil memory, we are giving riders the ultimate tactical advantage: the ability to see the mud before they even reach the trailhead.</p>
+
+        <p class="mt-8">TAEL Logic is now integrated into the core server. Update your dependencies, restart your MCP instance, and run the telemetry.</p>
 
         <div class="mt-16 flex flex-wrap gap-4">
-            <span class="bg-slate-900 border border-slate-700 px-3 py-1 text-[10px] mono uppercase text-slate-400">#MCP-Server</span>
-            <span class="bg-slate-900 border border-slate-700 px-3 py-1 text-[10px] mono uppercase text-slate-400">#Geodata</span>
-            <span class="bg-slate-900 border border-slate-700 px-3 py-1 text-[10px] mono uppercase text-slate-400">#MTB-Intelligence</span>
+            <span class="bg-slate-900 border border-slate-700 px-3 py-1 text-[10px] mono uppercase text-slate-400">#Shadow-Lock</span>
+            <span class="bg-slate-900 border border-slate-700 px-3 py-1 text-[10px] mono uppercase text-slate-400">#TAEL-Algorithm</span>
+            <span class="bg-slate-900 border border-slate-700 px-3 py-1 text-[10px] mono uppercase text-slate-400">#Terrain-Intelligence</span>
         </div>
     </div>
 

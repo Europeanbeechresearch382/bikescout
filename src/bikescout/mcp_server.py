@@ -3,7 +3,7 @@ import sys
 from dotenv import load_dotenv
 from fastmcp import FastMCP
 from pathlib import Path
-from typing import Literal
+from typing import Literal, Optional
 from bikescout.schemas import RiderProfile, BikeSetup, MissionConstraints, RouteGeometry
 from bikescout.tools.scouting import get_complete_trail_scout
 from bikescout.tools.weather import get_weather_forecast
@@ -15,9 +15,9 @@ from bikescout.tools.strava import get_strava_activity
 from bikescout.tools.gonogo import calculate_ride_windows
 from bikescout.tools.altimetry import get_elevation_profile_image
 from bikescout.tools.nutrition import get_nutrition_plan
+from bikescout.tools.race.analysis import analyze_track
 from bikescout.prompts import BikeScoutPrompts
 from bikescout.resources import BikeScoutResources
-from bikescout.tools.pro.ProCyclingEngine import ProCyclingEngine
 
 
 mcp = FastMCP("BikeScout")
@@ -55,15 +55,15 @@ def geocode_location(location_name: str):
 
 @mcp.tool()
 def trail_scout(
-        rider: RiderProfile,
-        bike: BikeSetup,
-        mission: MissionConstraints,
         lat: float,
         lon: float,
         include_gpx: bool = True,
         include_map: bool = False,
         output_level: Literal["summary", "standard", "full"] = "standard",
-        target_date: str = None
+        target_date: Optional[str] = None,
+        rider: Optional[RiderProfile] = None,
+        bike: Optional[BikeSetup] = None,
+        mission: Optional[MissionConstraints] = None,
 ):
     """
     Advanced trail discovery.
@@ -72,22 +72,22 @@ def trail_scout(
     If target_date is None, it defaults to the current date.
 
     Args:
-        rider: Profile including weight and fitness level.
-        bike: Setup details including bike type and tire width.
-        mission: Constraints like search radius and surface preference.
         lat: Latitude of the starting point.
         lon: Longitude of the starting point.
         include_gpx: If True, generates a downloadable GPX file for navigation.
         include_map: If True, generates a visual static map image.
         output_level: Detail level of the report ("summary", "standard", "full").
         target_date: Optional. The date of the event in YYYY-MM-DD format.
+        rider: Profile including weight and fitness level.
+        bike: Setup details including bike type and tire width.
+        mission: Constraints like search radius and surface preference.
     """
     data = get_complete_trail_scout(
         ORS_API_KEY, lat, lon, rider, bike, mission, include_gpx, include_map, output_level, target_date)
     return {"payload_version": BIKESCOUT_PROTOCOL_VERSION, **data}
 
 @mcp.tool()
-def check_trail_weather(lat: float, lon: float, target_date: str = None):
+def check_trail_weather(lat: float, lon: float, target_date: Optional[str] = None):
     """
     Advanced cycling-specific weather assistant for real-time and future planning.
     Provides temperature, rain risk, and wind speed analysis.
@@ -115,7 +115,7 @@ def ride_window_planner(
         lon: float,
         ride_duration_hours: float = 2.0,
         surface_type: Literal["dirt", "gravel", "asphalt", "sand", "clay"] = "dirt",
-        target_date: str = None
+        target_date: Optional[str] = None
 ):
     """
     Tactical Go/No-Go Planner.
@@ -136,12 +136,12 @@ def ride_window_planner(
 
 @mcp.tool()
 def analyze_route_surfaces(
-    rider: RiderProfile,
-    bike: BikeSetup,
-    mission: MissionConstraints,
     lat: float,
     lon: float,
-    target_date: str = None
+    target_date: Optional[str] = None,
+    rider: Optional[RiderProfile] = None,
+    bike: Optional[BikeSetup] = None,
+    mission: Optional[MissionConstraints] = None
 ):
     """
     Analyzes the route surface, technical difficulty, categorize climbs,
@@ -149,12 +149,12 @@ def analyze_route_surfaces(
     If target_date is None, it defaults to the current date.
 
     Args:
-        rider: Profile of the cyclist.
-        bike: Current bicycle configuration.
-        mission: Route requirements and radius.
         lat: Latitude of the center point.
         lon: Longitude of the center point.
         target_date: Optional. The date of the event in YYYY-MM-DD format.
+        rider: Profile of the cyclist.
+        bike: Current bicycle configuration.
+        mission: Route requirements and radius.
     """
     data = get_surface_analyzer(
         ORS_API_KEY,
@@ -187,7 +187,7 @@ def check_trail_soil_condition(
         lat: float,
         lon: float,
         surface_type: Literal["dirt", "gravel", "asphalt", "sand", "clay"] = "dirt",
-        target_date: str = None
+        target_date: Optional[str] = None
 ):
     """
     Advanced predictive and historical model for ground saturation and mud risk.
@@ -263,7 +263,7 @@ def hydration_scout(
         lon: float,
         duration_hours: float = 2,
         intensity_score: int = 50,
-        target_date: str = None
+        target_date: Optional[str] = None
 ):
     """
     Physiological Intelligence Engine.
@@ -323,59 +323,42 @@ def analyze_gpx_track(
         rider_weight_kg: float,
         bike_weight_kg: float = 7.5,
         pro_intensity: float = 1.6,
-        surface_type: str = "road"
+        activity_type: Literal["road", "mtb"] = "road",
+        target_date: Optional[str] = None,
+        start_hour: Optional[int] = None,
+        end_hour: Optional[int] = None,
+        report: bool = False
 ):
     """
     Performs a high-fidelity professional audit of a GPX race track.
     Calculates UCI climb categories, VAM, W/kg requirements, and crosswind (echelon) risks.
-    Adaptive filtering handles both smooth road races and technical MTB tracks.
+    Integrates predictive weather, mud risk, and nutrition planning.
 
     Args:
         gpx_url: Remote URL or local path of the GPX file to analyze.
         rider_weight_kg: Body mass of the rider for Power-to-Weight calculations.
         bike_weight_kg: Mass of the bike (default 7.5kg for pro road bikes).
         pro_intensity: Effort multiplier (1.0 = amateur, 1.6 = pro pace, 2.0 = world-class attack).
-        surface_type: Type of terrain ('road' or 'mtb'). Adjusts jitter filtering and grade caps.
+        activity_type: Type of activity ('road' or 'mtb').
+        target_date: Optional race date (YYYY-MM-DD). If provided, fetches historical or forecast weather.
+        start_hour: Expected start time (0-23). If provided with end_hour, calculates window-averaged metrics.
+        end_hour: Expected finish time (0-23). Used to average weather conditions during the event.
+        report: True or False, geenarte a pdf report with the analysis.
     """
-    try:
-        # Initialize the Pro Engine
-        # Ensure ORS_API_KEY is defined in your environment/config
-        engine = ProCyclingEngine(ors_key=ORS_API_KEY)
 
-        sys.stderr.write(f"DEBUG: Starting Pro Analysis [{surface_type.upper()}] for {gpx_url}\n")
-
-        # Execute the heavy-duty analysis with the new surface_type switch
-        data = engine.analyze_gpx_track(
+    data = analyze_track(
             gpx_url=gpx_url,
-            rider_weight=rider_weight_kg,
-            bike_weight=bike_weight_kg,
+            rider_weight_kg=rider_weight_kg,
+            bike_weight_kg=bike_weight_kg,
             pro_intensity=pro_intensity,
-            surface_type=surface_type
-        )
+            activity_type=activity_type,
+            target_date=target_date,
+            start_hour=start_hour,
+            end_hour=end_hour,
+            report=report
+    )
 
-        # Check if the engine returned an internal error (e.g., file not found or empty GPX)
-        if data.get("status") == "Error":
-            return {
-                "payload_version": BIKESCOUT_PROTOCOL_VERSION,
-                "status": "Error",
-                "message": data.get("message")
-            }
-
-        # Return the full tactical report (Metrics, Climbs, Power, Echelons)
-        return {
-            "payload_version": BIKESCOUT_PROTOCOL_VERSION,
-            **data
-        }
-
-    except Exception as e:
-        import traceback
-        # Logging to stderr ensures we don't break the MCP JSON-RPC response
-        sys.stderr.write(f"CRITICAL: GPX Tool Failure\n{traceback.format_exc()}\n")
-        return {
-            "payload_version": BIKESCOUT_PROTOCOL_VERSION,
-            "status": "Error",
-            "message": f"GPX Analysis Engine failed: {str(e)}"
-        }
+    return {"payload_version": BIKESCOUT_PROTOCOL_VERSION, **data}
 
 # --- SKILLS SECTION
 
@@ -463,7 +446,7 @@ def apply_safety_protocol(
     }
 
 @mcp.tool()
-def get_baseline_mechanics(bike_category: str):
+def get_baseline_mechanics(bike_category: Literal["mtb", "ebike", "road", "gravel", "general"]):
     """
     Provides baseline tire pressure and mechanical settings from the BikeScout Registry.
     Categories: 'road', 'gravel', 'mtb'.

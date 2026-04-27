@@ -192,7 +192,7 @@ def get_complete_trail_scout(
         target_date: str = None
 ):
     """
-    The Master Orchestrator (v1.3): Synchronized Technical Briefing.
+    The Master Orchestrator: Synchronized Technical Briefing.
     Integrates Surface Analysis, Weather-Driven Nutrition, Mud Risk,
     and Artifact Generation (GPX/Altimetry) using SMA-Sanitized data.
     """
@@ -252,17 +252,30 @@ def get_complete_trail_scout(
         weather_report = get_weather_forecast(lat, lon, target_date)
         mud_analysis = get_mud_risk_analysis(lat, lon, dominant_surface, target_date)
 
-        # --- 6. INTEGRATED NUTRITION LOGIC ---
-        # Extract max temperature for hydration scaling
-        max_temp = 20.0  # Tactical baseline
-        forecast = weather_report.get('next_4_hours', [])
-        if forecast:
-            try:
-                # Handle possible encoding issues in temperature strings
-                temps = [float(h["temp"].replace("°C", "").replace("C", "").strip()) for h in forecast]
-                max_temp = max(temps)
-            except (ValueError, KeyError, TypeError):
-                pass
+        max_temp = 20.0
+
+        if weather_report.get('status') == 'Success':
+            # OPTION A: Use the pre-calculated reference temperature (Fastest)
+            # This uses the specific hour matched by the engine
+            max_temp = weather_report.get('reference_conditions', {}).get('temp_actual', 20.0)
+
+            # OPTION B: Extract max from the tactical forecast list (More precise for long rides)
+            # We look at 'tactical_forecast' instead of 'next_4_hours'
+            forecast = weather_report.get('tactical_forecast', [])
+            if forecast:
+                try:
+                    # We use a robust list comprehension to clean the "°C" strings
+                    # and convert them to floats for comparison
+                    temps = [
+                        float(h["temp"].replace("°C", "").strip())
+                        for h in forecast
+                        if "temp" in h
+                    ]
+                    if temps:
+                        max_temp = max(temps)
+                except (ValueError, KeyError, TypeError):
+                    # Fallback already set to reference_conditions or 20.0
+                    pass
 
         # Calculate intensity and estimated duration using synchronized stats
         # Formula: dist/speed + vertical_penalty

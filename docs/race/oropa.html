@@ -8,7 +8,7 @@
     <meta name="keywords" content="MCP Server, Giro d'Italia, Oropa, Cycling Data Analysis, GPX Tool, Pro Cycling, Tactical Intelligence">
     <meta name="robots" content="index, follow">
     <link rel="canonical" href="https://hifly81.github.io/bikescout">
-    <link rel="icon" type="image/svg+xml" href="images/favicon.svg">
+    <link rel="icon" type="image/svg+xml" href="../images/favicon.svg">
     <meta property="og:title" content="BikeScout | Tactical Giro Analysis">
     <meta property="og:description" content="From raw GPX to World Tour Insights. Discover the power required to win on Oropa.">
     <meta property="og:type" content="website">
@@ -34,7 +34,7 @@
             "operatingSystem": "Independent (MCP Protocol)",
             "downloadUrl": "https://github.com/hifly81/bikescout",
             "license": "https://opensource.org/licenses/apache-2.0",
-            "softwareVersion": "1.1.2",
+            "softwareVersion": "1.2.0",
             "keywords": "MCP server, cycling intelligence, predictive mud logic, S-Scale MTB, OpenStreetMap AI, tactical cycling",
             "author": {
                 "@type": "Person",
@@ -80,19 +80,30 @@
             background-image: radial-gradient(#334155 0.5px, transparent 0.5px);
             background-size: 24px 24px;
         }
+
+        .download-btn {
+            transition: all 0.2s ease;
+            border: 1px solid rgba(190, 242, 100, 0.2);
+        }
+        .download-btn:hover {
+            background: #bef264;
+            color: #0b0f1a;
+            border-color: #bef264;
+            transform: translateY(-2px);
+        }
     </style>
 </head>
 <body class="bg-[#0b0f1a] text-slate-200">
 
 <nav class="fixed top-0 left-0 w-full z-50 bg-[#0b0f1a]/90 backdrop-blur-md border-b border-slate-800 px-6 py-4">
     <div class="max-w-6xl mx-auto flex justify-between items-center">
-        <a href="index.html" class="text-xl font-black italic uppercase tracking-tighter text-white">
+        <a href="../index.html" class="text-xl font-black italic uppercase tracking-tighter text-white">
             Bike<span class="neon-text">Scout</span>
         </a>
         <div class="hidden md:flex gap-8 font-bold text-xs uppercase tracking-widest text-slate-400">
-            <a href="blog.html" class="text-neon-text">Blog</a>
-            <a href="cycling_encyclopedia.html" class="hover:text-neon-text transition-colors">Encyclopedia</a>
-            <a href="about.html" class="hover:text-neon-text transition-colors">About</a>
+            <a href="../blog.html" class="text-neon-text">Blog</a>
+            <a href="../cycling_encyclopedia.html" class="hover:text-neon-text transition-colors">Encyclopedia</a>
+            <a href="../about.html" class="hover:text-neon-text transition-colors">About</a>
         </div>
     </div>
 </nav>
@@ -107,7 +118,7 @@
         <p>Using the latest <b>BikeScout GPX Intelligence Tool</b>, we processed every meter of the 155.29 km track of the Giro d'Italia 2024 Stage 2 (San Francesco al Campo - Santuario di Oropa) to decode its exact tactical requirements. Our engine transformed the raw coordinate data into high-resolution performance insights, identifying the critical vertical gain and power thresholds necessary to conquer this iconic climb.</p>
 
         <div class="mb-12 rounded overflow-hidden border border-slate-800 bg-slate-900/20">
-            <img src="images/giro2024.jpg" alt="Giro d'Italia 2024 Stage 2 Analysis" class="w-full h-auto opacity-90 hover:opacity-100 transition-opacity">
+            <img src="../images/giro2024.jpg" alt="Giro d'Italia 2024 Stage 2 Analysis" class="w-full h-auto opacity-90 hover:opacity-100 transition-opacity">
             <div class="p-3 border-t border-slate-800 flex justify-between items-center mono text-[9px] uppercase tracking-widest text-slate-500">
                 <span>Fig 1.0: Altimetric Profiling</span>
                 <span>Source: <a href="https://www.giroditalia.it/" target="_blank" class="neon-text hover:underline">giroditalia.it</a></span>
@@ -116,17 +127,43 @@
 
         <p>The results confirm what we suspected: Oropa is not just a climb; it's a brutal filtration system. <br>Our engine identified a total ascent of <strong>2245.6 meters</strong>, peaking at an altitude of 1136m. But the raw numbers only tell half the story. The true intelligence lies in the <strong>Climb Analysis</strong> and the <strong>Performance Simulation</strong>.</p>
 
-        <div class="tactical-box">
-            <h3 class="neon-text mono font-bold mb-4">CRITICAL MISSION DATA:</h3>
-            <ul class="mono text-xs space-y-2">
-                <li>> DISTANCE: 155.29 KM</li>
-                <li>> TOTAL GAIN: 2245.6 M</li>
-                <li>> FINAL CLIMB (CAT 1): 14.25 KM @ 5.0%</li>
-                <li>> PEAK GRADIENT DETECTED: 28.0%</li>
-            </ul>
+        <div class="grid md:grid-cols-2 gap-6 items-stretch">
+            <div class="tactical-box m-0 h-full">
+                <h3 class="neon-text mono font-bold mb-4">CRITICAL MISSION DATA:</h3>
+                <ul class="mono text-xs space-y-2">
+                    <li>> DISTANCE: 155.29 KM</li>
+                    <li>> TOTAL GAIN: 2245.6 M</li>
+                    <li>> FINAL CLIMB (CAT 1): 14.25 KM @ 5.0%</li>
+                    <li>> PEAK GRADIENT DETECTED: 28.0%</li>
+                </ul>
+            </div>
+
+            <div class="tactical-box m-0 h-full flex flex-col justify-between">
+                <div>
+                    <h3 class="text-white mono font-bold mb-4 uppercase">Mission Assets:</h3>
+                    <p class="text-[10px] mono text-slate-500 mb-4 tracking-tighter">Download the complete technical dataset for this stage.</p>
+                </div>
+                <div class="flex flex-col gap-2">
+                    <a href="oropa_report.pdf" download class="download-btn mono text-[10px] p-3 flex items-center justify-between group">
+                        <span><i class="fa-solid fa-file-pdf mr-2"></i> STRATEGY_REPORT.PDF</span>
+                        <i class="fa-solid fa-download opacity-0 group-hover:opacity-100 transition-opacity"></i>
+                    </a>
+                    <a href="oropa_report.json" download class="download-btn mono text-[10px] p-3 flex items-center justify-between group">
+                        <span><i class="fa-solid fa-code mr-2"></i> RAW_DATA_METRICS.JSON</span>
+                        <i class="fa-solid fa-download opacity-0 group-hover:opacity-100 transition-opacity"></i>
+                    </a>
+                </div>
+            </div>
         </div>
 
-        <h2>The Anatomy of the Stage</h2>
+        <h2 class="mt-12">The Anatomy of the Stage</h2>
+
+        <div class="mb-12 rounded overflow-hidden border border-slate-800 bg-slate-900/20">
+            <img src="../images/oropa_report.png" alt="Giro d'Italia 2024 Stage 2 BikeScout Report" class="w-full h-auto opacity-90 hover:opacity-100 transition-opacity">
+            <div class="p-3 border-t border-slate-800 flex justify-between items-center mono text-[9px] uppercase tracking-widest text-slate-500">
+            </div>
+        </div>
+
         <p>While the stage features several Cat 3 ascents (Oasi Zegna and Nelva), the real battle was at km 140.7. <br>Our tool flagged the <strong>Santuario di Oropa</strong> as a 14.25 km sector with a 716m vertical gain. <br>Our <strong>Performance Simulation</strong> modeled a required VAM of 1350 for the leaders, translating to a staggering <strong>6.5 Watts/kg</strong> (approx. 467.8 Watts) to stay in the Pink Jersey hunt.</p>
 
         <h2>Explosivity Zones: The "Road Walls"</h2>

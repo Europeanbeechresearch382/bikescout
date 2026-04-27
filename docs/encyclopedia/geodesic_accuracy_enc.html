@@ -3,12 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>BikeScout Encyclopedia | ASI: Actionable Setup Intelligence</title>
+    <title>BikeScout Encyclopedia | Geodesic Accuracy & Haversine Grade Calculation</title>
     <meta name="description" content="Transform raw map data into Tactical Intelligence. BikeScout is the first MCP server for AI agents to predict mud risk, S-Scale terrain and E-MTB range. Optimize your mission.">
     <meta name="keywords" content="MCP Server, Model Context Protocol, MTB Intelligence, Gravel Scouting, Cycling Geodata, Mud Prediction, Trail Analysis, Strava Integration">
     <meta name="robots" content="index, follow">
     <link rel="canonical" href="https://hifly81.github.io/bikescout">
-    <link rel="icon" type="image/svg+xml" href="images/favicon.svg">
+    <link rel="icon" type="image/svg+xml" href="../images/favicon.svg">
     <meta property="og:title" content="BikeScout | Tactical Cycling Intelligence">
     <meta property="og:description" content="Stop guessing. Analyze soil drainage, technical grade and elevation with the first MCP-powered cycling scout.">
     <meta property="og:type" content="website">
@@ -24,7 +24,7 @@
         gtag('config', 'G-YTC60Z790M');
     </script>
 
-    <script type="application/ld+json">
+           <script type="application/ld+json">
 {
   "@context": "https://schema.org",
   "@type": "SoftwareApplication",
@@ -35,7 +35,7 @@
   "operatingSystem": "Independent (MCP Protocol)",
   "downloadUrl": "https://github.com/hifly81/bikescout",
   "license": "https://opensource.org/licenses/apache-2.0",
-  "softwareVersion": "1.1.0",
+  "softwareVersion": "1.2.0",
   "keywords": "MCP server, cycling intelligence, predictive mud logic, S-Scale MTB, OpenStreetMap AI, tactical cycling",
   "author": {
     "@type": "Person",
@@ -81,22 +81,22 @@
     </button>
 
     <div class="flex flex-col items-center gap-8 text-2xl font-black uppercase italic text-white">
-        <a href="index.html">Home</a>
-        <a href="blog.html">Blog</a>
-        <a href="cycling_encyclopedia.html">Encyclopedia</a>
-        <a href="about.html">About</a>
+        <a href="../index.html">Home</a>
+        <a href="../blog.html">Blog</a>
+        <a href="../cycling_encyclopedia.html">Encyclopedia</a>
+        <a href="../about.html">About</a>
     </div>
 </div>
 
 <nav class="fixed top-0 left-0 w-full z-50 bg-[#0b0f1a]/90 backdrop-blur-md border-b border-slate-800 px-6 py-4">
     <div class="max-w-6xl mx-auto flex justify-between items-center">
-        <a href="index.html" class="text-xl font-black italic uppercase tracking-tighter text-white">
+        <a href="../index.html" class="text-xl font-black italic uppercase tracking-tighter text-white">
             Bike<span class="neon-text">Scout</span>
         </a>
         <div class="hidden md:flex gap-8 font-bold text-xs uppercase tracking-widest text-slate-400">
-            <a href="blog.html" class="hover:text-neon-text transition-colors">Blog</a>
-            <a href="cycling_encyclopedia.html" class="hover:text-neon-text transition-colors">Encyclopedia</a>
-            <a href="about.html" class="hover:text-neon-text transition-colors">About</a>
+            <a href="../blog.html" class="text-neon-text">Blog</a>
+            <a href="../cycling_encyclopedia.html" class="hover:text-neon-text transition-colors">Encyclopedia</a>
+            <a href="../about.html" class="hover:text-neon-text transition-colors">About</a>
         </div>
         <button id="menu-btn" class="md:hidden text-white text-2xl"><i class="fas fa-bars"></i></button>
     </div>
@@ -104,55 +104,51 @@
 
 <article class="max-w-3xl mx-auto py-20 px-6">
     <header class="mb-12 border-b border-slate-800 pb-12">
-        <h1 class="text-4xl md:text-6xl font-black uppercase italic text-white leading-none tracking-tighter">ASI <br><span class="neon-text">Setup Intelligence</span></h1>
-        <p class="text-slate-500 font-bold uppercase tracking-widest text-sm italic">Core Concept: Mechanical Optimization</p>
+        <h1 class="text-4xl md:text-6xl font-black uppercase italic text-white leading-none tracking-tighter">Geodesic <br><span class="neon-text">Accuracy</span></h1>
+        <p class="text-slate-500 font-bold uppercase tracking-widest text-sm italic">Core Concept: Geospatial Intelligence</p>
     </header>
 
     <div class="article-content">
-        <p><strong>Actionable Setup Intelligence (ASI)</strong> is the BikeScout framework that bridges the gap between raw environmental data and mechanical execution. It eliminates "pressure guesswork" by calculating the optimal tire pressure (PSI/Bar) based on a multi-factor logic of rider weight, surface type, and moisture levels.</p>
+        <p>In the world of tactical cycling, distance is not a straight line on a flat map. Most consumer-grade cycling apps treat the Earth as a plane (Euclidean geometry), which leads to significant errors in distance and slope calculation. <strong>Geodesic Accuracy</strong> is the practice of measuring distance over the Earth's ellipsoidal surface.</p>
 
-        <p>In tactical cycling, the interface between the tire and the ground is the most critical variable for mission success. ASI ensures this interface is optimized for either <strong>Efficiency</strong>, <strong>Compliance</strong>, or <strong>Flotation</strong>.</p>
+        <p>BikeScout implements 100% Geodesic Accuracy to ensure that when we report a 15% gradient "Wall", it is physically accurate, whether you are riding at the Equator or the high latitudes of the Dolomites.</p>
 
-        <h2>The Baseline: Weight Normalization</h2>
-        <p>Every ASI calculation starts with a baseline normalized at 85kg. Using a heuristic linear adjustment, the system increases or decreases the target pressure by 1 PSI for every 5kg of deviation from the baseline. This ensures that a lightweight climber and a heavy-duty enduro rider receive tailored data for the same trail.</p>
+        <h2>The Problem: Meridian Distortion</h2>
+        <p>The distance between degrees of longitude shrinks as you move away from the Equator. At 45°N (common in the Alps or Oregon), a degree of longitude is roughly 30% shorter than at the Equator. If your routing engine uses fixed multipliers, your total distance will be wrong, and your slope calculations will be purely fictional.</p>
+
+
+
+        <h2>The Solution: The Haversine Formula</h2>
+        <p>To defeat this distortion, BikeScout ignores the summary data provided by standard APIs and recalculates every single coordinate segment using the <strong>Haversine Formula</strong>. This calculates the great-circle distance between two points on a sphere given their longitudes and latitudes.</p>
 
         <div class="formula-card">
-            Weight_Adjustment = (Rider_Weight - 85.0) / 5.0 <br>
-            Adjusted_PSI = Base_PSI + Weight_Adjustment
+            a = sin²(Δφ/2) + cos φ1 ⋅ cos φ2 ⋅ sin²(Δλ/2)<br>
+            c = 2 ⋅ atan2( √a, √(1−a) )<br>
+            d = R ⋅ c
         </div>
 
+        <h2>Tactical Impact: The "Wall %" Credibility</h2>
+        <p>Gradient (Slope) is the ratio between <strong>Vertical Gain</strong> and <strong>Horizontal Distance</strong>. By using Geodesic distance as our horizontal baseline, BikeScout eliminates the "flattening" effect of map projections. This is why our <code>climb_category</code> and <code>avg_gradient</code> metrics match the physical effort felt by the rider's legs, providing a higher level of tactical trust than generic GPS trackers.</p>
 
+        <h2>Why it Matters for AI</h2>
+        <p>Large Language Models (LLMs) cannot "feel" the terrain. They rely on the data we feed them. By providing Geodesically Accurate telemetry through the MCP protocol, BikeScout ensures the AI can accurately predict energy expenditure and technical difficulty without being misled by map distortion.</p>
 
-        <h2>The Tactical Strategy Logic</h2>
-        <p>ASI doesn't just calculate numbers; it selects a <strong>Strategy</strong>. Depending on the data ingested from the <em>TAEL Model</em> and <em>Surface Analyzer</em>, the system applies specific offsets:</p>
-
-        <ul>
-            <li><strong>Mud Flotation:</strong> Triggered when the Mud Index > 0.6. The system applies a 15% reduction in pressure to increase the tire's footprint and prevent "sinking".</li>
-            <li><strong>Compliance:</strong> Triggered on technical terrain (rocks, roots). It applies a -2.0 PSI offset to improve vibration damping and mechanical grip.</li>
-            <li><strong>Efficiency:</strong> Triggered on smooth or paved surfaces. It applies a +3.0 PSI offset to minimize rolling resistance.</li>
-        </ul>
-
-        <h2>Cross-System Integration</h2>
-        <p>ASI is not an isolated tool. It is the final output of the BikeScout intelligence chain. It takes the "Dark Side" analysis from <strong>Shadow Persistence</strong> and the soil saturation data from <strong>TAEL</strong> to warn the rider if their current equipment (e.g., road tires on a 40% mud route) is a safety risk.</p>
-
-        <h2>Mechanical Briefing Output</h2>
-        <p>The result is a standardized <em>Tactical Display String</em>. Instead of a generic "check your tires," the rider receives: <br>
-            <code class="mono text-neon-text bg-slate-900 px-2 py-1 rounded text-sm">29" wheels | 22.5 PSI (1.55 Bar) [Mud Flotation Setup]</code>.</p>
 
         <div class="mt-16 flex flex-wrap gap-4">
-            <span class="bg-slate-900 border border-slate-700 px-3 py-1 text-[10px] mono uppercase text-slate-400">#Actionable-Intel</span>
-            <span class="bg-slate-900 border border-slate-700 px-3 py-1 text-[10px] mono uppercase text-slate-400">#Tire-Physics</span>
-            <span class="bg-slate-900 border border-slate-700 px-3 py-1 text-[10px] mono uppercase text-slate-400">#Setup-Optimization</span>
+            <span class="bg-slate-900 border border-slate-700 px-3 py-1 text-[10px] mono uppercase text-slate-400">#Geodesy</span>
+            <span class="bg-slate-900 border border-slate-700 px-3 py-1 text-[10px] mono uppercase text-slate-400">#Haversine</span>
+            <span class="bg-slate-900 border border-slate-700 px-3 py-1 text-[10px] mono uppercase text-slate-400">#Tactical-Briefing</span>
         </div>
     </div>
 
 </article>
 
 <footer class="py-12 border-t border-slate-900 text-center text-slate-600 mono text-[10px] uppercase tracking-[0.4em]">
-    BikeScout @ 2026 // <span class="text-white">hifly81</span>
+    BikeScout @ 2026// <span class="text-white">hifly81</span>
 </footer>
 
 <script>
+    // Mobile Menu logic
     const menuBtn = document.getElementById('menu-btn');
     const closeBtn = document.getElementById('close-btn');
     const mobileMenu = document.getElementById('mobile-menu');
@@ -166,6 +162,7 @@
         mobileMenu.classList.add('hidden');
         document.body.style.overflow = 'auto';
     });
+
 
     mobileMenu.querySelectorAll('a').forEach(link => {
         link.addEventListener('click', () => {

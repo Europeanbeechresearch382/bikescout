@@ -3,12 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>BikeScout Encyclopedia | TAEL Model: Terrain-Aware Evaporation Lag</title>
+    <title>BikeScout Encyclopedia | Hydration Scout: Metabolic & Thermal Modeling</title>
     <meta name="description" content="Transform raw map data into Tactical Intelligence. BikeScout is the first MCP server for AI agents to predict mud risk, S-Scale terrain and E-MTB range. Optimize your mission.">
     <meta name="keywords" content="MCP Server, Model Context Protocol, MTB Intelligence, Gravel Scouting, Cycling Geodata, Mud Prediction, Trail Analysis, Strava Integration">
     <meta name="robots" content="index, follow">
     <link rel="canonical" href="https://hifly81.github.io/bikescout">
-    <link rel="icon" type="image/svg+xml" href="images/favicon.svg">
+    <link rel="icon" type="image/svg+xml" href="../images/favicon.svg">
     <meta property="og:title" content="BikeScout | Tactical Cycling Intelligence">
     <meta property="og:description" content="Stop guessing. Analyze soil drainage, technical grade and elevation with the first MCP-powered cycling scout.">
     <meta property="og:type" content="website">
@@ -35,7 +35,7 @@
   "operatingSystem": "Independent (MCP Protocol)",
   "downloadUrl": "https://github.com/hifly81/bikescout",
   "license": "https://opensource.org/licenses/apache-2.0",
-  "softwareVersion": "1.1.2",
+  "softwareVersion": "1.2.0",
   "keywords": "MCP server, cycling intelligence, predictive mud logic, S-Scale MTB, OpenStreetMap AI, tactical cycling",
   "author": {
     "@type": "Person",
@@ -70,6 +70,9 @@
         .article-content h2 { color: white; font-weight: 900; font-style: italic; text-transform: uppercase; margin-top: 3rem; margin-bottom: 1rem; font-size: 1.5rem; }
         .article-content p { margin-bottom: 1.5rem; color: #94a3b8; font-size: 1.125rem; }
         .article-content strong { color: #e2e8f0; }
+        .article-content ul { margin-bottom: 1.5rem; list-style-type: none; }
+        .article-content li { color: #94a3b8; margin-bottom: 0.5rem; position: relative; padding-left: 1.5rem; }
+        .article-content li::before { content: "//"; position: absolute; left: 0; color: #bef264; font-family: 'JetBrains Mono'; font-weight: bold; }
         .tech-box { background: #0f172a; border: 1px solid #1e293b; border-left: 4px solid #bef264; padding: 1.5rem; margin: 2rem 0; }
     </style>
 </head>
@@ -79,24 +82,23 @@
     <button id="close-btn" class="absolute top-6 right-6 text-3xl neon-text p-4">
         <i class="fas fa-times"></i>
     </button>
-
     <div class="flex flex-col items-center gap-8 text-2xl font-black uppercase italic text-white">
-        <a href="index.html">Home</a>
-        <a href="blog.html">Blog</a>
-        <a href="cycling_encyclopedia.html">Encyclopedia</a>
-        <a href="about.html">About</a>
+        <a href="../index.html">Home</a>
+        <a href="../blog.html">Blog</a>
+        <a href="../cycling_encyclopedia.html">Encyclopedia</a>
+        <a href="../about.html">About</a>
     </div>
 </div>
 
 <nav class="fixed top-0 left-0 w-full z-50 bg-[#0b0f1a]/90 backdrop-blur-md border-b border-slate-800 px-6 py-4">
     <div class="max-w-6xl mx-auto flex justify-between items-center">
-        <a href="index.html" class="text-xl font-black italic uppercase tracking-tighter text-white">
+        <a href="../index.html" class="text-xl font-black italic uppercase tracking-tighter text-white">
             Bike<span class="neon-text">Scout</span>
         </a>
         <div class="hidden md:flex gap-8 font-bold text-xs uppercase tracking-widest text-slate-400">
-            <a href="blog.html" class="text-neon-text">Blog</a>
-            <a href="cycling_encyclopedia.html" class="hover:text-neon-text transition-colors">Encyclopedia</a>
-            <a href="about.html" class="hover:text-neon-text transition-colors">About</a>
+            <a href="../blog.html" class="text-neon-text">Blog</a>
+            <a href="../cycling_encyclopedia.html" class="hover:text-neon-text transition-colors">Encyclopedia</a>
+            <a href="../about.html" class="hover:text-neon-text transition-colors">About</a>
         </div>
         <button id="menu-btn" class="md:hidden text-white text-2xl"><i class="fas fa-bars"></i></button>
     </div>
@@ -104,45 +106,50 @@
 
 <article class="max-w-3xl mx-auto py-20 px-6">
     <header class="mb-12 border-b border-slate-800 pb-12">
-        <h1 class="text-4xl md:text-6xl font-black uppercase italic text-white leading-none tracking-tighter">TAEL <br><span class="neon-text">Model</span></h1>
-        <p class="text-slate-500 font-bold uppercase tracking-widest text-sm italic">Terrain-Aware Evaporation Lag</p>
+        <h1 class="text-4xl md:text-6xl font-black uppercase italic text-white leading-none tracking-tighter">Hydration <br><span class="neon-text">Scout</span></h1>
+        <p class="text-slate-500 font-bold uppercase tracking-widest text-sm italic">Metabolic & Thermal Modeling</p>
     </header>
 
     <div class="article-content">
-        <p>The <strong>TAEL (Terrain-Aware Evaporation Lag)</strong> Model is BikeScout’s algorithm designed to solve the "Post-Rain Paradox": why do trails remain saturated even after hours of direct sunlight? Unlike basic weather apps, TAEL treats the soil as a dynamic capacitor that stores and releases moisture at different rates.</p>
+        <p><strong>Hydration Scout</strong> is BikeScout’s bio-energetic engine. It solves the critical problem of "the wall" (bonking) by correlating geospatial effort with environmental thermal stress. Unlike generic calorie counters, it predicts the <strong>sweat rate</strong> and <strong>glycogen depletion</strong> specifically for off-road cycling conditions.</p>
 
-        <h2>The Core Logic</h2>
-        <p>TAEL operates on the principle that evaporation is not instantaneous. It calculates a "Lag Factor" based on three variables: <strong>Cumulative Precipitation (72h)</strong>, <strong>Soil Drainage Class</strong> (Clay, Loam, Sand), and <strong>Photonic Energy flux</strong>.</p>
+        <h2>The Dynamic Fluid Model</h2>
+        <p>The algorithm calculates hydration requirements by setting a baseline metabolic rate and adjusting it for every 5°C increase above the 20°C thermal threshold.</p>
 
         <div class="tech-box">
-            <span class="mono text-neon-text font-bold">// TAEL MOISTURE INDEX FORMULA</span><br>
-            <span class="mono text-slate-400">Index = (Precip_72h * Drainage_Coeff) / (Temp_Efficiency + Solar_Persistence)</span>
+            <span class="mono text-neon-text font-bold">// HYDRATION FLOW FORMULA</span><br>
+            <span class="mono text-slate-400">Hourly_Fluid = (Base_500ml + Heat_Adjustment) * Intensity_Multiplier</span>
         </div>
 
-        <h2>Drainage Coefficients</h2>
-        <p>Different surfaces have different "memories". TAEL assigns specific weights to soil types detected via MCP surface sensing:</p>
+        <h2>Glycogen Prediction</h2>
+        <p>Intensity isn't just speed; it's a factor of vertical gain and technical terrain (HC climbs, technical singletracks). Hydration Scout categorizes intake into three tiers:</p>
         <ul>
-            <li><strong>Clay/Compact:</strong> High retention, slow lag (Mud risk remains high for 48h+).</li>
-            <li><strong>Gravel/Fine Gravel:</strong> Low retention, fast lag (Quick recovery).</li>
-            <li><strong>Forest Loam:</strong> Variable lag based on organic saturation.</li>
+            <li><strong>Low Intensity (<40):</strong> 40g Carbs/hr (Endurance/Z2).</li>
+            <li><strong>Moderate Intensity (40-70):</strong> 60g Carbs/hr (Tempo/Trail).</li>
+            <li><strong>High Intensity (>70):</strong> 80g+ Carbs/hr (Legendary HC Climbs).</li>
         </ul>
 
-        <h2>Tactical Advantage</h2>
-        <p>The TAEL Model provides a <code>mud_risk_score</code> from 1 to 100. This is used by the AI to suggest tire tread patterns and pressure. If TAEL predicts a "Saturation Lock", the briefing will recommend higher-profile knobs and lower PSI, even if the current sky is clear.</p>
+        <h2>Tactical Advice & Safety</h2>
+        <p>Hydration Scout monitors for "Metabolic Redlines". If the forecasted temperature exceeds 28°C or the mission duration crosses the 3-hour mark, the system automatically triggers an <strong>Electrolyte Critical</strong> alert, recommending sodium supplementation to prevent hyponatremia.</p>
+
+        <div class="tech-box">
+            <span class="mono text-neon-text font-bold">// TACTICAL WARNING LOGIC</span><br>
+            <span class="mono text-slate-400">If (Temp > 28°C OR Duration > 3h): Trigger "Sodium Supplementation Needed"</span>
+        </div>
 
         <div class="mt-16 flex flex-wrap gap-4">
-            <span class="bg-slate-900 border border-slate-700 px-3 py-1 text-[10px] mono uppercase text-slate-400">#Soil-Science</span>
-            <span class="bg-slate-900 border border-slate-700 px-3 py-1 text-[10px] mono uppercase text-slate-400">#Predictive-Modeling</span>
-            <span class="bg-slate-900 border border-slate-700 px-3 py-1 text-[10px] mono uppercase text-slate-400">#TAEL</span>
+            <span class="bg-slate-900 border border-slate-700 px-3 py-1 text-[10px] mono uppercase text-slate-400">#Bio-Mechanics</span>
+            <span class="bg-slate-900 border border-slate-700 px-3 py-1 text-[10px] mono uppercase text-slate-400">#Metabolic-Fueling</span>
+            <span class="bg-slate-900 border border-slate-700 px-3 py-1 text-[10px] mono uppercase text-slate-400">#Hydration-Scout</span>
         </div>
     </div>
 </article>
+
 <footer class="py-12 border-t border-slate-900 text-center text-slate-600 mono text-[10px] uppercase tracking-[0.4em]">
-    BikeScout @ 2026// <span class="text-white">hifly81</span>
+    BikeScout @ 2026 // <span class="text-white">hifly81</span>
 </footer>
 
 <script>
-    // Mobile Menu logic
     const menuBtn = document.getElementById('menu-btn');
     const closeBtn = document.getElementById('close-btn');
     const mobileMenu = document.getElementById('mobile-menu');
@@ -155,14 +162,6 @@
     closeBtn.addEventListener('click', () => {
         mobileMenu.classList.add('hidden');
         document.body.style.overflow = 'auto';
-    });
-
-
-    mobileMenu.querySelectorAll('a').forEach(link => {
-        link.addEventListener('click', () => {
-            mobileMenu.classList.add('hidden');
-            document.body.style.overflow = 'auto';
-        });
     });
 </script>
 </body>
