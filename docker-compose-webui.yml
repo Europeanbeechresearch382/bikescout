@@ -1,31 +1,4 @@
 services:
-  ollama:
-    image: ollama/ollama:${OLLAMA_DOCKER_TAG-latest}
-    container_name: ollama
-    privileged: true
-    pull_policy: always
-    tty: true
-    restart: unless-stopped
-    ports:
-      - 11434:11434
-    environment:
-      - HSA_OVERRIDE_GFX_VERSION=11.0.2
-      - OLLAMA_CONTEXT_LENGTH=8192
-      - OLLAMA_VULKAN=1
-      - OLLAMA_FLASH_ATTENTION=1
-      - OLLAMA_NUM_PARALLEL=1
-      - OLLAMA_MAX_LOADED_MODELS=1
-      - OLLAMA_MMAP=true
-      - OLLAMA_KEEP_ALIVE=-1
-      - OLLAMA_DEBUG=0
-    devices:
-      - /dev/kfd:/dev/kfd
-      - /dev/dri:/dev/dri
-    volumes:
-      - ollama:/root/.ollama
-      - /home/hifly/projects/bikescout:/build/bikescout:ro
-    networks:
-      - bikescout_net
   mcpo:
     container_name: mcpo
     image: ghcr.io/open-webui/mcpo:main
@@ -54,14 +27,12 @@ services:
     image: ghcr.io/open-webui/open-webui:main
     container_name: open-webui
     restart: unless-stopped
-    depends_on:
-      - ollama
     ports:
       - 3000:8080
     volumes:
       - open-webui:/app/backend/data
     environment:
-      - 'OLLAMA_BASE_URL=http://ollama:11434'
+      - 'OLLAMA_BASE_URL=http://host.docker.internal:11434'
       - 'WEBUI_SECRET_KEY=aaassasasasasasas11221@@@'
     extra_hosts:
       - "host.docker.internal:host-gateway"

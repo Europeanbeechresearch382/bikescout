@@ -12,11 +12,11 @@ class RiderProfile(BaseModel):
     Required fields without defaults to force Agent-User interaction.
     """
     weight_kg: float = Field(
-        ...,
+        75.0,
         description="Rider weight in kilograms. Critical for tire pressure and energy modeling."
     )
     fitness_level: Literal["beginner", "intermediate", "pro"] = Field(
-        ...,
+        "intermediate",
         description="User's athletic preparation level. Affects fatigue and climbing logic."
     )
 
@@ -25,12 +25,12 @@ class BikeSetup(BaseModel):
     Technical configuration of the bicycle.
     Includes cross-validation for electric bike specifications.
     """
-    bike_type: Literal["MTB", "Road", "Gravel", "E-MTB", "Enduro"] = Field(
-        ...,
+    bike_type: Literal['MTB', 'Road', 'Gravel', 'E-MTB', 'Enduro', 'mtb', 'road', 'gravel', 'e-mtb', 'enduro'] = Field(
+        "mtb",
         description="The category of the bike, used to filter suitable trail surfaces."
     )
     tire_size: Literal["29", "27.5", "700c", "650b"] = Field(
-        ...,
+        "29",
         description="Standard wheel diameter."
     )
     is_ebike: bool = Field(
@@ -57,7 +57,7 @@ class MissionConstraints(BaseModel):
     Tactical constraints for the specific ride/mission.
     """
     radius_km: int = Field(
-        ...,
+        30,
         description="The desired search radius or loop length in kilometers."
     )
     profile: Literal["cycling-mountain", "cycling-road", "cycling-regular", "cycling-electric"] = Field(
@@ -79,7 +79,7 @@ class MissionConstraints(BaseModel):
         42,
         description="Random seed for reproducibility of generated trails."
     )
-    assist_mode: Literal["Eco", "Trail", "Boost"] = Field(
+    assist_mode: Literal["Eco", "Trail", "Boost", "eco", "trail", "boost"] = Field(
         "Eco",
         description="E-bike motor assistance level. Influences battery range predictions."
     )

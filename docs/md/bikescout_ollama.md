@@ -21,14 +21,22 @@ OPENAI_API_KEY=your_llm_key_here
 ```bash
 docker compose -f docker-compose-ollama.yml up -d
 ```
-4. Download a LLM model for Ollama, example `llama3.1:8b` (or `gemma2:27b`) (or `qwen2.5-coder:32b`):
+4. Download a LLM model for Ollama, examples:
+ - `llama3.1:8b` 
+ - `gemma2:27b`
+ - `qwen2.5-coder:7b`
+ - `qwen3-coder-next`
 ```bash
    docker exec -it ollama ollama pull llama3.1:8b
-   docker exec -it ollama ollama pull qwen2.5-coder:32b
 ```
 5. Launch Open WebUI: connect to http://localhost:3000 and follow the instructions to create a first user.
 6. Explore the Open API docs for BikeScout tools: http://localhost:8000/bikescout/docs
 
+This command starts an interactive chat session with the Qwen 2.5-Coder (7B) model inside your existing "ollama" Docker container.
+
+```bash
+docker exec -it ollama ollama run qwen2.5-coder:7b --verbose
+```
 
 ## Enable BikeScout using Open WebUI
 

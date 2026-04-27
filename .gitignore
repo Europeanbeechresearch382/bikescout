@@ -7,3 +7,4 @@ dist/
 scripts/
 demo/
 src/bikescout/tools/race/__pycache__/
+docker-compose-webui.yml
