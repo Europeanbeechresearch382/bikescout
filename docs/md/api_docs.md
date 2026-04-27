@@ -981,6 +981,7 @@ A professional-grade performance engine for high-fidelity race track auditing. I
 * **Adaptive Surface Filtering:** Features a specialized "Road vs MTB" switch that adjusts jitter filtering and gradient caps to eliminate GPS artifacts and sensor noise.
 * **Performance Simulation:** Calculates required Power (Watts), Power-to-Weight ratio (**$W/kg$**), and **VAM** (Vertical Ascent Meters/hour) for every major climb.
 * **Tactical Insights:** Detects "Muros" (steep road walls) and identifies potential echelon risks by analyzing wind vectors relative to the track heading.
+* **Pro Strategy Report (PDF):** Generates a comprehensive, data-driven dossier featuring reasoned tactical briefings and prioritized sector analysis tailored for professional riders and staff.
 
 #### **Parameters:**
 
@@ -990,7 +991,7 @@ A professional-grade performance engine for high-fidelity race track auditing. I
 | `rider_weight_kg` | `float`  | Required | Body mass of the rider for Power-to-Weight calculations.                                   |
 | `bike_weight_kg`  | `float`  | `7.5` | Mass of the bike (default is for pro road bikes).                                          |
 | `pro_intensity`   | `float`  | `1.6` | Effort multiplier (**1.0** = amateur, **1.6** = pro pace, **2.0** = attack).               |
-| `surface_type`    | `string` | `"road"` | Terrain mode: `"road"` or `"mtb"` (affects noise filtering).                               |
+| `activity_type`   | `string` | `"road"` | Activty type: `"road"` or `"mtb"` (affects noise filtering).                               |
 | `target_date`     | `string` | | Optional race date (YYYY-MM-DD). If provided, fetches historical or forecast weather.      |
 | `start_hour`      | `int`    |  | Expected start time (0-23). If provided with end_hour, calculates window-averaged metrics. |
 | `end_hour`        | `int`    |  | Expected end time (0-23). If provided with end_hour, calculates window-averaged metrics.   |

@@ -323,7 +323,7 @@ def analyze_gpx_track(
         rider_weight_kg: float,
         bike_weight_kg: float = 7.5,
         pro_intensity: float = 1.6,
-        surface_type: str = "road",
+        activity_type: Literal["road", "mtb"] = "road",
         target_date: Optional[str] = None,
         start_hour: Optional[int] = None,
         end_hour: Optional[int] = None,
@@ -339,7 +339,7 @@ def analyze_gpx_track(
         rider_weight_kg: Body mass of the rider for Power-to-Weight calculations.
         bike_weight_kg: Mass of the bike (default 7.5kg for pro road bikes).
         pro_intensity: Effort multiplier (1.0 = amateur, 1.6 = pro pace, 2.0 = world-class attack).
-        surface_type: Type of terrain ('road', 'gravel', or 'mtb').
+        activity_type: Type of activity ('road' or 'mtb').
         target_date: Optional race date (YYYY-MM-DD). If provided, fetches historical or forecast weather.
         start_hour: Expected start time (0-23). If provided with end_hour, calculates window-averaged metrics.
         end_hour: Expected finish time (0-23). Used to average weather conditions during the event.
@@ -351,7 +351,7 @@ def analyze_gpx_track(
             rider_weight_kg=rider_weight_kg,
             bike_weight_kg=bike_weight_kg,
             pro_intensity=pro_intensity,
-            surface_type=surface_type,
+            activity_type=activity_type,
             target_date=target_date,
             start_hour=start_hour,
             end_hour=end_hour,

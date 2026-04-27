@@ -5,9 +5,11 @@ import sys
 import os
 import traceback
 import numpy as np
+import uuid
+import random
 import matplotlib.pyplot as plt
 from fpdf import FPDF
-from typing import List, Dict, Any, Optional
+from typing import List, Dict, Any, Optional, Literal
 from datetime import date
 from geopy.distance import geodesic
 
@@ -27,7 +29,7 @@ def analyze_track(
         rider_weight_kg: float,
         bike_weight_kg: float = 7.5,
         pro_intensity: float = 1.6,
-        surface_type: str = "road",
+        activity_type: Literal["road", "mtb"] = "road",
         target_date: Optional[str] = None,
         start_hour: Optional[int] = None,
         end_hour: Optional[int] = None,
@@ -61,7 +63,7 @@ def analyze_track(
         total_ascent = round(gpx.get_uphill_downhill().uphill, 1)
 
         # 2. Path Analysis (Smoothing and Segmenting)
-        analysis_segments = _process_segments(points, surface_type)
+        analysis_segments = _process_segments(points, activity_type)
         uci_climbs = _detect_uci_climbs(analysis_segments)
 
         # 3. Dynamic Weather Windowing
@@ -82,15 +84,15 @@ def analyze_track(
 
         # 4. Environmental and Tactical Assessment
         intensity_score = min(100, int((total_ascent / max(distance_km, 1)) * 10 * pro_intensity))
-        est_speed = 35.0 if surface_type.lower() == "road" else 20.0
+        est_speed = 35.0 if activity_type.lower() == "road" else 20.0
         duration_hours = (distance_km / est_speed) + (total_ascent / 1000)
 
         tactical_alerts = []
         mud_risk = None
-        if surface_type.lower() == "road":
+        if activity_type.lower() == "road":
             tactical_alerts = _calculate_aero_risks(analysis_segments, ref_wind_dir, ref_wind_speed)
         else:
-            mapped_surface = "gravel" if "gravel" in surface_type.lower() else "dirt"
+            mapped_surface = "gravel" if "gravel" in activity_type.lower() else "dirt"
             mud_risk = get_mud_risk_analysis(start_lat, start_lon, mapped_surface, t_date)
 
         nutrition_plan = get_nutrition_plan(duration_hours, ref_temp, intensity_score)
@@ -103,7 +105,7 @@ def analyze_track(
 
         final_json = {
             "status": "Success",
-            "mode": surface_type.upper(),
+            "mode": activity_type.upper(),
             "target_date": t_date,
             "track_metrics": {
                 "distance_km": distance_km,
@@ -424,16 +426,31 @@ def _generate_elevation_plot(segments: List[Dict], target_date: str) -> str:
     return file_path
 
 def _generate_pdf_report(data: Dict[str, Any], plot_path: str) -> str:
-    """Generates a fluent English PDF report including the altimetry chart and dynamic DS Briefing."""
+    """
+    Generates a fluent English PDF report including the altimetry chart,
+    dynamic DS Briefing and official BikeScout branding.
+    """
 
-    import os
-    from fpdf import FPDF
-
+    # --- 1. Setup Directories and Unique File Paths ---
     report_dir = os.path.join(os.path.expanduser("~"), ".bikescout", "race")
     os.makedirs(report_dir, exist_ok=True)
-    file_path = os.path.join(report_dir, f"race_report_{data['target_date']}.pdf")
 
-    pdf = FPDF()
+    # Generate a unique ID to prevent file overriding on the same date
+    unique_id = uuid.uuid4().hex[:6]
+    target_date = data.get('target_date', 'unknown')
+    file_path = os.path.join(report_dir, f"race_report_{target_date}_{unique_id}.pdf")
+
+    # --- 2. Custom PDF Class for Footer Branding ---
+    class BikeScoutPDF(FPDF):
+        def footer(self):
+            """Adds the official BikeScout footer at the bottom of every page."""
+            self.set_y(-15) # Position 15mm from the bottom
+            self.set_font("Arial", 'I', 8)
+            self.set_text_color(128, 128, 128)
+            self.cell(0, 10, "Produced by BikeScout - https://hifly81.github.io/bikescout/", 0, 0, 'C')
+
+    # --- 4. Initialize PDF ---
+    pdf = BikeScoutPDF()
     pdf.add_page()
 
     # Title
@@ -441,10 +458,10 @@ def _generate_pdf_report(data: Dict[str, Any], plot_path: str) -> str:
     pdf.cell(0, 10, txt="BikeScout Pro Race Strategy Report", ln=True, align='C')
     pdf.ln(5)
 
-    # Insert Elevation Profile Image
+    # Insert Global Elevation Profile Image
     if os.path.exists(plot_path):
         pdf.image(plot_path, x=10, y=pdf.get_y(), w=190)
-        pdf.ln(65) # Push content down below the image
+        pdf.set_y(pdf.get_y() + 65)
     else:
         pdf.ln(10)
 
@@ -455,23 +472,28 @@ def _generate_pdf_report(data: Dict[str, Any], plot_path: str) -> str:
     pdf.cell(0, 10, txt="Technical Director Briefing", ln=True)
     pdf.set_font("Arial", '', 11)
 
-    dist = data['track_metrics']['distance_km']
-    asc = data['track_metrics']['total_ascent']
+    # Track metrics
+    metrics = data.get('track_metrics', {})
+    dist = float(metrics.get('distance_km', 0.0))
+    asc = float(metrics.get('total_ascent', 0.0))
     climbs = data.get('climb_analysis', [])
     zones = data.get('tactical_action_zones', [])
     weather = data.get("planning_tools", {}).get("weather_forecast", {}).get("reference_conditions", {})
 
-    # 1. Evaluate Stage Profile (Meters climbed per KM)
     profile_ratio = asc / dist if dist > 0 else 0
+    is_xc_circuit = dist < 15.0 and profile_ratio > 15.0 # XC Mountain Bike Detection
 
-    if profile_ratio >= 22:
+    # Evaluate Stage Profile
+    if is_xc_circuit:
+        intro = f"Team, we are looking at a punchy XC circuit today: {dist} km per lap with {asc} meters of elevation gain. Forget pacing; this requires repeated VO2 max efforts and flawless technical execution on every lap. "
+    elif profile_ratio >= 22:
         intro = f"Team, today is a brutal day in the mountains: {dist} km and a massive {asc} meters of elevation. Survival and GC preservation are our primary directives. "
     elif profile_ratio >= 12:
         intro = f"We have {dist} km with {asc} meters of climbing on the menu. It's a leg-breaking, rolling parcours that perfectly favors a strong breakaway or late puncheur attacks. "
     else:
         intro = f"At {dist} km and only {asc} m of climbing, this is ostensibly a flat stage. Staying safe, hiding from the wind, and delivering our sprinter is everything today. "
 
-    # 2. Dynamic Weather Impacts
+    # Dynamic Weather Impacts
     temp = weather.get('temp', 20)
     wind = weather.get('wind_speed', 10)
     wx_str = f"Expect conditions around {temp}C with winds at {wind} km/h. "
@@ -480,73 +502,88 @@ def _generate_pdf_report(data: Dict[str, Any], plot_path: str) -> str:
         wx_str += "The heat is going to be a major factor; constant hydration and ice packs are mandatory. "
     elif temp <= 10:
         wx_str += "It's going to be freezing out there. Keep your core warm, especially before the technical descents. "
-
     if wind >= 20:
         wx_str += "Wind speeds are absolutely high enough to split the peloton. Stay vigilant and ride at the front to avoid echelon traps! "
 
-    # 3. Dynamic Ignition Point (Replacing the hardcoded 60km rule)
+    # Dynamic Ignition Point
     tactical_str = ""
     if zones:
-        # Sort zones chronologically to find the true decisive moments
-        sorted_zones = sorted(zones, key=lambda x: x['km'])
-
-        # Look for the hardest point in the second half of the race
-        late_zones = [z for z in sorted_zones if z['km'] >= (dist * 0.5)]
+        sorted_zones = sorted(zones, key=lambda x: x.get('km', 0))
+        late_zones = [z for z in sorted_zones if z.get('km', 0) >= (dist * 0.5)]
 
         if late_zones:
-            # Pick the most difficult zone in the late stage (prioritizing 'high' difficulty, then steepness)
-            ignition_zone = max(late_zones, key=lambda z: (z.get('difficulty') == 'high', abs(z['grade'])))
+            ignition_zone = max(late_zones, key=lambda z: (z.get('difficulty') == 'high', abs(z.get('grade', 0))))
         else:
-            # If all hard zones are early, the race will be an early attrition battle
-            ignition_zone = max(sorted_zones, key=lambda z: (z.get('difficulty') == 'high', abs(z['grade'])))
+            ignition_zone = max(sorted_zones, key=lambda z: (z.get('difficulty') == 'high', abs(z.get('grade', 0))))
 
-        ignite_km = ignition_zone['km']
+        ignite_km = ignition_zone.get('km', 0)
+        zone_type = ignition_zone.get('type', 'sector').lower()
+        zone_grade = ignition_zone.get('grade', 0)
         dist_to_go = dist - ignite_km
 
-        if dist_to_go > (dist * 0.4):
-            tactical_str = (
-                f"Based on the topography, the race will blow apart unusually early, around km {ignite_km}. "
-                f"We cannot afford to be caught sleeping when the {ignition_zone['type'].lower()} starts. "
-                "From there, it's a pure race of attrition. "
-            )
+        if is_xc_circuit:
+            tactical_str = f"The primary launchpad for attacks is the {zone_type} around km {ignite_km} ({zone_grade}% grade). Hit it hard every single lap. "
+        elif dist_to_go > (dist * 0.4):
+            tactical_str = f"Based on the topography, the race will blow apart unusually early, around km {ignite_km}. We cannot afford to be caught sleeping when the {zone_type} starts. From there, it's a pure race of attrition. "
         elif dist_to_go < 15:
-            tactical_str = (
-                f"It all comes down to a late, explosive finale. The decisive move will likely happen on the "
-                f"{ignition_zone['type'].lower()} at km {ignite_km}, just {round(dist_to_go, 1)} km from the line. "
-                f"It kicks up to {ignition_zone['grade']}%. Be perfectly positioned before this point. "
-            )
+            tactical_str = f"It all comes down to a late, explosive finale. The decisive move will likely happen on the {zone_type} at km {ignite_km}, just {round(dist_to_go, 1)} km from the line. It kicks up to {zone_grade}%. Be perfectly positioned before this point. "
         else:
-            tactical_str = (
-                f"The true battle for the stage begins at km {ignite_km}. That {ignition_zone['type'].lower()} "
-                f"(hitting gradients of {ignition_zone['grade']}%) is the natural launchpad for the winning move. "
-            )
+            tactical_str = f"The true battle for the stage begins at km {ignite_km}. That {zone_type} (hitting gradients of {zone_grade}%) is the natural launchpad for the winning move. "
 
-        tactical_str += "If you have the legs, this is where you commit. "
-
+        if not is_xc_circuit:
+            tactical_str += "If you have the legs, this is where you commit. "
     else:
-        tactical_str = "There are no extreme gradients to force a natural selection today. The race will be decided by pacing, positioning, and tactical awareness in the final sprint. "
+        tactical_str = "There are no extreme technical features today. Positioning and tactical awareness will dictate the finale. "
 
-    closing = "Protect the leaders, stick to the nutrition plan, and communicate constantly. Let's go execute."
+    # ---------------------------------------------------------
+    # REASONED CLOSING STATEMENT (Logic-Driven)
+    # ---------------------------------------------------------
 
-    # Combine dynamic parts
+    if is_xc_circuit:
+        # Focus on Technical & Start for XC
+        if temp >= 28:
+            closing = "Heat will spike your HR on this circuit. Use the descents for active cooling and hydration."
+        else:
+            closing = "Nail the start loop to avoid traffic. It's a high-intensity battle from the gun."
+    else:
+        # Focus on Strategy & Endurance for Road/P2P
+        if wind >= 22:
+            closing = "The wind is the real enemy today. Stay tucked in and never be the first to break the line."
+        elif profile_ratio >= 20:
+            closing = "This is a war of attrition. Save every watt for the final two climbs; nutrition is non-negotiable."
+        elif dist > 150:
+            closing = "It's a long day. Stay hydrated early so you have the clarity to make the right move in the final 20km."
+        else:
+            closing = "Positioning is everything today. Communicate with the team and stay in the top 20 before the decisive sectors."
+
+    # Final motivation punch
+    closing += " Let's go execute."
+
     briefing = intro + wx_str + tactical_str + closing
-
-    # Write the briefing to the PDF
     pdf.multi_cell(0, 6, txt=briefing)
     pdf.ln(10)
 
     # ---------------------------------------------------------
-    # Detailed Data Tables
+    # Detailed Tactical Zones Table
     # ---------------------------------------------------------
     pdf.set_font("Arial", 'B', 12)
-    pdf.cell(0, 10, txt="Detailed Tactical Zones (Final Selection)", ln=True)
+    pdf.cell(0, 10, txt="Detailed Tactical Zones", ln=True)
     pdf.set_font("Arial", '', 10)
 
     if not zones:
         pdf.cell(0, 6, txt="No high-risk tactical zones identified.", ln=True)
     for z in zones:
         diff_str = str(z.get('difficulty', 'unknown')).upper()
-        pdf.cell(0, 6, txt=f"- KM {z['km']}: {z['type']} | Grade: {z['grade']}% [Severity: {diff_str}]", ln=True)
+        pdf.cell(0, 6, txt=f"- KM {z.get('km', 0)}: {z.get('type', 'Unknown')} | Grade: {z.get('grade', 0)}% [Severity: {diff_str}]", ln=True)
 
     pdf.output(file_path)
+
+    # Clean up temporary climb images
+    for f in os.listdir(report_dir):
+        if f.startswith("climb_") and f.endswith(f"_{unique_id}.png"):
+            try:
+                os.remove(os.path.join(report_dir, f))
+            except OSError:
+                pass
+
     return file_path

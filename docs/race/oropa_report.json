@@ -1,0 +1,140 @@
+{
+  "payload_version": "1.0",
+  "status": "Success",
+  "mode": "ROAD",
+  "target_date": "2024-05-05",
+  "track_metrics": {
+    "distance_km": 155.29,
+    "total_ascent": 2245.6,
+    "max_altitude": 1136
+  },
+  "planning_tools": {
+    "weather_forecast": {},
+    "nutrition_plan": {
+      "status": "Success",
+      "mission_nutrition_briefing": {
+        "fluids": {
+          "total_liters": 4.7,
+          "hourly_rate_ml": 700
+        },
+        "carbohydrates": {
+          "total_grams": 535,
+          "hourly_target_g": 80,
+          "intensity_context": "High"
+        },
+        "tactical_advice": [
+          "ELECTROLYTE CRITICAL: High sweat rate or duration detected. Add sodium to bottles.",
+          "FUELING ALERT: High intensity detected. Train your gut for 80g+/hr intake."
+        ]
+      }
+    },
+    "mud_risk": null
+  },
+  "climb_analysis": [
+    {
+      "km_start": 96.6,
+      "dist_km": 4.37,
+      "gain_m": 183.5,
+      "avg_grade": 4.2,
+      "category": "Cat 3"
+    },
+    {
+      "km_start": 108,
+      "dist_km": 8.28,
+      "gain_m": 335.4,
+      "avg_grade": 4.1,
+      "category": "Cat 3"
+    },
+    {
+      "km_start": 125.5,
+      "dist_km": 6.43,
+      "gain_m": 262,
+      "avg_grade": 4.1,
+      "category": "Cat 3"
+    },
+    {
+      "km_start": 143.4,
+      "dist_km": 11.46,
+      "gain_m": 715.6,
+      "avg_grade": 6.2,
+      "category": "Cat 1"
+    }
+  ],
+  "performance_simulation": [
+    {
+      "climb": "Climb @ km 96.6 (Cat 3)",
+      "est_time_min": 8.6,
+      "est_vam": 1275,
+      "target_wkg": 6.08,
+      "weather_adjusted_wkg": 6.08
+    },
+    {
+      "climb": "Climb @ km 108.0 (Cat 3)",
+      "est_time_min": 16.2,
+      "est_vam": 1242,
+      "target_wkg": 6.08,
+      "weather_adjusted_wkg": 6.08
+    },
+    {
+      "climb": "Climb @ km 125.5 (Cat 3)",
+      "est_time_min": 12.6,
+      "est_vam": 1249,
+      "target_wkg": 6.08,
+      "weather_adjusted_wkg": 6.08
+    },
+    {
+      "climb": "Climb @ km 143.4 (Cat 1)",
+      "est_time_min": 27.3,
+      "est_vam": 1574,
+      "target_wkg": 6.08,
+      "weather_adjusted_wkg": 6.08
+    }
+  ],
+  "tactical_alerts": [],
+  "pre_climb_positioning": [
+    {
+      "km": 142.6,
+      "type": "CRITICAL POSITIONING: Cat 1 Entrance",
+      "detail": "Climb 11.46km @ 6.2%"
+    }
+  ],
+  "tactical_action_zones": [
+    {
+      "km": 145.32,
+      "grade": 13.8,
+      "type": "Explosive Wall / Attack Point",
+      "difficulty": "medium"
+    },
+    {
+      "km": 148.47,
+      "grade": 10.1,
+      "type": "Explosive Wall / Attack Point",
+      "difficulty": "low"
+    },
+    {
+      "km": 149.56,
+      "grade": 13.4,
+      "type": "Explosive Wall / Attack Point",
+      "difficulty": "medium"
+    },
+    {
+      "km": 151.93,
+      "grade": 25,
+      "type": "Explosive Wall / Attack Point",
+      "difficulty": "high"
+    },
+    {
+      "km": 153.34,
+      "grade": 25,
+      "type": "Explosive Wall / Attack Point",
+      "difficulty": "high"
+    },
+    {
+      "km": 155,
+      "grade": -25,
+      "type": "Steep Technical Descent",
+      "difficulty": "high"
+    }
+  ],
+  "report_path": "...."
+}
