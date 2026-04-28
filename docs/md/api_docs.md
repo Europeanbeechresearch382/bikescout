@@ -547,7 +547,7 @@ This tool goes beyond simple mapping by cross-referencing terrain data with the 
 * **Tactical Tire Intelligence:** Calculates optimal tire recommendations and pressure baseline by cross-referencing **Rider Weight**, bike type, and dominant surface composition.
 * **Mud Risk Score:** Provides a localized risk rating (Low/Medium/High) to help cyclists prevent drivetrain damage and avoid unrideable sections.
 * **TAEL (Terrain-Aware Evaporation Lag):** A tactical model that cross-references 72h rainfall and geological drainage with real-time solar altitude to predict trail saturation and "Shadow-Lock" mud persistence.
-* **E-MTB Power Predictor:** A physics-based energy model ($W = m \cdot g \cdot h$) that predicts battery drain by cross-referencing Total System Weight, Assist Mode, Surface Drag, and Mud Suction effects.
+* **E-MTB Power Predictor:** A physics-based energy model that predicts battery drain by cross-referencing Total System Weight, Assist Mode, Surface Drag, and Mud Suction effects.
 
 #### **Parameters:**
 
@@ -564,68 +564,70 @@ This tool goes beyond simple mapping by cross-referencing terrain data with the 
 **Example Output (JSON) for MTB:**
 ```json
 {
+  "payload_version": "1.0",
   "status": "Success",
   "profile_used": "cycling-mountain",
+  "metadata": {
+    "analyzed_date": "2026-04-28T12:57:43.244647+00:00",
+    "api_extras": [
+      "waytype",
+      "surface"
+    ]
+  },
   "tactical_briefing": {
-    "distance_km": 10.16,
-    "elevation_gain_m": 835,
+    "distance_km": 38.19,
+    "elevation_gain_m": 1367,
     "climb_category": "Hors Catégorie (HC) - Legendary Challenge",
-    "avg_gradient_est": "20.0%",
-    "technical_difficulty": {
-      "mtb_scale": "Standard / Unclassified",
-      "trail_visibility": "Excellent",
-      "technical_notes": "Technical grading based on OSM mountain standards.",
-      "fitness_context": "Evaluated for intermediate level"
-    },
-    "mud_risk": {
-      "score": 10.26,
-      "label": "Medium",
-      "details": "Damp sections. Expect reduced traction on off-camber roots.",
-      "environmental_factors": {
-        "raw_rain_72h": "11.9mm",
-        "avg_temp": "17.6°C",
-        "drying_efficiency": "1.16x",
-        "shadow_penalty_active": "No",
-        "solar_altitude": "46.3°"
-      }
+    "avg_gradient_est": "11.9%",
+    "mud_intelligence": {
+      "score": 0,
+      "label": "Unknown",
+      "traction_risk": "Low",
+      "trail_damage_risk": "Low",
+      "dry_time_eta": "Ready Now",
+      "safety_advice": "Check local conditions."
     }
   },
   "mechanical_setup": {
     "compatible": true,
-    "bike_category": "MTB",
-    "setup_details": "29 wheels | 23.0 PSI (1.59 Bar) [Standard Setup]",
-    "rider_weight_baseline": "80.0kg"
+    "setup_details": "29 wheels | 22.0 PSI (1.52 Bar) [Standard Setup]",
+    "bike_type": "mtb"
   },
   "surface_breakdown": [
     {
       "type": "Unknown",
-      "percentage": "40.9%"
+      "percentage": "50.3%"
     },
     {
       "type": "Paved",
-      "percentage": "27.0%"
-    },
-    {
-      "type": "Asphalt",
-      "percentage": "9.5%"
-    },
-    {
-      "type": "Compact",
-      "percentage": "8.4%"
+      "percentage": "35.8%"
     },
     {
       "type": "Grass",
-      "percentage": "8.0%"
+      "percentage": "6.6%"
+    },
+    {
+      "type": "Asphalt",
+      "percentage": "2.7%"
     },
     {
       "type": "Concrete",
-      "percentage": "3.4%"
+      "percentage": "1.7%"
+    },
+    {
+      "type": "Other",
+      "percentage": "1.5%"
+    },
+    {
+      "type": "Other",
+      "percentage": "0.8%"
     },
     {
       "type": "Unpaved",
-      "percentage": "2.9%"
+      "percentage": "0.7%"
     }
   ],
+  "emtb_tactical": null,
   "safety_warnings": []
 }
 ```
@@ -636,116 +638,61 @@ This tool goes beyond simple mapping by cross-referencing terrain data with the 
   "payload_version": "1.0",
   "status": "Success",
   "profile_used": "cycling-road",
+  "metadata": {
+    "analyzed_date": "2026-04-28T12:58:33.209965+00:00",
+    "api_extras": [
+      "waytype",
+      "surface"
+    ]
+  },
   "tactical_briefing": {
-    "distance_km": 81.18,
-    "elevation_gain_m": 1055,
+    "distance_km": 109.29,
+    "elevation_gain_m": 1254,
     "climb_category": "Hors Catégorie (HC) - Legendary Challenge",
-    "avg_gradient_est": "2.9%",
-    "technical_difficulty": {
-      "mtb_scale": "Standard / Unclassified",
-      "trail_visibility": "Excellent",
-      "technical_notes": "Technical grading based on OSM mountain standards.",
-      "fitness_context": "Evaluated for intermediate level"
-    },
-    "mud_risk": {
-      "score": 10.26,
-      "label": "Medium",
-      "details": "Damp sections. Expect reduced traction on off-camber roots.",
-      "environmental_factors": {
-        "raw_rain_72h": "11.9mm",
-        "avg_temp": "17.6°C",
-        "drying_efficiency": "1.16x",
-        "shadow_penalty_active": "No",
-        "solar_altitude": "47.0°"
-      }
+    "avg_gradient_est": "2.5%",
+    "mud_intelligence": {
+      "score": 0,
+      "label": "Unknown",
+      "traction_risk": "Low",
+      "trail_damage_risk": "Low",
+      "dry_time_eta": "Ready Now",
+      "safety_advice": "Check local conditions."
     }
   },
   "mechanical_setup": {
     "compatible": true,
-    "bike_category": "ROAD",
-    "setup_details": "700c wheels | 71.4 PSI (4.92 Bar) [Mud Flotation Setup]",
-    "rider_weight_baseline": "80.0kg"
+    "setup_details": "700c wheels | 86.0 PSI (5.93 Bar) [Efficiency Setup]",
+    "bike_type": "Road"
   },
   "surface_breakdown": [
     {
       "type": "Paved",
-      "percentage": "59.1%"
+      "percentage": "67.4%"
     },
     {
       "type": "Unknown",
-      "percentage": "40.2%"
+      "percentage": "29.1%"
     },
     {
       "type": "Asphalt",
+      "percentage": "2.7%"
+    },
+    {
+      "type": "Concrete",
       "percentage": "0.4%"
     },
     {
-      "type": "Concrete",
+      "type": "Grass",
       "percentage": "0.3%"
+    },
+    {
+      "type": "Other",
+      "percentage": "0.1%"
     }
   ],
+  "emtb_tactical": null,
   "safety_warnings": [
-    "MUD ALERT: Damp sections. Expect reduced traction on off-camber roots."
-  ]
-}
-```
-
-**Example Output (JSON) for Gravel:**
-```json
-{
-  "payload_version": "1.0",
-  "status": "Success",
-  "profile_used": "cycling-road",
-  "tactical_briefing": {
-    "distance_km": 47.47,
-    "elevation_gain_m": 1000,
-    "climb_category": "Category 2 - Hard Climb",
-    "avg_gradient_est": "4.7%",
-    "technical_difficulty": {
-      "mtb_scale": "Standard / Unclassified",
-      "trail_visibility": "Excellent",
-      "technical_notes": "Technical grading based on OSM mountain standards.",
-      "fitness_context": "Evaluated for intermediate level"
-    },
-    "mud_risk": {
-      "score": 10.26,
-      "label": "Medium",
-      "details": "Damp sections. Expect reduced traction on off-camber roots.",
-      "environmental_factors": {
-        "raw_rain_72h": "11.9mm",
-        "avg_temp": "17.6°C",
-        "drying_efficiency": "1.16x",
-        "shadow_penalty_active": "No",
-        "solar_altitude": "47.2°"
-      }
-    }
-  },
-  "mechanical_setup": {
-    "compatible": true,
-    "bike_category": "GRAVEL",
-    "setup_details": "700c wheels | 28.9 PSI (1.99 Bar) [Mud Flotation Setup]",
-    "rider_weight_baseline": "80.0kg"
-  },
-  "surface_breakdown": [
-    {
-      "type": "Paved",
-      "percentage": "60.2%"
-    },
-    {
-      "type": "Unknown",
-      "percentage": "38.5%"
-    },
-    {
-      "type": "Asphalt",
-      "percentage": "0.7%"
-    },
-    {
-      "type": "Concrete",
-      "percentage": "0.6%"
-    }
-  ],
-  "safety_warnings": [
-    "MUD ALERT: Damp sections. Expect reduced traction on off-camber roots."
+    "Traction Alert: 0.3% is Grass. 25mm tires may slip in wet/loose conditions."
   ]
 }
 ```
@@ -755,81 +702,81 @@ This tool goes beyond simple mapping by cross-referencing terrain data with the 
 {
   "payload_version": "1.0",
   "status": "Success",
-  "profile_used": "cycling-mountain",
+  "profile_used": "cycling-electric",
+  "metadata": {
+    "analyzed_date": "2026-04-28T12:59:43.240941+00:00",
+    "api_extras": [
+      "waytype",
+      "surface"
+    ]
+  },
   "tactical_briefing": {
-    "distance_km": 10.12,
-    "elevation_gain_m": 586,
+    "distance_km": 79.74,
+    "elevation_gain_m": 1137,
     "climb_category": "Hors Catégorie (HC) - Legendary Challenge",
-    "avg_gradient_est": "19.3%",
-    "technical_difficulty": {
-      "mtb_scale": "Standard / Unclassified",
-      "trail_visibility": "Excellent",
-      "technical_notes": "Technical grading based on OSM mountain standards.",
-      "fitness_context": "Evaluated for intermediate level"
-    },
-    "mud_risk": {
-      "score": 24.19,
-      "label": "High",
-      "details": "Significant saturation. High risk of sliding in technical sectors.",
-      "environmental_factors": {
-        "raw_rain_72h": "25.6mm",
-        "avg_temp": "17.4°C",
-        "drying_efficiency": "1.06x",
-        "shadow_penalty_active": "No",
-        "solar_altitude": "52.5°"
-      }
+    "avg_gradient_est": "3.2%",
+    "mud_intelligence": {
+      "score": 0,
+      "label": "Unknown",
+      "traction_risk": "Low",
+      "trail_damage_risk": "Low",
+      "dry_time_eta": "Ready Now",
+      "safety_advice": "Check local conditions."
     }
   },
   "mechanical_setup": {
     "compatible": true,
-    "bike_category": "MTB",
-    "setup_details": "29 wheels | 19.6 PSI (1.35 Bar) [Mud Flotation Setup]",
-    "rider_weight_baseline": "80.0kg"
+    "setup_details": "29 wheels | 24.0 PSI (1.65 Bar) [Standard Setup]",
+    "bike_type": "E-MTB"
   },
   "surface_breakdown": [
     {
       "type": "Unknown",
-      "percentage": "40.9%"
+      "percentage": "56.9%"
     },
     {
       "type": "Paved",
-      "percentage": "27.0%"
+      "percentage": "38.0%"
     },
     {
       "type": "Asphalt",
-      "percentage": "9.5%"
-    },
-    {
-      "type": "Compact",
-      "percentage": "8.4%"
-    },
-    {
-      "type": "Grass",
-      "percentage": "8.0%"
-    },
-    {
-      "type": "Concrete",
       "percentage": "3.4%"
     },
     {
+      "type": "Other",
+      "percentage": "0.9%"
+    },
+    {
+      "type": "Concrete",
+      "percentage": "0.4%"
+    },
+    {
       "type": "Unpaved",
-      "percentage": "2.9%"
+      "percentage": "0.2%"
+    },
+    {
+      "type": "Grass",
+      "percentage": "0.1%"
     }
   ],
   "emtb_tactical": {
-    "estimated_drain_wh": 1518,
-    "remaining_battery_pct": 0,
-    "safety_buffer_status": "CRITICAL",
-    "breakdown_wh": {
-      "horizontal_base": 121.4,
-      "vertical_climb": 221.4,
-      "terrain_friction": 1175.1
-    }
+    "status": "Success",
+    "battery_metrics": {
+      "estimated_drain_wh": 190.3,
+      "remaining_battery_pct": 62.5,
+      "safety_buffer_status": "SAFE",
+      "usable_wh_at_temp": 581.2
+    },
+    "power_breakdown_w": {
+      "gravity_resistance": 69.2,
+      "rolling_resistance": 72.8,
+      "aerodynamic_drag": 34.5,
+      "rider_contribution": 140,
+      "motor_net_output": 36.5
+    },
+    "tactical_advice": "Pace maintained"
   },
-  "safety_warnings": [
-    "MUD ALERT: Significant saturation. High risk of sliding in technical sectors.",
-    "RANGE ANXIETY: SoC at finish is 0.0%. Drop to Eco!"
-  ]
+  "safety_warnings": []
 }
 ```
 

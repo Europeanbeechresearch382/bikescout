@@ -37,8 +37,8 @@ class BikeSetup(BaseModel):
         False,
         description="Set to True if the bike has an electric motor."
     )
-    battery_wh: Optional[int] = Field(
-        None,
+    battery_wh: int = Field(
+        625,
         description="Battery capacity in Watt-hours. Mandatory if is_ebike is True."
     )
 
