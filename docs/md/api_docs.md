@@ -1231,25 +1231,52 @@ A post-ride tactical diagnostic tool that fuses actual Strava GPS telemetry with
 
 ```json
 {
+  "payload_version": "1.0",
   "status": "Success",
-  "mission_briefing": {
-    "name": "Afternoon Mountain Bike Session",
-    "date": "2026-03-11",
-    "distance_km": 41.26,
-    "elevation_gain_m": 709.3,
-    "avg_speed_kmh": 15.0
+  "mission_id": "xxxxxx",
+  "debriefing_summary": {
+    "name": "Sessione di mountain biking pomeridiana",
+    "actual_avg_speed": "15.0 km/h",
+    "actual_vam": "258 m/h",
+    "worst_encountered_mud": 0
   },
-  "environmental_validation": {
-    "mud_risk": "Low",
-    "moisture_index": 9.01,
-    "weather_advice": "❌ NOT RECOMMENDED: High risk of heavy rain or dangerous wind gusts.",
-    "conditions_at_start": {
-      "temp": 17.1,
-      "rain_prob": 53,
-      "wind_speed": 32.0
+  "spatio_temporal_logs": [
+    {
+      "timestamp": "2025-06-04T15:13:26+00:00",
+      "location": [
+        41.718848,
+        12.65801
+      ],
+      "mud_score": 0,
+      "wind_speed": 0
+    },
+    {
+      "timestamp": "2025-06-04T16:36:02+00:00",
+      "location": [
+        41.744515,
+        12.800712
+      ],
+      "mud_score": 0,
+      "wind_speed": 0
+    },
+    {
+      "timestamp": "2025-06-04T18:00:47+00:00",
+      "location": [
+        41.722348,
+        12.661549
+      ],
+      "mud_score": 0,
+      "wind_speed": 0
+    }
+  ],
+  "tactical_calibration": {
+    "efficiency_scoring": "Performance matched environmental expectations.",
+    "suggested_profile_update": {
+      "climbing_efficiency": "Standard",
+      "mud_penalty_factor": "Accurate"
     }
   },
-  "tactical_notes": "Analysis based on asphalt surface coefficients. GPS data validated."
+  "mechanical_feedback": "Tire pressure refinement suggested based on speed-to-saturation correlation."
 }
 ```
 
