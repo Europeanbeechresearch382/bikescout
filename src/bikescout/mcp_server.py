@@ -83,6 +83,7 @@ def trail_scout(
         output_level: Detail level of the report ("summary", "standard", "full").
         target_date: Optional. The date of the event in YYYY-MM-DD format.
     """
+
     data = get_complete_trail_scout(
         ORS_API_KEY, lat, lon, rider, bike, mission, include_gpx, include_map, output_level, target_date)
     return {"payload_version": BIKESCOUT_PROTOCOL_VERSION, **data}
