@@ -42,15 +42,16 @@ if not ORS_API_KEY:
 # --- TOOLS SECTION ---
 
 @mcp.tool()
-def geocode_location(location_name: str):
+def geocode_location(location_name: str, language: str = "en"):
     """
     Finds latitude and longitude for any place name (city, mountain pass, address).
     Use this BEFORE other tools if you only have a location name and not coordinates.
 
     Args:
         location_name: The natural language name of the location (e.g., "Stelvio Pass").
+        language: header Accept-Language , e.g. en,it,fr,es
     """
-    data = get_coordinates(location_name)
+    data = get_coordinates(location_name, language)
     return {"payload_version": BIKESCOUT_PROTOCOL_VERSION, **data}
 
 @mcp.tool()

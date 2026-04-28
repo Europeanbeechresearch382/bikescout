@@ -171,17 +171,22 @@ This tool acts as the intelligent "entry point" for all natural language queries
 * **OSM Integration:** Uses the Nominatim API (OpenStreetMap) for reliable, open-source data.
 
 #### **Parameters:**
-| Parameter | Type     | Default | Description |
-| :--- |:---------| :--- | :--- |
+| Parameter | Type     | Default | Description                                                    |
+| :--- |:---------| :--- |:---------------------------------------------------------------|
 | `location_name` | `string` | Required | The name of the place to search for (e.g., "Frascati, Italy"). |
+| `language` | `string` |  | header Accept-Language , e.g. en,it,fr,es                      |
 
 #### **Tool Output Example (JSON):**
 ```json
 {
-   "status": "Success",
-   "lat": 41.8034,
-   "lon": 12.6738,
-   "display_name": "Frascati, Roma, Lazio, 00044, Italia"
+  "payload_version": "1.0",
+  "status": "Success",
+  "lat": 38.5738096,
+  "lon": -109.546214,
+  "display_name": "Moab, Grand County, Utah, 84532, United States",
+  "class": "boundary",
+  "type": "administrative",
+  "importance": 0.4671633623008776
 }
 ```
 
