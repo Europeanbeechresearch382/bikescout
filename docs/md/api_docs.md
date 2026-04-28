@@ -2,7 +2,7 @@
 
 Tactical Cycling Intelligence | MCP Server for AI-Powered Mission Planning.
 
-_Version: 1.2.0 - April 2026_
+_Version: 1.2.1 - April 2026_
 
 ---
 
@@ -171,17 +171,22 @@ This tool acts as the intelligent "entry point" for all natural language queries
 * **OSM Integration:** Uses the Nominatim API (OpenStreetMap) for reliable, open-source data.
 
 #### **Parameters:**
-| Parameter | Type     | Default | Description |
-| :--- |:---------| :--- | :--- |
+| Parameter | Type     | Default | Description                                                    |
+| :--- |:---------| :--- |:---------------------------------------------------------------|
 | `location_name` | `string` | Required | The name of the place to search for (e.g., "Frascati, Italy"). |
+| `language` | `string` |  | header Accept-Language , e.g. en,it,fr,es                      |
 
 #### **Tool Output Example (JSON):**
 ```json
 {
-   "status": "Success",
-   "lat": 41.8034,
-   "lon": 12.6738,
-   "display_name": "Frascati, Roma, Lazio, 00044, Italia"
+  "payload_version": "1.0",
+  "status": "Success",
+  "lat": 38.5738096,
+  "lon": -109.546214,
+  "display_name": "Moab, Grand County, Utah, 84532, United States",
+  "class": "boundary",
+  "type": "administrative",
+  "importance": 0.4671633623008776
 }
 ```
 
@@ -211,13 +216,13 @@ Unlike standard GPS files, BikeScout automatically injects active <wpt> (waypoin
 | :--- | :--- | :--- |:-----------------------------------------------------|
 | `lat` | `float` | Required | Latitude of the starting point (e.g., `45.81`).      |
 | `lon` | `float` | Required | Longitude of the starting point (e.g., `9.08`).      |
+| **`rider`** | `object` | Required | [Rider Profile](#rider-profile-rider).               |
+| **`bike`** | `object` | Required | [Bike Setup](#bike-setup-bike).                      |
+| **`mission`** | `object` | Required | [Mission Constraints](#mission-constraints-mission). |
 | `include_gpx` | `bool` | `True` | Whether to include the raw XML GPX content.          |
 | `include_map` | `bool` | `False` | Whether to generate the Static Map URL.              |
 | `output_level` | `string` | `standard` | Verbosity level: `summary`, `standard`, or `full`.   |
 | `target_date` | `string` |  | target_date: Optional string in 'YYYY-MM-DD' format  |
-| **`rider`** | `object` | Required | [Rider Profile](#rider-profile-rider).               |
-| **`bike`** | `object` | Required | [Bike Setup](#bike-setup-bike).                      |
-| **`mission`** | `object` | Required | [Mission Constraints](#mission-constraints-mission). |
 
 #### **Tool Output Example (JSON):**
 ```json
@@ -542,7 +547,7 @@ This tool goes beyond simple mapping by cross-referencing terrain data with the 
 * **Tactical Tire Intelligence:** Calculates optimal tire recommendations and pressure baseline by cross-referencing **Rider Weight**, bike type, and dominant surface composition.
 * **Mud Risk Score:** Provides a localized risk rating (Low/Medium/High) to help cyclists prevent drivetrain damage and avoid unrideable sections.
 * **TAEL (Terrain-Aware Evaporation Lag):** A tactical model that cross-references 72h rainfall and geological drainage with real-time solar altitude to predict trail saturation and "Shadow-Lock" mud persistence.
-* **E-MTB Power Predictor:** A physics-based energy model ($W = m \cdot g \cdot h$) that predicts battery drain by cross-referencing Total System Weight, Assist Mode, Surface Drag, and Mud Suction effects.
+* **E-MTB Power Predictor:** A physics-based energy model that predicts battery drain by cross-referencing Total System Weight, Assist Mode, Surface Drag, and Mud Suction effects.
 
 #### **Parameters:**
 
@@ -550,77 +555,79 @@ This tool goes beyond simple mapping by cross-referencing terrain data with the 
 | :--- | :--- | :--- | :--- |
 | `lat` | `float` | Required | Latitude of the starting point. |
 | `lon` | `float` | Required | Longitude of the starting point. |
-| `target_date` | `string` |  | target_date: Optional string in 'YYYY-MM-DD' format |
 | **`rider`** | `object` | Required | [Rider Profile](#rider-profile-rider).                  |
 | **`bike`** | `object` | Required | [Bike Setup](#bike-setup-bike).                         |
 | **`mission`** | `object` | Required | [Mission Constraints](#mission-constraints-mission).    |
+| `target_date` | `string` |  | target_date: Optional string in 'YYYY-MM-DD' format |
 
 
 **Example Output (JSON) for MTB:**
 ```json
 {
+  "payload_version": "1.0",
   "status": "Success",
   "profile_used": "cycling-mountain",
+  "metadata": {
+    "analyzed_date": "2026-04-28T12:57:43.244647+00:00",
+    "api_extras": [
+      "waytype",
+      "surface"
+    ]
+  },
   "tactical_briefing": {
-    "distance_km": 10.16,
-    "elevation_gain_m": 835,
+    "distance_km": 38.19,
+    "elevation_gain_m": 1367,
     "climb_category": "Hors Catégorie (HC) - Legendary Challenge",
-    "avg_gradient_est": "20.0%",
-    "technical_difficulty": {
-      "mtb_scale": "Standard / Unclassified",
-      "trail_visibility": "Excellent",
-      "technical_notes": "Technical grading based on OSM mountain standards.",
-      "fitness_context": "Evaluated for intermediate level"
-    },
-    "mud_risk": {
-      "score": 10.26,
-      "label": "Medium",
-      "details": "Damp sections. Expect reduced traction on off-camber roots.",
-      "environmental_factors": {
-        "raw_rain_72h": "11.9mm",
-        "avg_temp": "17.6°C",
-        "drying_efficiency": "1.16x",
-        "shadow_penalty_active": "No",
-        "solar_altitude": "46.3°"
-      }
+    "avg_gradient_est": "11.9%",
+    "mud_intelligence": {
+      "score": 0,
+      "label": "Unknown",
+      "traction_risk": "Low",
+      "trail_damage_risk": "Low",
+      "dry_time_eta": "Ready Now",
+      "safety_advice": "Check local conditions."
     }
   },
   "mechanical_setup": {
     "compatible": true,
-    "bike_category": "MTB",
-    "setup_details": "29 wheels | 23.0 PSI (1.59 Bar) [Standard Setup]",
-    "rider_weight_baseline": "80.0kg"
+    "setup_details": "29 wheels | 22.0 PSI (1.52 Bar) [Standard Setup]",
+    "bike_type": "mtb"
   },
   "surface_breakdown": [
     {
       "type": "Unknown",
-      "percentage": "40.9%"
+      "percentage": "50.3%"
     },
     {
       "type": "Paved",
-      "percentage": "27.0%"
-    },
-    {
-      "type": "Asphalt",
-      "percentage": "9.5%"
-    },
-    {
-      "type": "Compact",
-      "percentage": "8.4%"
+      "percentage": "35.8%"
     },
     {
       "type": "Grass",
-      "percentage": "8.0%"
+      "percentage": "6.6%"
+    },
+    {
+      "type": "Asphalt",
+      "percentage": "2.7%"
     },
     {
       "type": "Concrete",
-      "percentage": "3.4%"
+      "percentage": "1.7%"
+    },
+    {
+      "type": "Other",
+      "percentage": "1.5%"
+    },
+    {
+      "type": "Other",
+      "percentage": "0.8%"
     },
     {
       "type": "Unpaved",
-      "percentage": "2.9%"
+      "percentage": "0.7%"
     }
   ],
+  "emtb_tactical": null,
   "safety_warnings": []
 }
 ```
@@ -631,116 +638,61 @@ This tool goes beyond simple mapping by cross-referencing terrain data with the 
   "payload_version": "1.0",
   "status": "Success",
   "profile_used": "cycling-road",
+  "metadata": {
+    "analyzed_date": "2026-04-28T12:58:33.209965+00:00",
+    "api_extras": [
+      "waytype",
+      "surface"
+    ]
+  },
   "tactical_briefing": {
-    "distance_km": 81.18,
-    "elevation_gain_m": 1055,
+    "distance_km": 109.29,
+    "elevation_gain_m": 1254,
     "climb_category": "Hors Catégorie (HC) - Legendary Challenge",
-    "avg_gradient_est": "2.9%",
-    "technical_difficulty": {
-      "mtb_scale": "Standard / Unclassified",
-      "trail_visibility": "Excellent",
-      "technical_notes": "Technical grading based on OSM mountain standards.",
-      "fitness_context": "Evaluated for intermediate level"
-    },
-    "mud_risk": {
-      "score": 10.26,
-      "label": "Medium",
-      "details": "Damp sections. Expect reduced traction on off-camber roots.",
-      "environmental_factors": {
-        "raw_rain_72h": "11.9mm",
-        "avg_temp": "17.6°C",
-        "drying_efficiency": "1.16x",
-        "shadow_penalty_active": "No",
-        "solar_altitude": "47.0°"
-      }
+    "avg_gradient_est": "2.5%",
+    "mud_intelligence": {
+      "score": 0,
+      "label": "Unknown",
+      "traction_risk": "Low",
+      "trail_damage_risk": "Low",
+      "dry_time_eta": "Ready Now",
+      "safety_advice": "Check local conditions."
     }
   },
   "mechanical_setup": {
     "compatible": true,
-    "bike_category": "ROAD",
-    "setup_details": "700c wheels | 71.4 PSI (4.92 Bar) [Mud Flotation Setup]",
-    "rider_weight_baseline": "80.0kg"
+    "setup_details": "700c wheels | 86.0 PSI (5.93 Bar) [Efficiency Setup]",
+    "bike_type": "Road"
   },
   "surface_breakdown": [
     {
       "type": "Paved",
-      "percentage": "59.1%"
+      "percentage": "67.4%"
     },
     {
       "type": "Unknown",
-      "percentage": "40.2%"
+      "percentage": "29.1%"
     },
     {
       "type": "Asphalt",
+      "percentage": "2.7%"
+    },
+    {
+      "type": "Concrete",
       "percentage": "0.4%"
     },
     {
-      "type": "Concrete",
+      "type": "Grass",
       "percentage": "0.3%"
+    },
+    {
+      "type": "Other",
+      "percentage": "0.1%"
     }
   ],
+  "emtb_tactical": null,
   "safety_warnings": [
-    "MUD ALERT: Damp sections. Expect reduced traction on off-camber roots."
-  ]
-}
-```
-
-**Example Output (JSON) for Gravel:**
-```json
-{
-  "payload_version": "1.0",
-  "status": "Success",
-  "profile_used": "cycling-road",
-  "tactical_briefing": {
-    "distance_km": 47.47,
-    "elevation_gain_m": 1000,
-    "climb_category": "Category 2 - Hard Climb",
-    "avg_gradient_est": "4.7%",
-    "technical_difficulty": {
-      "mtb_scale": "Standard / Unclassified",
-      "trail_visibility": "Excellent",
-      "technical_notes": "Technical grading based on OSM mountain standards.",
-      "fitness_context": "Evaluated for intermediate level"
-    },
-    "mud_risk": {
-      "score": 10.26,
-      "label": "Medium",
-      "details": "Damp sections. Expect reduced traction on off-camber roots.",
-      "environmental_factors": {
-        "raw_rain_72h": "11.9mm",
-        "avg_temp": "17.6°C",
-        "drying_efficiency": "1.16x",
-        "shadow_penalty_active": "No",
-        "solar_altitude": "47.2°"
-      }
-    }
-  },
-  "mechanical_setup": {
-    "compatible": true,
-    "bike_category": "GRAVEL",
-    "setup_details": "700c wheels | 28.9 PSI (1.99 Bar) [Mud Flotation Setup]",
-    "rider_weight_baseline": "80.0kg"
-  },
-  "surface_breakdown": [
-    {
-      "type": "Paved",
-      "percentage": "60.2%"
-    },
-    {
-      "type": "Unknown",
-      "percentage": "38.5%"
-    },
-    {
-      "type": "Asphalt",
-      "percentage": "0.7%"
-    },
-    {
-      "type": "Concrete",
-      "percentage": "0.6%"
-    }
-  ],
-  "safety_warnings": [
-    "MUD ALERT: Damp sections. Expect reduced traction on off-camber roots."
+    "Traction Alert: 0.3% is Grass. 25mm tires may slip in wet/loose conditions."
   ]
 }
 ```
@@ -750,81 +702,81 @@ This tool goes beyond simple mapping by cross-referencing terrain data with the 
 {
   "payload_version": "1.0",
   "status": "Success",
-  "profile_used": "cycling-mountain",
+  "profile_used": "cycling-electric",
+  "metadata": {
+    "analyzed_date": "2026-04-28T12:59:43.240941+00:00",
+    "api_extras": [
+      "waytype",
+      "surface"
+    ]
+  },
   "tactical_briefing": {
-    "distance_km": 10.12,
-    "elevation_gain_m": 586,
+    "distance_km": 79.74,
+    "elevation_gain_m": 1137,
     "climb_category": "Hors Catégorie (HC) - Legendary Challenge",
-    "avg_gradient_est": "19.3%",
-    "technical_difficulty": {
-      "mtb_scale": "Standard / Unclassified",
-      "trail_visibility": "Excellent",
-      "technical_notes": "Technical grading based on OSM mountain standards.",
-      "fitness_context": "Evaluated for intermediate level"
-    },
-    "mud_risk": {
-      "score": 24.19,
-      "label": "High",
-      "details": "Significant saturation. High risk of sliding in technical sectors.",
-      "environmental_factors": {
-        "raw_rain_72h": "25.6mm",
-        "avg_temp": "17.4°C",
-        "drying_efficiency": "1.06x",
-        "shadow_penalty_active": "No",
-        "solar_altitude": "52.5°"
-      }
+    "avg_gradient_est": "3.2%",
+    "mud_intelligence": {
+      "score": 0,
+      "label": "Unknown",
+      "traction_risk": "Low",
+      "trail_damage_risk": "Low",
+      "dry_time_eta": "Ready Now",
+      "safety_advice": "Check local conditions."
     }
   },
   "mechanical_setup": {
     "compatible": true,
-    "bike_category": "MTB",
-    "setup_details": "29 wheels | 19.6 PSI (1.35 Bar) [Mud Flotation Setup]",
-    "rider_weight_baseline": "80.0kg"
+    "setup_details": "29 wheels | 24.0 PSI (1.65 Bar) [Standard Setup]",
+    "bike_type": "E-MTB"
   },
   "surface_breakdown": [
     {
       "type": "Unknown",
-      "percentage": "40.9%"
+      "percentage": "56.9%"
     },
     {
       "type": "Paved",
-      "percentage": "27.0%"
+      "percentage": "38.0%"
     },
     {
       "type": "Asphalt",
-      "percentage": "9.5%"
-    },
-    {
-      "type": "Compact",
-      "percentage": "8.4%"
-    },
-    {
-      "type": "Grass",
-      "percentage": "8.0%"
-    },
-    {
-      "type": "Concrete",
       "percentage": "3.4%"
     },
     {
+      "type": "Other",
+      "percentage": "0.9%"
+    },
+    {
+      "type": "Concrete",
+      "percentage": "0.4%"
+    },
+    {
       "type": "Unpaved",
-      "percentage": "2.9%"
+      "percentage": "0.2%"
+    },
+    {
+      "type": "Grass",
+      "percentage": "0.1%"
     }
   ],
   "emtb_tactical": {
-    "estimated_drain_wh": 1518,
-    "remaining_battery_pct": 0,
-    "safety_buffer_status": "CRITICAL",
-    "breakdown_wh": {
-      "horizontal_base": 121.4,
-      "vertical_climb": 221.4,
-      "terrain_friction": 1175.1
-    }
+    "status": "Success",
+    "battery_metrics": {
+      "estimated_drain_wh": 190.3,
+      "remaining_battery_pct": 62.5,
+      "safety_buffer_status": "SAFE",
+      "usable_wh_at_temp": 581.2
+    },
+    "power_breakdown_w": {
+      "gravity_resistance": 69.2,
+      "rolling_resistance": 72.8,
+      "aerodynamic_drag": 34.5,
+      "rider_contribution": 140,
+      "motor_net_output": 36.5
+    },
+    "tactical_advice": "Pace maintained"
   },
-  "safety_warnings": [
-    "MUD ALERT: Significant saturation. High risk of sliding in technical sectors.",
-    "RANGE ANXIETY: SoC at finish is 0.0%. Drop to Eco!"
-  ]
+  "safety_warnings": []
 }
 ```
 
@@ -895,7 +847,7 @@ A predictive safety tool that cross-references geological surface data with hist
 * **Rain History Audit:** Automatically fetches cumulative rainfall from the last 72 hours using the Open-Meteo Archive API.
 * **Geological Sensitivity:** Differentiates how rain affects various terrains, calculating saturation levels for surfaces like clay, dirt, sand, and gravel.
 * **Mud Risk Score:** Provides a localized risk rating (Low/Medium/High) to help cyclists prevent drivetrain damage and avoid unrideable sections.
-* **TAEL (Terrain-Aware Evaporation Lag):** A tactical model that cross-references 72h rainfall and geological drainage with real-time solar altitude to predict trail saturation and "Shadow-Lock" mud persistence.
+* **TAEL v3.0 (Terrain-Aware Evaporation Lag)**: A high-fidelity reservoir model that replaces static daily sums with an hourly recursive engine ($M_t = M_{t-1} \cdot e^{-k \cdot D_t} + R_t$), integrating time-step rainfall, non-linear clay drainage physics, and cumulative solar energy to predict traction risks and provide a precise "Dry-Time" ETA.
 
 #### **Parameters:**
 | Parameter | Type | Default | Description |
@@ -908,24 +860,29 @@ A predictive safety tool that cross-references geological surface data with hist
 #### **Example Output (JSON):**
 ```json
 {
+  "payload_version": "1.0",
   "status": "Success",
   "metadata": {
-    "target_date": "2026-05-10",
-    "is_predictive": true
+    "target_date": "2026-04-27T22:25:05.786299+00:00",
+    "is_predictive": false,
+    "model_version": "TAEL v3.0"
   },
   "environmental_context": {
-    "cumulative_rain_72h": "18.5mm",
-    "avg_temp": "14.2°C",
-    "drying_efficiency": "0.65x",
-    "shadow_penalty_active": "Yes",
-    "solar_altitude": "58.4°"
+    "total_rain_72h_mm": 0,
+    "integrated_pet_hours": 30,
+    "reservoir_moisture_mm": 0
   },
   "tactical_analysis": {
-    "adjusted_moisture_index": 28.46,
-    "mud_risk_score": "High",
-    "mud_risk_numeric": 34.2,
-    "surface_type": "clay",
-    "safety_advice": "Significant saturation. High risk of sliding in technical sectors. Heavy clay sticking likely to affect drivetrain and tire clearance."
+    "surface_type": "dirt",
+    "traction_risk": {
+      "level": "Low",
+      "advice": "Maximum grip. Surface is hardpack and fast."
+    },
+    "trail_damage_risk": {
+      "level": "Low",
+      "advice": "Trail structure is solid. No rutting expected."
+    },
+    "dry_time_eta": "Ready Now"
   }
 }
 ```
@@ -1274,25 +1231,52 @@ A post-ride tactical diagnostic tool that fuses actual Strava GPS telemetry with
 
 ```json
 {
+  "payload_version": "1.0",
   "status": "Success",
-  "mission_briefing": {
-    "name": "Afternoon Mountain Bike Session",
-    "date": "2026-03-11",
-    "distance_km": 41.26,
-    "elevation_gain_m": 709.3,
-    "avg_speed_kmh": 15.0
+  "mission_id": "xxxxxx",
+  "debriefing_summary": {
+    "name": "Sessione di mountain biking pomeridiana",
+    "actual_avg_speed": "15.0 km/h",
+    "actual_vam": "258 m/h",
+    "worst_encountered_mud": 0
   },
-  "environmental_validation": {
-    "mud_risk": "Low",
-    "moisture_index": 9.01,
-    "weather_advice": "❌ NOT RECOMMENDED: High risk of heavy rain or dangerous wind gusts.",
-    "conditions_at_start": {
-      "temp": 17.1,
-      "rain_prob": 53,
-      "wind_speed": 32.0
+  "spatio_temporal_logs": [
+    {
+      "timestamp": "2025-06-04T15:13:26+00:00",
+      "location": [
+        41.718848,
+        12.65801
+      ],
+      "mud_score": 0,
+      "wind_speed": 0
+    },
+    {
+      "timestamp": "2025-06-04T16:36:02+00:00",
+      "location": [
+        41.744515,
+        12.800712
+      ],
+      "mud_score": 0,
+      "wind_speed": 0
+    },
+    {
+      "timestamp": "2025-06-04T18:00:47+00:00",
+      "location": [
+        41.722348,
+        12.661549
+      ],
+      "mud_score": 0,
+      "wind_speed": 0
+    }
+  ],
+  "tactical_calibration": {
+    "efficiency_scoring": "Performance matched environmental expectations.",
+    "suggested_profile_update": {
+      "climbing_efficiency": "Standard",
+      "mud_penalty_factor": "Accurate"
     }
   },
-  "tactical_notes": "Analysis based on asphalt surface coefficients. GPS data validated."
+  "mechanical_feedback": "Tire pressure refinement suggested based on speed-to-saturation correlation."
 }
 ```
 
@@ -1302,11 +1286,11 @@ A post-ride tactical diagnostic tool that fuses actual Strava GPS telemetry with
 The **Physiological Intelligence Engine** of BikeScout. This tool translates environmental and mission data into a concrete fueling strategy, preventing dehydration and "bonking" (hypoglycemia) by bridging the gap between terrain data and human physiology.
 
 #### **Functionality:**
-* **Dynamic Hydration Modeling:** Calculates sweat rates by cross-referencing real-time peak temperatures from the `check_trail_weather` module with planned mission duration.
-* **Carbohydrate Strategy:** Predicts glycogen depletion and targets specific replenishment rates (**30g to 90g/hr**) based on the `intensity_score`.
-* **Environmental Fusion:** Automatically adjusts the "Base Rate" of 500ml/hr by adding **100ml for every 5°C** above the 20°C threshold.
-* **Safety Thresholds:** Triggers specific **Electrolyte & Sodium alerts** if temperatures exceed **28°C** or if the mission duration exceeds **3 hours**.
-
+* **Continuous Sweat Rate Modeling**: Replaces rigid step-functions with a linear regression model. It calculates fluid loss by integrating a 300ml/hr base rate, a thermal coefficient (+30ml per 1°C above 15°C), and metabolic heat generated by the Intensity Factor.
+* **Metabolic Scaling (Intensity Factor)**: Corrects previous scaling bugs by mapping the 1-5 score to a standardized Intensity Factor (0.60 to 1.05). This ensures a realistic variance in fuel demand between recovery rides and high-threshold race missions.
+* **Dynamic Carbohydrate Optimization**: Predicts glycogen depletion to target replenishment rates from 40g up to 120g/hr. The system automatically recommends a 2:1 Glucose-to-Fructose ratio for targets exceeding 60g/hr to optimize gut absorption and prevent GI distress.
+* **Precision Electrolyte Estimation**: Moves beyond generic warnings to provide a calculated Sodium Target (mg/hr). It correlates sodium loss to estimated sweat volume at a physiological rate of 800mg/L, providing specific dosage instructions for bottles.
+* **Predictive "Bonk" & Heat Alerts**: Tactical triggers detect high-risk scenarios, such as Thermoregulatory Strain (Temp > 28°C) or Sub-Surface Depletion (High Intensity + Duration > 2.5h), issuing critical mission-saving briefings.
 #### **Parameters:**
 
 | Parameter | Type | Default | Description |
@@ -1322,20 +1306,25 @@ The **Physiological Intelligence Engine** of BikeScout. This tool translates env
 {
   "payload_version": "1.0",
   "weather_context": {
-    "date_referenced": "2026-04-23",
-    "max_temp_detected": "19.2°C",
+    "date_referenced": "2026-04-28",
+    "max_temp_detected": "18.3°C",
     "is_future_event": false
   },
   "status": "Success",
   "mission_nutrition_briefing": {
     "fluids": {
-      "total_liters": 1.1,
-      "hourly_rate_ml": 575
+      "total_liters": 3.1,
+      "hourly_rate_ml": 624
     },
     "carbohydrates": {
-      "total_grams": 120,
-      "hourly_target_g": 60,
-      "intensity_context": "Moderate"
+      "total_grams": 200,
+      "hourly_target_g": 40,
+      "recommended_ratio": "Standard isotonic or whole foods",
+      "intensity_context": "Endurance / Recovery"
+    },
+    "electrolytes": {
+      "total_sodium_mg": 2496,
+      "hourly_sodium_mg": 499
     },
     "tactical_advice": []
   }

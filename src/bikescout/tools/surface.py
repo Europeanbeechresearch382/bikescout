@@ -243,7 +243,7 @@ def get_surface_analyzer(api_key, lat, lon, rider, bike, mission, target_date: s
             surface_map = {0: "Unknown", 1: "Asphalt", 2: "Unpaved", 3: "Paved", 5: "Gravel", 11: "Grass", 14: "Concrete"}
             dominant_surface = _extract_dominant_surface(extras.get('surface', {}), surface_map)
 
-            # Mud Analysis (TAEL v2.5)
+            # Mud Analysis
             mud_analysis = get_mud_risk_analysis(lat, lon, dominant_surface, target_date)
             t_analysis = mud_analysis.get("tactical_analysis") or {}
 
@@ -305,6 +305,9 @@ def get_surface_analyzer(api_key, lat, lon, rider, bike, mission, target_date: s
                     "mud_intelligence": {
                         "score": mud_score_val,
                         "label": t_analysis.get("mud_risk_score", "Unknown"),
+                        "traction_risk": t_analysis.get("traction_risk", {}).get("level", "Unknown"),
+                        "trail_damage_risk": t_analysis.get("trail_damage_risk", {}).get("level", "Unknown"),
+                        "dry_time_eta": t_analysis.get("dry_time_eta", "N/A"),
                         "safety_advice": t_analysis.get("safety_advice", "Check local conditions.")
                     }
                 },
